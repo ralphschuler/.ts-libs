@@ -1,5 +1,5 @@
-import { BaseAnimation } from "./BaseAnimation";
-import { write } from "../Logger";
+import { BaseAnimation } from "./BaseAnimation.js";
+import { write } from "../Logger.js";
 
 const MAX_MESSAGE_LENGTH = 20;
 
@@ -8,16 +8,14 @@ export class ProgressBarAnimation extends BaseAnimation {
   private currentStep: number = 0;
   private originalMessage: string = "";
 
-  constructor(totalSteps: number, ...args: any[]) {
-    super(write, [], 100, ...args);
+  constructor(totalSteps: number) {
+    super(write, [], 100);
     this.totalSteps = totalSteps;
-    super.frames = this.generateProgressBarFrames();
+    this.frames = this.generateProgressBarFrames();
   }
 
   private patchMessage(): void {
-    const percentage = Math.floor(
-      (this.currentStep / this.totalSteps) * 100
-    );
+    const percentage = Math.floor((this.currentStep / this.totalSteps) * 100);
     const percentageString = `${percentage.toString().padStart(3, " ")}%`;
     const stepString = `${this.currentStep
       .toString()
@@ -38,9 +36,10 @@ export class ProgressBarAnimation extends BaseAnimation {
     this.patchMessage();
   }
 
-  private moveToNextFrame() {
+  protected moveToNextFrame() {
     if (this.currentFrameIndex < this.currentStep) {
-      this.currentFrameIndex = (this.currentFrameIndex + 1) % this.frames.length;
+      this.currentFrameIndex =
+        (this.currentFrameIndex + 1) % this.frames.length;
     }
   }
 
@@ -48,9 +47,10 @@ export class ProgressBarAnimation extends BaseAnimation {
     const frames: string[] = [];
 
     for (let i = 0; i <= this.totalSteps; i++) {
-      const progressBarLength = process.stdout.columns - this.originalMessage.length - 34;
+      const progressBarLength =
+        process.stdout.columns - this.originalMessage.length - 34;
       const progressBar = "█".repeat(
-        Math.floor(progressBarLength * (i / this.totalSteps))
+        Math.floor(progressBarLength * (i / this.totalSteps)),
       );
       const emptySpace = "▒".repeat(progressBarLength - progressBar.length);
       const progressBarString = `${progressBar}${emptySpace}`;
@@ -60,7 +60,7 @@ export class ProgressBarAnimation extends BaseAnimation {
     }
 
     return frames;
-  }ä
+  }
 
   setProgress(step: number) {
     if (step >= 0 && step <= this.totalSteps) {

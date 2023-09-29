@@ -1,12 +1,12 @@
-import { SimpleObservable } from '../SimpleObservable';
+import { SimpleObservable } from '../SimpleObservable.js';
 
-export const done = () => (observable) => {
+export const done = () => (observable: any) => {
     return new SimpleObservable((observer) => {
         return observable.subscribe({
-            next: (value) => {
+            next: (value: any) => {
                 observer.next(value);
             },
-            error: (error) => {
+            error: (error: any) => {
                 observer.error(error);
             },
             complete: () => {

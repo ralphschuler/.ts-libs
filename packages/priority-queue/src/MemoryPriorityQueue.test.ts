@@ -1,7 +1,7 @@
 import { describe, it, beforeEach } from "node:test";
 import assert from "node:assert/strict";
-import { ComparatorFunction } from "./types/ComparatorFunction";
-import { MemoryPriorityQueue } from "./MemoryPriorityQueue";
+import { ComparatorFunction } from "./types/ComparatorFunction.js";
+import { MemoryPriorityQueue } from "./MemoryPriorityQueue.js";
 
 describe("MemoryPriorityQueue", () => {
   let memoryPriorityQueue: MemoryPriorityQueue<number>;
@@ -9,7 +9,7 @@ describe("MemoryPriorityQueue", () => {
   // Using a simple comparator function for numbers
   const comparatorFunction: ComparatorFunction<number> = (
     a: number,
-    b: number
+    b: number,
   ) => a - b;
 
   beforeEach(() => {

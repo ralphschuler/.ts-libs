@@ -1,4 +1,4 @@
-import { Task } from "../types/Task";
+import { Task } from "../types/Task.js";
 
 /**
  * Represents the interface for a task manager.
@@ -11,9 +11,9 @@ export interface ITaskManager {
    * @param priority The priority of the task.
    * @returns The created task.
    */
-  addTask<Payload extends any, Response extends any>(
+  addTask<Payload extends {}, Response extends {}>(
     method: (payload: Payload) => Promise<Response>,
+    priority?: number,
     args?: Payload,
-    priority?: number
-  ): Task<Payload, Response>;
+  ): Promise<Task<Payload, Response>>;
 }

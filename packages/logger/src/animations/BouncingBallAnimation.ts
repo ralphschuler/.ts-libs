@@ -1,8 +1,8 @@
-import { BaseAnimation } from "./BaseAnimation";
-import { write } from "../Logger";
+import { BaseAnimation } from "./BaseAnimation.js";
+import { write } from "../Logger.js";
 
 export class BouncingBallAnimation extends BaseAnimation {
-  constructor(...args: any[]) {
+  constructor() {
     super(
       write,
       [
@@ -41,8 +41,7 @@ export class BouncingBallAnimation extends BaseAnimation {
         "[●         ]",
         "[●         ]",
       ],
-      100,
-      ...args
+      100
     );
   }
 }

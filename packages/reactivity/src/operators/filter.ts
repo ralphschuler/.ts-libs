@@ -1,14 +1,14 @@
-import { SimpleObservable } from '../SimpleObservable';
+import { SimpleObservable } from '../SimpleObservable.js';
 
-export const filter = (predicate) => (observable) => {
+export const filter = (predicate: any) => (observable: any) => {
     return new SimpleObservable((observer) => {
         return observable.subscribe({
-            next: (value) => {
+            next: (value: any) => {
                 if (predicate(value)) {
                     observer.next(value);
                 }
             },
-            error: (error) => {
+            error: (error: any) => {
                 observer.error(error);
             },
             complete: () => {

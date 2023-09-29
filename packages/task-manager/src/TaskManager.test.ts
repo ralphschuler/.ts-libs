@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { TaskManager } from "./TaskManager";
+import { TaskManager } from "./TaskManager.js";
 
 const mockAsyncFunction = async (payload: any) => {
   await new Promise((resolve) => setTimeout(resolve, 100));

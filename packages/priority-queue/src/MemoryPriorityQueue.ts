@@ -1,8 +1,8 @@
-import { Logger } from "../Logger/Logger";
-import { ComparatorFunction } from "./types/ComparatorFunction";
-import { Optional } from "./types/Optional";
-import { PriorityQueueOptions } from "./types/PriorityQueueOptions";
-import { AbstractPriorityQueue } from "./AbstractPriorityQueue";
+import { Logger } from "@lib-lib/logger";
+import { ComparatorFunction } from "./types/ComparatorFunction.js";
+import { Optional } from "./types/Optional.js";
+import { PriorityQueueOptions } from "./types/PriorityQueueOptions.js";
+import { AbstractPriorityQueue } from "./AbstractPriorityQueue.js";
 
 const logger = Logger.getInstance();
 

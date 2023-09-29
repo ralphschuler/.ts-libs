@@ -1,4 +1,4 @@
-import { IMessage } from "../interfaces/IMessage";
+import { IMessage } from "../interfaces/IMessage.js";
 
 export class BaseAnimation {
   protected frames: string[];
@@ -24,19 +24,19 @@ export class BaseAnimation {
     this.message = message;
   }
 
-  private clearCurrentLine() {
+  protected clearCurrentLine() {
     this.message = "";
     this.proxy.clear();
   }
 
-  private printCurrentFrame() {
+  protected printCurrentFrame() {
     const output =
       this.frames[this.currentFrameIndex] +
       (this.message ? ` ${this.message}` : "");
     this.proxy.update(output);
   }
 
-  private moveToNextFrame() {
+  protected moveToNextFrame() {
     this.currentFrameIndex = (this.currentFrameIndex + 1) % this.frames.length;
   }
 

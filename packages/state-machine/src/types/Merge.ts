@@ -4,4 +4,6 @@
  * @template T - Tuple of types to be merged.
  * @typedef {T extends [infer Head, ...infer Rest] ? Head & Merge<Rest> : {}} Merge
  */
-export type Merge<T extends any[]> = T extends [infer Head, ...infer Rest] ? Head & Merge<Rest> : {};
+export type Merge<T extends any[]> = T extends [infer Head, ...infer Rest]
+  ? Head & Merge<Rest>
+  : {};

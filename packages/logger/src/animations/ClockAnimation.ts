@@ -1,26 +1,12 @@
-import { BaseAnimation } from "./BaseAnimation";
-import { write } from "../Logger";
+import { BaseAnimation } from "./BaseAnimation.js";
+import { write } from "../Logger.js";
 
 export class ClockAnimation extends BaseAnimation {
-  constructor(...args: any[]) {
+  constructor() {
     super(
       write,
-      [
-        "🕛",
-        "🕐",
-        "🕑",
-        "🕒",
-        "🕓",
-        "🕔",
-        "🕕",
-        "🕖",
-        "🕗",
-        "🕘",
-        "🕙",
-        "🕚",
-      ],
+      ["🕛", "🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚"],
       300,
-      ...args
     );
   }
 }

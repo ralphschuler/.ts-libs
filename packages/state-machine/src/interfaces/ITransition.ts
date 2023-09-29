@@ -1,6 +1,6 @@
-import { Action } from "../types/Action";
-import { Guard } from "../types/Guard";
-import { TransitionTarget } from "../types/TransitionTarget";
+import { Action } from "../types/Action.js";
+import { Guard } from "../types/Guard.js";
+import { TransitionTarget } from "../types/TransitionTarget.js";
 
 /**
  * Represents a transition configuration.

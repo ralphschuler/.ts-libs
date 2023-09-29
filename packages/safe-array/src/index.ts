@@ -1,6 +1,6 @@
 export class SafeArray<T> {
   private array: Array<T>;
-  private addQueue: Array<T>];
+  private addQueue: Array<T>;
   private removeQueue: Array<T>;
 
   public constructor(items?: Array<T> ) {

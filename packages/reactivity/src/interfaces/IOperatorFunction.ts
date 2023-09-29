@@ -1,4 +1,4 @@
-import { IObservable } from './IObservable';
+import { IObservable } from './IObservable.js';
 
 /**
  * Represents a function that transforms an observable sequence.

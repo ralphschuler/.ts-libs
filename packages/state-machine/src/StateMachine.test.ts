@@ -1,8 +1,8 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { IStateConfig } from "./interfaces/IStateConfig";
-import { StateMachine } from "./StateMachine";
-import { Merge } from "./types/Merge";
+import { IStateConfig } from "./interfaces/IStateConfig.js";
+import { StateMachine } from "./StateMachine.js";
+import { Merge } from "./types/Merge.js";
 
 describe("StateMachine", async () => {
   // Define the example states, events, and payloads
@@ -15,7 +15,7 @@ describe("StateMachine", async () => {
     START: {};
     ON_ERROR: {};
     COMPLETE: {};
-  }
+  };
   type ExamplePayloads = Merge<[ExampleStates, ExampleEvents]>;
 
   const stateConfig: Record<
@@ -63,7 +63,7 @@ describe("StateMachine", async () => {
     const observer = (
       state: keyof ExampleStates,
       previousState: keyof ExampleStates,
-      payload: ExamplePayloads[keyof ExamplePayloads]
+      payload: ExamplePayloads[keyof ExamplePayloads],
     ) => {
       assert.notStrictEqual(state, previousState);
     };
@@ -105,7 +105,12 @@ describe("StateMachine", async () => {
 
     const stateConfigWithSubMachine: Record<
       keyof ExampleStates,
-      IStateConfig<ExampleStates, ExampleEvents, ExamplePayloads, SubMachineEvents>
+      IStateConfig<
+        ExampleStates,
+        ExampleEvents,
+        ExamplePayloads,
+        SubMachineEvents
+      >
     > = {
       IDLE: {
         on: {
@@ -113,7 +118,10 @@ describe("StateMachine", async () => {
             target: "PROCESS",
           },
         },
-        subMachine: new StateMachine<any, SubMachineEvents, any>("IDLE", subStateConfig),
+        subMachine: new StateMachine<any, SubMachineEvents, any>(
+          "IDLE",
+          subStateConfig,
+        ),
       },
       PROCESS: {
         on: {
@@ -141,7 +149,6 @@ describe("StateMachine", async () => {
   });
 
   it("should handle sub-machine transitions with payload", async () => {
-    
     type SubMachineStates = {
       IDLE: {};
       PROCESS: {};
@@ -174,7 +181,12 @@ describe("StateMachine", async () => {
 
     const stateConfigWithSubMachine: Record<
       keyof ExampleStates,
-      IStateConfig<ExampleStates, ExampleEvents, ExamplePayloads, SubMachineEvents>
+      IStateConfig<
+        ExampleStates,
+        ExampleEvents,
+        ExamplePayloads,
+        SubMachineEvents
+      >
     > = {
       IDLE: {
         on: {
@@ -182,7 +194,10 @@ describe("StateMachine", async () => {
             target: "PROCESS",
           },
         },
-        subMachine: new StateMachine<any, SubMachineEvents, any>("IDLE", subStateConfig),
+        subMachine: new StateMachine<any, SubMachineEvents, any>(
+          "IDLE",
+          subStateConfig,
+        ),
       },
       PROCESS: {
         on: {
@@ -256,14 +271,10 @@ describe("StateMachine", async () => {
       ExampleEvents,
       ExamplePayloads
     >("IDLE")
-      .addTransition("IDLE", "START", "PROCESS", async () => {
-      })
-      .addTransition("PROCESS", "COMPLETE", "IDLE", async () => {
-      })
-      .addTransition("IDLE", "ON_ERROR", "ERROR", async () => {
-      })
-      .addTransition("ERROR", "START", "IDLE", async () => {
-      });
+      .addTransition("IDLE", "START", "PROCESS", async () => {})
+      .addTransition("PROCESS", "COMPLETE", "IDLE", async () => {})
+      .addTransition("IDLE", "ON_ERROR", "ERROR", async () => {})
+      .addTransition("ERROR", "START", "IDLE", async () => {});
 
     await stateMachine.transition("START");
     assert.strictEqual(stateMachine.getCurrentState(), "PROCESS");

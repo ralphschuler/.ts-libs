@@ -1,13 +1,13 @@
-import { ProgressAnimation } from "./animations/ProgressAnimation";
-import { c } from "./Color";
-import { LogLevel } from "./enums/LogLevel";
-import readline from "node:readline";
-import { IMessage } from "./interfaces/IMessage";
+import { ProgressAnimation } from "./animations/ProgressAnimation.js";
+import { c } from "./Color.js";
+import { LogLevel } from "./enums/LogLevel.js";
+import * as readline from "node:readline";
+import { IMessage } from "./interfaces/IMessage.js";
 
 export class Logger {
   private outputFormat: string;
   private breadcrumbs: string[];
-  private buffer: string[]
+  private buffer: IMessage[];
   private level: LogLevel;
   private stdout: NodeJS.WriteStream;
 
@@ -15,7 +15,7 @@ export class Logger {
   public static getInstance(
     outputFormat: string = "{timestamp} - {level} - {message}",
     level?: LogLevel,
-    stdout = process.stdout
+    stdout = process.stdout,
   ): Logger {
     if (!Logger.instance) {
       Logger.instance = new Logger(outputFormat, level, stdout);
@@ -32,16 +32,16 @@ export class Logger {
   private constructor(
     outputFormat: string = "{timestamp} - {level} - {message}",
     level?: LogLevel,
-    stdout = process.stdout
+    stdout = process.stdout,
   ) {
     this.outputFormat = outputFormat;
     this.breadcrumbs = [];
     this.buffer = [];
     this.stdout = stdout;
     this.level =
-      level || parseInt(process.env.LOG_LEVEL)
-        ? (parseInt(process.env.LOG_LEVEL) as LogLevel)
-        : LogLevel[process.env.LOG_LEVEL as keyof LogLevel] || LogLevel.DEBUG;
+      level || (process.env.LOG_LEVEL !== undefined && parseInt(process.env.LOG_LEVEL))
+        ? (parseInt(process.env.LOG_LEVEL!) as LogLevel)
+        : LogLevel.DEBUG;
   }
 
   /**
@@ -65,7 +65,7 @@ export class Logger {
       .replace("{timestamp}", this.getCurrentTimestamp())
       .replace(
         "{level}",
-        Object.keys(LogLevel)[Object.values(LogLevel).indexOf(level)]
+        Object.keys(LogLevel)[Object.values(LogLevel).indexOf(level)],
       )
       .replace("{message}", message);
 
@@ -81,19 +81,19 @@ export class Logger {
           case "number":
             formattedMessage = formattedMessage.replace(
               placeholder,
-              value.toString()
+              value.toString(),
             );
             break;
           case "boolean":
             formattedMessage = formattedMessage.replace(
               placeholder,
-              value.toString()
+              value.toString(),
             );
             break;
           default:
             formattedMessage = formattedMessage.replace(
               placeholder,
-              JSON.stringify(value)
+              JSON.stringify(value),
             );
             break;
         }
@@ -120,37 +120,37 @@ export class Logger {
     return this.write(formattedMessage);
   }
 
-  public write(message: string): IMessage  {
-    const maxRows = this.stdout.rows || 25
+  public write(message: string): IMessage {
+    const maxRows = this.stdout.rows || 25;
     const messageObject: IMessage = {
-      content: message,
+      value: message,
       index: this.buffer.length,
       update: (newMessage: string): void => {
-        if (messageObject.content === newMessage) {
+        if (messageObject.value === newMessage) {
           return;
         }
         const invertedIndex = this.buffer.length - messageObject.index;
         readline.cursorTo(this.stdout, 0, maxRows - invertedIndex);
         readline.clearLine(this.stdout, 1);
-        messageObject.content = newMessage;
+        messageObject.value = newMessage;
         this.stdout.write(`${newMessage}`);
       },
       clear: (): void => {
         const invertedIndex = this.buffer.length - messageObject.index;
         readline.cursorTo(this.stdout, 0, maxRows - invertedIndex);
         readline.clearLine(this.stdout, 1);
-      }
-    }
+      },
+    };
 
     this.buffer = this.buffer.map((messageObject) => ({
       ...messageObject,
-      index: messageObject.index
+      index: messageObject.index,
     }));
     this.buffer.push(messageObject);
 
     readline.cursorTo(this.stdout, 0, maxRows);
     readline.clearLine(this.stdout, 1);
-    this.stdout.write(`\n${messageObject.content}`);
+    this.stdout.write(`\n${messageObject.value}`);
 
     return messageObject;
   }
@@ -162,18 +162,18 @@ export class Logger {
    * @returns A wrapped version of the method that profiles its execution time.
    */
   async profile<Response extends any = void>(
-    method: () => Promise<Response>,
-    name?: string
+    method: Promise<Response>,
+    name?: string,
   ): Promise<Response> {
-    const animation = new ProgressAnimation(this);
-    animation.start(`Profiling method '${name || method.name}'`);
+    const animation = new ProgressAnimation();
+    animation.start(`Profiling method '${name || 'anonymous'}'`);
     const start = process.hrtime();
-    return method.finally(() => {
+    return await method.finally(() => {
       const elapsed = process.hrtime(start);
 
       const elapsedMs = elapsed[0] * 1000 + elapsed[1] / 1e6;
       const profileMessage = `Method '${
-        name || method.name
+        name || 'anonymous'
       }' took ${elapsedMs.toFixed(4)}ms.`;
       animation.stop(profileMessage);
     });
@@ -181,9 +181,9 @@ export class Logger {
 
   profileSync<Response extends any = void>(
     method: () => Response,
-    name?: string
+    name?: string,
   ): Response {
-    const animation = new ProgressAnimation(this);
+    const animation = new ProgressAnimation();
     animation.start(`Profiling sync method '${name || method.name}'`);
     const start = process.hrtime();
     const result = method();
@@ -259,11 +259,7 @@ export class Logger {
    * @param message - The log message.
    * @param meta - Additional metadata for the log message.
    */
-  logAtLevel(
-    level: LogLevel,
-    message: string,
-    ...meta: any
-  ): IMessage | void {
+  logAtLevel(level: LogLevel, message: string, ...meta: any): IMessage | void {
     return this.log(level, message, ...meta);
   }
 
@@ -280,7 +276,7 @@ export class Logger {
    */
   showBreadcrumbs(): void {
     this.breadcrumbs.forEach((breadcrumb, index) => {
-      this.log.trace(`${index + 1}. ${breadcrumb}`);
+      this.trace(`${index + 1}. ${breadcrumb}`);
     });
   }
 }

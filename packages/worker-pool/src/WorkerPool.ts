@@ -1,7 +1,6 @@
-import { Worker, isMainThread, workerData } from "worker_threads";
-import { ExecutionMethod } from "./types/ExecutionMethod";
-import { Task } from "./types/Task";
-import { Logger } from "../Logger/Logger";
+import { Worker } from "worker_threads";
+import { Task } from "./types/Task.js";
+import { Logger } from "@lib-lib/logger";
 
 const logger = Logger.getInstance();
 
@@ -30,7 +29,7 @@ export class WorkerPool {
    */
   constructor(poolSize: number) {
     this.poolSize = poolSize;
-    logger.profileSync(this.initializeWorkers.bind(this), 'initializeWorkers')
+    logger.profileSync(this.initializeWorkers.bind(this), "initializeWorkers");
   }
 
   /**
@@ -63,7 +62,7 @@ export class WorkerPool {
   private initializeWorkers() {
     try {
       for (let i = 0; i < this.poolSize; i++) {
-        logger.profileSync(() => this.createWorker(i), "createWorker")
+        logger.profileSync(() => this.createWorker(i), "createWorker");
       }
     } catch (error) {
       logger.error("Error initializing workers: " + error);
@@ -80,10 +79,16 @@ export class WorkerPool {
       const worker = new Worker(script, { eval: true });
 
       worker.on("message", (message: any) =>
-        logger.profileSync(() => this.handleWorkerResponse(message, worker), "handleWorkerResponse")
+        logger.profileSync(
+          () => this.handleWorkerResponse(message, worker),
+          "handleWorkerResponse",
+        ),
       );
       worker.on("error", (error: Error) =>
-        logger.profileSync(() => this.handleWorkerError(error, worker), "handleWorkerError")
+        logger.profileSync(
+          () => this.handleWorkerError(error, worker),
+          "handleWorkerError",
+        ),
       );
 
       this.idleWorkers.push(worker);
@@ -100,12 +105,18 @@ export class WorkerPool {
    */
   private async handleWorkerResponse(
     { id, result, error }: any,
-    worker: Worker
+    worker: Worker,
   ): Promise<void> {
     try {
       const task = this.activeTasks.find((t) => t.id === id);
       if (!task) {
-        return logger.error("Task with id " + id + " does not exist active tasks " + this.activeTasks.length);
+        logger.error(
+          "Task with id " +
+            id +
+            " does not exist active tasks " +
+            this.activeTasks.length,
+        );
+        return;
       }
 
       if (result) {
@@ -114,11 +125,11 @@ export class WorkerPool {
         task.reject(error);
       }
 
-      this.activeTasks = this.activeTasks.filter((t) => t.id !== id)
+      this.activeTasks = this.activeTasks.filter((t) => t.id !== id);
     } catch (error) {
       logger.error("Error handling message: " + error);
     } finally {
-      logger.profileSync(() => this.releaseWorker(worker), "releaseWorker")
+      logger.profileSync(() => this.releaseWorker(worker), "releaseWorker");
     }
   }
 
@@ -150,7 +161,9 @@ export class WorkerPool {
     try {
       const task = this.idleTasks.shift();
       if (task) {
-        logger.info(`Assigning task with id ${task.id} to worker ${worker.threadId}...`);
+        logger.info(
+          `Assigning task with id ${task.id} to worker ${worker.threadId}...`,
+        );
         this.activeTasks.push(task);
         worker.postMessage({
           id: task.id,
@@ -174,7 +187,7 @@ export class WorkerPool {
    */
   public async executeMethod<Payload extends [], Response extends any = void>(
     method: (...args: Payload) => Promise<Response>,
-    args: Payload
+    args: Payload,
   ): Promise<Response> {
     try {
       let resolveFn: (value: Response) => void;
@@ -188,7 +201,7 @@ export class WorkerPool {
         id: this.taskIndex,
         resolve: resolveFn!,
         reject: rejectFn!,
-        method: method.toString(),
+        method: method,
         args: args,
       };
 
@@ -208,6 +221,7 @@ export class WorkerPool {
       return logger.profile(promise, "executeMethod");
     } catch (error) {
       logger.error("Error executing method: " + error);
+      throw error;
     }
   }
 

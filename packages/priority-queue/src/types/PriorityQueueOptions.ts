@@ -1,4 +1,4 @@
-import { ComparatorFunction } from "./ComparatorFunction";
+import { ComparatorFunction } from "./ComparatorFunction.js";
 
 /**
  * Represents options for initializing a PriorityQueue.
@@ -6,4 +6,4 @@ import { ComparatorFunction } from "./ComparatorFunction";
  */
 export type PriorityQueueOptions<T> = {
   comparatorFunction: ComparatorFunction<T>;
-}
+};

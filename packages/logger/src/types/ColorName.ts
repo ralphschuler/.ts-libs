@@ -7,6 +7,7 @@ export type ColorName =
   | "reverse"
   | "hidden"
   | "black"
+  | "orange"
   | "red"
   | "green"
   | "yellow"
@@ -14,11 +15,14 @@ export type ColorName =
   | "magenta"
   | "cyan"
   | "white"
+  | "gray"
   | "bgBlack"
   | "bgRed"
+  | "bgOrange"
   | "bgGreen"
   | "bgYellow"
   | "bgBlue"
   | "bgMagenta"
   | "bgCyan"
-  | "bgWhite";
+  | "bgWhite"
+  | "bgGray";

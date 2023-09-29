@@ -1,6 +1,6 @@
-import { ComparatorFunction } from "./types/ComparatorFunction";
-import { Optional } from "./types/Optional";
-import { PriorityQueueOptions } from "./types/PriorityQueueOptions";
+import { ComparatorFunction } from "./types/ComparatorFunction.js";
+import { Optional } from "./types/Optional.js";
+import { PriorityQueueOptions } from "./types/PriorityQueueOptions.js";
 
 export abstract class AbstractPriorityQueue<T> {
   protected comparatorFunction: ComparatorFunction<T>;
@@ -10,12 +10,12 @@ export abstract class AbstractPriorityQueue<T> {
   }
 
   public abstract get length(): number;
-  protected abstract async getEntry(index: number): Promise<T | null>;
-  protected abstract async setEntry(
+  protected abstract getEntry(index: number): Promise<T | null>;
+  protected abstract setEntry(
     index: number,
-    value: T | null
+    value: T | null,
   ): Promise<void>;
-  public abstract async clear(): Promise<void>;
+  public abstract clear(): Promise<void>;
 
   public async enqueue(value: T): Promise<void> {
     try {
@@ -116,8 +116,8 @@ export abstract class AbstractPriorityQueue<T> {
       if (
         leftChildIndex !== null &&
         (await this.comparatorFunction(
-          await this.getEntry(leftChildIndex),
-          await this.getEntry(swapCandidateIndex)
+          await this.getEntry(leftChildIndex) as T,
+          await this.getEntry(swapCandidateIndex) as T,
         )) < 0
       ) {
         swapCandidateIndex = leftChildIndex;
@@ -126,8 +126,8 @@ export abstract class AbstractPriorityQueue<T> {
       if (
         rightChildIndex !== null &&
         (await this.comparatorFunction(
-          await this.getEntry(rightChildIndex),
-          await this.getEntry(swapCandidateIndex)
+          await this.getEntry(rightChildIndex) as T,
+          await this.getEntry(swapCandidateIndex) as T,
         )) < 0
       ) {
         swapCandidateIndex = rightChildIndex;

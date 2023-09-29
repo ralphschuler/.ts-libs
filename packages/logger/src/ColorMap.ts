@@ -1,3 +1,5 @@
+import { ColorName } from "./types/ColorName.js";
+
 export const ColorMap: Record<ColorName, string> = {
   reset: "\x1b[0m",
   bright: "\x1b[1m",
@@ -8,6 +10,7 @@ export const ColorMap: Record<ColorName, string> = {
   hidden: "\x1b[8m",
   black: "\x1b[30m",
   red: "\x1b[31m",
+  orange: "\x1b[38;5;208m",
   green: "\x1b[32m",
   yellow: "\x1b[33m",
   blue: "\x1b[34m",
@@ -24,4 +27,5 @@ export const ColorMap: Record<ColorName, string> = {
   bgCyan: "\x1b[46m",
   bgWhite: "\x1b[47m",
   bgGray: "\x1b[48m",
+  bgOrange: "\x1b[49m",
 };

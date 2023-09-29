@@ -1,6 +1,6 @@
-import { Observer } from "../types/Observer";
-import { IOperatorFunction } from "./IOperatorFunction";
-import { ISubscription } from "./ISubscription";
+import { Observer } from "../types/Observer.js";
+import { IOperatorFunction } from "./IOperatorFunction.js";
+import { ISubscription } from "./ISubscription.js";
 
 /**
  * Represents an observable sequence that can be subscribed to.

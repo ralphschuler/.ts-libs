@@ -1,13 +1,12 @@
-import { BaseAnimation } from "./BaseAnimation";
-import { write } from "../Logger";
+import { BaseAnimation } from "./BaseAnimation.js";
+import { write } from "../Logger.js";
 
 export class VerticalBarAnimation extends BaseAnimation {
-  constructor(...args: any[]) {
+  constructor() {
     super(
       write,
-      ['▁','▃','▄','▅','▆','▇','█','▇','▆','▅','▄','▃'],
-      100,
-      ...args
+      ["▁", "▃", "▄", "▅", "▆", "▇", "█", "▇", "▆", "▅", "▄", "▃"],
+      100
     );
   }
 }

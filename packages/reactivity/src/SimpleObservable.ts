@@ -1,9 +1,9 @@
-import { SimpleSubscription } from "./SimpleSubscription";
-import { IObservable } from "./interfaces/IObservable";
-import { IOperatorFunction } from "./interfaces/IOperatorFunction";
-import { ISubscription } from "./interfaces/ISubscription";
-import { Observer } from "./types/Observer";
-import { Logger } from "../Logger/Logger";
+import { SimpleSubscription } from "./SimpleSubscription.js";
+import { IObservable } from "./interfaces/IObservable.js";
+import { IOperatorFunction } from "./interfaces/IOperatorFunction.js";
+import { ISubscription } from "./interfaces/ISubscription.js";
+import { Observer } from "./types/Observer.js";
+import { Logger } from "@lib-lib/logger";
 
 const logger = Logger.getInstance();
 
@@ -76,6 +76,7 @@ export class SimpleObservable<T> implements IObservable<T> {
       });
     } catch (error) {
       logger.error("Failed subscribing: " + error);
+      throw error;
     }
   }
 
@@ -97,6 +98,7 @@ export class SimpleObservable<T> implements IObservable<T> {
       );
     } catch (error) {
       logger.error("Failed piping operators: " + error);
+      throw error;
     }
   }
 }

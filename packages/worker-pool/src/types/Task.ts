@@ -1,4 +1,3 @@
-import { ExecutionMethod } from './ExecutionMethod';
 
 /**
  * Represents a task to be executed in a worker.

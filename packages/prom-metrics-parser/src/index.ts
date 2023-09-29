@@ -1,4 +1,4 @@
-type MetricType = 'counter' | 'gauge' | 'histogram' | 'summary' | 'untyped';
+type MetricType = "counter" | "gauge" | "histogram" | "summary" | "untyped";
 type MetricValue = string | number;
 
 interface Metric {
@@ -15,7 +15,7 @@ interface Sample {
 }
 
 const isValidMetricType = (type: string): type is MetricType => {
-  return ['counter', 'gauge', 'histogram', 'summary', 'untyped'].includes(type);
+  return ["counter", "gauge", "histogram", "summary", "untyped"].includes(type);
 };
 
 const parseLine = (line: string): string[] => {
@@ -25,8 +25,8 @@ const parseLine = (line: string): string[] => {
 const parseTypeAndHelp = (line: string, currentMetric: Metric): void => {
   const [prefix, name, ...rest] = parseLine(line);
 
-  if (prefix === '# TYPE') {
-    const type = rest.join(' ');
+  if (prefix === "# TYPE") {
+    const type = rest.join(" ");
 
     if (!isValidMetricType(type)) {
       throw new Error(`Invalid metric type: ${type}`);
@@ -36,18 +36,18 @@ const parseTypeAndHelp = (line: string, currentMetric: Metric): void => {
     currentMetric.type = type;
   }
 
-  if (prefix === '# HELP') {
-    const help = rest.join(' ');
+  if (prefix === "# HELP") {
+    const help = rest.join(" ");
     currentMetric.help = help;
   }
 };
 
 const parseLabels = (labelsStr: string): { [key: string]: string } => {
   const labels: { [key: string]: string } = {};
-  const labelPairs = labelsStr.slice(1, -1).split(',');
+  const labelPairs = labelsStr.slice(1, -1).split(",");
 
   for (const pair of labelPairs) {
-    const [key, val] = pair.split('=');
+    const [key, val] = pair.split("=");
     labels[key] = val.slice(1, -1);
   }
 
@@ -65,7 +65,7 @@ const parseSample = (line: string): Sample => {
   const match = /^([a-zA-Z_:][a-zA-Z0-9_:]*)(\{.*\})?$/.exec(sampleStr);
 
   if (!match) {
-    throw new Error('Invalid sample line');
+    throw new Error("Invalid sample line");
   }
 
   const [, sampleName, labelsStr] = match;
@@ -75,15 +75,18 @@ const parseSample = (line: string): Sample => {
 };
 
 const parsePrometheusMetrics = (metricsText: string): Metric[] => {
-  const lines = metricsText.split('\n');
+  const lines = metricsText.split("\n");
   const metrics: Metric[] = [];
   let currentMetric: Metric | null = null;
 
   for (const line of lines) {
     const trimmedLine = line.trim();
 
-    if (trimmedLine === '' || trimmedLine.startsWith('#')) {
-      if (currentMetric && (trimmedLine.startsWith('# TYPE') || trimmedLine.startsWith('# HELP'))) {
+    if (trimmedLine === "" || trimmedLine.startsWith("#")) {
+      if (
+        currentMetric &&
+        (trimmedLine.startsWith("# TYPE") || trimmedLine.startsWith("# HELP"))
+      ) {
         parseTypeAndHelp(trimmedLine, currentMetric);
       }
       continue;
@@ -91,9 +94,9 @@ const parsePrometheusMetrics = (metricsText: string): Metric[] => {
 
     if (!currentMetric) {
       currentMetric = {
-        name: '',
-        type: 'untyped',
-        help: '',
+        name: "",
+        type: "untyped",
+        help: "",
         samples: [],
       };
       metrics.push(currentMetric);

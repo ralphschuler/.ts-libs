@@ -1,25 +1,24 @@
-import { BaseAnimation } from "./BaseAnimation";
-import { write } from "../Logger";
+import { BaseAnimation } from "./BaseAnimation.js";
+import { write } from "../Logger.js";
 
 export class BombAnimation extends BaseAnimation {
-  constructor(...args: any[]) {
+  constructor() {
     super(
       write,
       [
-        '[💣   ]',
-        '[ 💣  ]',
-        '[  💣 ]',
-        '[   💣]',
-        '[   💣]',
-        '[   💣]',
-        '[   💣]',
-        '[   💣]',
-        '[   💥]',
-        '[     ]',
-        '[     ]'
+        "[💣   ]",
+        "[ 💣  ]",
+        "[  💣 ]",
+        "[   💣]",
+        "[   💣]",
+        "[   💣]",
+        "[   💣]",
+        "[   💣]",
+        "[   💥]",
+        "[     ]",
+        "[     ]",
       ],
       200,
-      ...args
     );
   }
 }

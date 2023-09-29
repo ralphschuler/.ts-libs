@@ -1,13 +1,8 @@
-import { BaseAnimation } from "./BaseAnimation";
-import { write } from "../Logger";
+import { BaseAnimation } from "./BaseAnimation.js";
+import { write } from "../Logger.js";
 
 export class SpinnerAnimation extends BaseAnimation {
-  constructor(...args: any[]) {
-    super(
-      write,
-      ["-", "\\", "|", "/"],
-      200,
-      ...args
-    );
+  constructor() {
+    super(write, ["-", "\\", "|", "/"], 200);
   }
 }
