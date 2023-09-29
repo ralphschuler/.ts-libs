@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "prepare": "yarn workspaces foreach -A run prepare",
+    "build": "yarn workspaces foreach -A run build",
+    "test": "yarn workspaces foreach -A run test",
+    "lint": "yarn workspaces foreach -A run lint",
+    "format": "yarn workspaces foreach -A run format",
+    "clean": "yarn workspaces foreach -A run clean"
+  },
+  "packageManager": "yarn@4.0.0-rc.51"
+}
