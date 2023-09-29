@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 
 // Types and Decorators
-type BasicDataType = "number" | "boolean";
-type DataType = BasicDataType | { type: "string", length: number } | { type: "array", itemType: DataType, itemCount: number } | { type: "Serialized", class: Function };
+export type BasicDataType = "number" | "boolean";
+export type DataType = BasicDataType | { type: "string", length: number } | { type: "array", itemType: DataType, itemCount: number } | { type: "Serialized", class: Function };
 
 function addSchema(target: any, propertyKey: string, typeData: DataType) {
   let schema = Reflect.getMetadata("schema", target) || {};
@@ -58,7 +58,7 @@ export function AsArray(itemType: DataType | Function, itemCount: number) {
     }
   };
 }
-class BinarySerializer {
+export class BinarySerializer {
   private buffer: Buffer;
   private offset: number;
   private schema: { [key: string]: DataType };
