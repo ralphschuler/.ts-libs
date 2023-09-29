@@ -10,7 +10,8 @@
     "lint": "yarn workspaces foreach -Apt run lint",
     "lint:fix": "yarn workspaces foreach -Apt run lint:fix",
     "format": "yarn workspaces foreach -Apt run format",
-    "clean": "yarn workspaces foreach -Apt run clean"
+    "clean": "yarn workspaces foreach -Apt run clean",
+    "prepublish": "yarn build"
   },
   "packageManager": "yarn@4.0.0-rc.51"
 }

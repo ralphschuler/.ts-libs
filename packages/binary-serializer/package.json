@@ -28,7 +28,8 @@
     "lint": "eslint src/ --ext .ts",
     "lint:fix": "eslint src/ --ext .ts --fix",
     "format": "prettier --write src/",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "prepublish": "yarn build"
   },
   "dependencies": {
     "reflect-metadata": "^0.1.13"

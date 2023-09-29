@@ -29,7 +29,8 @@
     "lint": "eslint src/ --ext .ts",
     "lint:fix": "eslint src/ --ext .ts --fix",
     "format": "prettier --write src/",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "prepublish": "yarn build"
   },
   "dependencies": {
     "mongodb": "^6.1.0"
