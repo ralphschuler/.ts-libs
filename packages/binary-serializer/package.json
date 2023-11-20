@@ -33,9 +33,11 @@
     "lint:fix": "eslint src/ --ext .ts --fix",
     "format": "prettier --write src/",
     "clean": "rimraf dist",
-    "prepublish": "yarn build"
+    "prepublish": "yarn build",
+    "start": "tsx src/index.ts"
   },
   "dependencies": {
-    "reflect-metadata": "^0.1.13"
+    "reflect-metadata": "^0.1.13",
+    "tsx": "^4.1.4"
   }
 }

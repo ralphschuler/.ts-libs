@@ -1,5 +1,5 @@
 {
-  "name": "@lib-lib/prom-metrics-decorator",
+  "name": "@lib-lib/slot-mashine",
   "version": "1.0.0",
   "license": "MIT",
   "type": "module",
@@ -37,7 +37,7 @@
     "start": "tsx src/index.ts"
   },
   "dependencies": {
-    "prom-client": "^14.2.0",
+    "readline": "^1.3.0",
     "tsx": "^4.1.4"
   }
 }
