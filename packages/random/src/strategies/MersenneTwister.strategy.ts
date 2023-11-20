@@ -1,6 +1,6 @@
-import { PseudoRandomNumberGenerator } from "../PseudoRandomNumberGenerator";
-import { Seed } from "../Seed";
-import { Buffer } from 'node:buffer';
+import { PseudoRandomNumberGenerator } from "../PseudoRandomNumberGenerator.js";
+import { Seed } from "../Seed.js";
+import { Buffer } from "node:buffer";
 
 export class MersenneTwister extends PseudoRandomNumberGenerator {
   private N: number = 624;
@@ -24,12 +24,17 @@ export class MersenneTwister extends PseudoRandomNumberGenerator {
       this.mt[0] = s;
       for (this.mti = 1; this.mti < this.N; this.mti++) {
         const s = this.mt[this.mti - 1] ^ (this.mt[this.mti - 1] >>> 30);
-        this.mt[this.mti] = (((((s & 0xffff0000) >>> 16) * 1812433253) << 16) +
-          (s & 0x0000ffff) * 1812433253 + this.mti) >>> 0;
+        this.mt[this.mti] =
+          (((((s & 0xffff0000) >>> 16) * 1812433253) << 16) +
+            (s & 0x0000ffff) * 1812433253 +
+            this.mti) >>>
+          0;
       }
       this.updateSeed();
     } catch (error: any) {
-      throw new Error(`[Mersenne Twister] Error initializing Mersenne Twister: ${error.message}`);
+      throw new Error(
+        `[Mersenne Twister] Error initializing Mersenne Twister: ${error.message}`,
+      );
     }
   }
 
@@ -41,7 +46,9 @@ export class MersenneTwister extends PseudoRandomNumberGenerator {
       }
       this.seed = buffer;
     } catch (error: any) {
-      throw new Error(`[Mersenne Twister] Error updating seed: ${error.message}`);
+      throw new Error(
+        `[Mersenne Twister] Error updating seed: ${error.message}`,
+      );
     }
   }
 
@@ -53,14 +60,21 @@ export class MersenneTwister extends PseudoRandomNumberGenerator {
       if (this.mti >= this.N) {
         let kk: number;
         for (kk = 0; kk < this.N - this.M; kk++) {
-          y = (this.mt[kk] & this.UPPER_MASK) | (this.mt[kk + 1] & this.LOWER_MASK);
+          y =
+            (this.mt[kk] & this.UPPER_MASK) |
+            (this.mt[kk + 1] & this.LOWER_MASK);
           this.mt[kk] = this.mt[kk + this.M] ^ (y >>> 1) ^ mag01[y & 0x1];
         }
         for (; kk < this.N - 1; kk++) {
-          y = (this.mt[kk] & this.UPPER_MASK) | (this.mt[kk + 1] & this.LOWER_MASK);
-          this.mt[kk] = this.mt[kk + (this.M - this.N)] ^ (y >>> 1) ^ mag01[y & 0x1];
+          y =
+            (this.mt[kk] & this.UPPER_MASK) |
+            (this.mt[kk + 1] & this.LOWER_MASK);
+          this.mt[kk] =
+            this.mt[kk + (this.M - this.N)] ^ (y >>> 1) ^ mag01[y & 0x1];
         }
-        y = (this.mt[this.N - 1] & this.UPPER_MASK) | (this.mt[0] & this.LOWER_MASK);
+        y =
+          (this.mt[this.N - 1] & this.UPPER_MASK) |
+          (this.mt[0] & this.LOWER_MASK);
         this.mt[this.N - 1] = this.mt[this.M - 1] ^ (y >>> 1) ^ mag01[y & 0x1];
 
         this.mti = 0;
@@ -77,7 +91,9 @@ export class MersenneTwister extends PseudoRandomNumberGenerator {
 
       return y >>> 0;
     } catch (error: any) {
-      throw new Error(`[Mersenne Twister] Error generating random number: ${error.message}`);
+      throw new Error(
+        `[Mersenne Twister] Error generating random number: ${error.message}`,
+      );
     }
   }
 
@@ -85,7 +101,9 @@ export class MersenneTwister extends PseudoRandomNumberGenerator {
     try {
       return this.genrand_int32() * (1.0 / 4294967296.0);
     } catch (error: any) {
-      throw new Error(`[Mersenne Twister] Error generating random number: ${error.message}`);
+      throw new Error(
+        `[Mersenne Twister] Error generating random number: ${error.message}`,
+      );
     }
   }
 }

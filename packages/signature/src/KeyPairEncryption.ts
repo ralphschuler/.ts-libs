@@ -1,14 +1,24 @@
-import { IEncryptedKeys } from "./interfaces";
+import { IEncryptedKeys } from "./interfaces/index.js";
 import { Buffer } from "node:buffer";
 import crypto, { CryptoKey } from "node:crypto";
 
 export class KeyPairEncryption {
-  static async encrypt(privateKey: CryptoKey, publicKey: CryptoKey, passphrase: string): Promise<IEncryptedKeys> {
+  static async encrypt(
+    privateKey: CryptoKey,
+    publicKey: CryptoKey,
+    passphrase: string,
+  ): Promise<IEncryptedKeys> {
     const privateKeyData = await crypto.subtle.exportKey("pkcs8", privateKey);
     const publicKeyData = await crypto.subtle.exportKey("spki", publicKey);
 
     const passphraseBuffer = Buffer.from(passphrase, "utf-8");
-    const passphraseKey = await crypto.subtle.importKey("raw", passphraseBuffer, "PBKDF2", false, ["deriveKey"]);
+    const passphraseKey = await crypto.subtle.importKey(
+      "raw",
+      passphraseBuffer,
+      "PBKDF2",
+      false,
+      ["deriveKey"],
+    );
 
     const iv = crypto.getRandomValues(new Uint8Array(16));
     const derivedKey = await crypto.subtle.deriveKey(
@@ -16,42 +26,56 @@ export class KeyPairEncryption {
       passphraseKey,
       { name: "AES-CBC", length: 256 },
       false,
-      ["encrypt"]
+      ["encrypt"],
     );
 
     const encryptedPrivateKey = await crypto.subtle.encrypt(
       { name: "AES-CBC", iv: iv },
       derivedKey,
-      privateKeyData
+      privateKeyData,
     );
 
     return {
       privateKey: {
         data: encryptedPrivateKey,
-        iv: iv
+        iv: iv,
       },
-      publicKey: publicKeyData
+      publicKey: publicKeyData,
     };
   }
 
-  static async decrypt(encryptedKeys: IEncryptedKeys, passphrase: string): Promise<{ privateKey: CryptoKey, publicKey: CryptoKey }> {
+  static async decrypt(
+    encryptedKeys: IEncryptedKeys,
+    passphrase: string,
+  ): Promise<{ privateKey: CryptoKey; publicKey: CryptoKey }> {
     const { privateKey, publicKey } = encryptedKeys;
 
     const passphraseBuffer = Buffer.from(passphrase, "utf-8");
-    const passphraseKey = await crypto.subtle.importKey("raw", passphraseBuffer, "PBKDF2", false, ["deriveKey"]);
+    const passphraseKey = await crypto.subtle.importKey(
+      "raw",
+      passphraseBuffer,
+      "PBKDF2",
+      false,
+      ["deriveKey"],
+    );
 
     const derivedKey = await crypto.subtle.deriveKey(
-      { name: "PBKDF2", salt: privateKey.iv, iterations: 10000, hash: "SHA-256" },
+      {
+        name: "PBKDF2",
+        salt: privateKey.iv,
+        iterations: 10000,
+        hash: "SHA-256",
+      },
       passphraseKey,
       { name: "AES-CBC", length: 256 },
       false,
-      ["decrypt"]
+      ["decrypt"],
     );
 
     const decryptedPrivateKeyData = await crypto.subtle.decrypt(
       { name: "AES-CBC", iv: privateKey.iv },
       derivedKey,
-      privateKey.data
+      privateKey.data,
     );
 
     const decryptedPrivateKey = await crypto.subtle.importKey(
@@ -59,7 +83,7 @@ export class KeyPairEncryption {
       decryptedPrivateKeyData,
       { name: "RSA-PSS", hash: "SHA-256" }, // Changed to RSA-OAEP
       false,
-      ["sign"]
+      ["sign"],
     );
 
     const decryptedPublicKey = await crypto.subtle.importKey(
@@ -67,7 +91,7 @@ export class KeyPairEncryption {
       publicKey,
       { name: "RSA-PSS", hash: "SHA-256" }, // Changed to RSA-OAEP
       false,
-      ["verify"]
+      ["verify"],
     );
 
     return { privateKey: decryptedPrivateKey, publicKey: decryptedPublicKey };

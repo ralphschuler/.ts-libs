@@ -1,5 +1,5 @@
-import { PseudoRandomNumberGenerator } from "../PseudoRandomNumberGenerator";
-import { Seed } from "../Seed";
+import { PseudoRandomNumberGenerator } from "../PseudoRandomNumberGenerator.js";
+import { Seed } from "../Seed.js";
 import { Buffer } from 'node:buffer';
 
 export class XORShift extends PseudoRandomNumberGenerator {

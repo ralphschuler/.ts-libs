@@ -1,7 +1,7 @@
-import { ClassOrInstance } from "./types";
-import { PseudoRandomNumberGenerator } from "./PseudoRandomNumberGenerator";
-import { Seed } from "./Seed";
-import { Buffer } from 'node:buffer';
+import { ClassOrInstance } from "./types/index.js";
+import { PseudoRandomNumberGenerator } from "./PseudoRandomNumberGenerator.js";
+import { Seed } from "./Seed.js";
+import { Buffer } from "node:buffer";
 
 export type ItemSymbol = symbol | string | number;
 
@@ -17,16 +17,32 @@ export class PseudoRandomItemSelector<T extends ItemSymbol> {
 
   constructor(items: Item<T>[]);
   constructor(items: Item<T>[], seed: Seed);
-  constructor(items: Item<T>[], rng: ClassOrInstance<PseudoRandomNumberGenerator>);
-  constructor(items: Item<T>[], rng?: ClassOrInstance<PseudoRandomNumberGenerator>, seed?: Seed);
-  constructor(items: Item<T>[], rngOrSeed?: ClassOrInstance<PseudoRandomNumberGenerator> | Seed, seed?: Seed) {
+  constructor(
+    items: Item<T>[],
+    rng: ClassOrInstance<PseudoRandomNumberGenerator>,
+  );
+  constructor(
+    items: Item<T>[],
+    rng?: ClassOrInstance<PseudoRandomNumberGenerator>,
+    seed?: Seed,
+  );
+  constructor(
+    items: Item<T>[],
+    rngOrSeed?: ClassOrInstance<PseudoRandomNumberGenerator> | Seed,
+    seed?: Seed,
+  ) {
     this.items = items;
 
     if (rngOrSeed instanceof PseudoRandomNumberGenerator) {
       this.rng = rngOrSeed;
     } else if (typeof rngOrSeed === "function") {
       this.rng = new rngOrSeed(
-        seed || new Seed(Buffer.alloc(32).fill(0).map((_: any, i: number) => i))
+        seed ||
+          new Seed(
+            Buffer.alloc(32)
+              .fill(0)
+              .map((_: any, i: number) => i),
+          ),
       );
     } else if (rngOrSeed) {
       this.rng = new PseudoRandomNumberGenerator(rngOrSeed);
@@ -37,7 +53,7 @@ export class PseudoRandomItemSelector<T extends ItemSymbol> {
     // Normalize the weights if total weight exceeds 100%
     const totalWeight = this.items.reduce(
       (sum, item) => sum + item.weightPercentage,
-      0
+      0,
     );
     const normalizationFactor = totalWeight > 100 ? 100 / totalWeight : 1;
     const normalizedItems = this.items.map((item) => ({
@@ -54,7 +70,7 @@ export class PseudoRandomItemSelector<T extends ItemSymbol> {
   public select(): T {
     const totalWeight = this.items.reduce(
       (sum, item) => sum + item.weightPercentage,
-      0
+      0,
     );
 
     // Normalize the weights if total weight exceeds 100%

@@ -1,5 +1,5 @@
-import { PseudoRandomNumberGenerator } from "../PseudoRandomNumberGenerator";
-import { Seed } from "../Seed";
+import { PseudoRandomNumberGenerator } from "../PseudoRandomNumberGenerator.js";
+import { Seed } from "../Seed.js";
 import { Buffer } from "node:buffer";
 
 export class WichmannHill extends PseudoRandomNumberGenerator {
@@ -29,7 +29,9 @@ export class WichmannHill extends PseudoRandomNumberGenerator {
 
       return r;
     } catch (error: any) {
-      throw new Error(`[WichmannHill] Error generating random number: ${error.message}`);
+      throw new Error(
+        `[WichmannHill] Error generating random number: ${error.message}`,
+      );
     }
   }
 
@@ -49,7 +51,9 @@ export class WichmannHill extends PseudoRandomNumberGenerator {
     try {
       return Math.floor(this.nextFloat() * (max - min + 1)) + min;
     } catch (error: any) {
-      throw new Error(`[WichmannHill] Error generating random number: ${error.message}`);
+      throw new Error(
+        `[WichmannHill] Error generating random number: ${error.message}`,
+      );
     }
   }
 }

@@ -1,5 +1,5 @@
-import { Fortuna } from "./Fortuna.strategy";
-import { Seed } from "../Seed";
+import { Fortuna } from "./Fortuna.strategy.js";
+import { Seed } from "../Seed.js";
 import { RedisClient } from "redis";
 import { Buffer } from "node:buffer";
 
@@ -24,7 +24,9 @@ export class RedisFortuna extends Fortuna {
         }
       });
     } catch (error: any) {
-      throw new Error(`[RedisFortuna] Error subscribing to Redis channel: ${error.message}`);
+      throw new Error(
+        `[RedisFortuna] Error subscribing to Redis channel: ${error.message}`,
+      );
     }
   }
 }

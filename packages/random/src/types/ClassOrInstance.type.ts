@@ -1,4 +1,4 @@
-import { ConstructorFunction } from "./ConstructorFunction.type";
+import { ConstructorFunction } from "./ConstructorFunction.type.js";
 import { ConstructorParametersOf } from "./ConstructorParametersOf.type";
 
 /**
@@ -6,4 +6,6 @@ import { ConstructorParametersOf } from "./ConstructorParametersOf.type";
  * with constructor arguments automatically inferred.
  * Restricts to only allow class types.
  */
-export type ClassOrInstance<T> = T extends object ? (T | ConstructorFunction<T, ConstructorParametersOf<ConstructorFunction<T>>>) : never;
+export type ClassOrInstance<T> = T extends object
+  ? T | ConstructorFunction<T, ConstructorParametersOf<ConstructorFunction<T>>>
+  : never;

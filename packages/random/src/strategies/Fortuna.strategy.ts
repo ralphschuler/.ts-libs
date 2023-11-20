@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
-import { Buffer } from 'node:buffer';
-import { PseudoRandomNumberGenerator } from "../PseudoRandomNumberGenerator";
-import { Seed } from "../Seed";
+import { Buffer } from "node:buffer";
+import { PseudoRandomNumberGenerator } from "../PseudoRandomNumberGenerator.js";
+import { Seed } from "../Seed.js";
 
 export class Fortuna extends PseudoRandomNumberGenerator {
   private pools: Buffer[];
@@ -14,13 +14,18 @@ export class Fortuna extends PseudoRandomNumberGenerator {
   constructor(seed: Seed) {
     super(seed);
     this.pools = Array(32).fill(Buffer.alloc(this.keySize));
-    this.cipherKey = Buffer.alloc(this.keySize).fill(0).map((_: any, i: number) => this.seed[i % this.seed.length]);
+    this.cipherKey = Buffer.alloc(this.keySize)
+      .fill(0)
+      .map((_: any, i: number) => this.seed[i % this.seed.length]);
   }
 
   // Function to add entropy (random events) to the pools
   public addEvent(event: Buffer, poolIndex: number = this.autoPoolIndex) {
     try {
-      this.pools[poolIndex] = crypto.createHash('sha256').update(Buffer.concat([this.pools[poolIndex], event])).digest();
+      this.pools[poolIndex] = crypto
+        .createHash("sha256")
+        .update(Buffer.concat([this.pools[poolIndex], event]))
+        .digest();
       this.autoPoolIndex = (this.autoPoolIndex + 1) % 32;
     } catch (error: any) {
       throw new Error(`[Fortuna] Error adding event to pool: ${error.message}`);
@@ -30,7 +35,7 @@ export class Fortuna extends PseudoRandomNumberGenerator {
   // Create a seeded hash using crypto
   private createSeededHash(data: Buffer): Buffer {
     try {
-      const hash = crypto.createHmac('sha256', this.cipherKey);
+      const hash = crypto.createHmac("sha256", this.cipherKey);
       hash.update(data);
       return hash.digest();
     } catch (error: any) {
@@ -53,7 +58,10 @@ export class Fortuna extends PseudoRandomNumberGenerator {
   private reseed() {
     try {
       if (this.reseedCounter >= 10000) {
-        this.cipherKey = this.pools.reduce((acc, val) => Buffer.concat([acc, val]), Buffer.alloc(0));
+        this.cipherKey = this.pools.reduce(
+          (acc, val) => Buffer.concat([acc, val]),
+          Buffer.alloc(0),
+        );
         this.reseedCounter = 0;
       }
     } catch (error: any) {
@@ -69,7 +77,9 @@ export class Fortuna extends PseudoRandomNumberGenerator {
       this.reseedCounter++;
       return super.nextFloat();
     } catch (error: any) {
-      throw new Error(`[Fortuna] Error generating random number: ${error.message}`);
+      throw new Error(
+        `[Fortuna] Error generating random number: ${error.message}`,
+      );
     }
   }
 
@@ -81,7 +91,9 @@ export class Fortuna extends PseudoRandomNumberGenerator {
       this.reseedCounter++;
       return super.nextInt(min, max);
     } catch (error: any) {
-      throw new Error(`[Fortuna] Error generating random number: ${error.message}`);
+      throw new Error(
+        `[Fortuna] Error generating random number: ${error.message}`,
+      );
     }
   }
 }

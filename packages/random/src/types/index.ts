@@ -1,3 +1,3 @@
-export * from "./ClassOrInstance.type"
-export * from "./ConstructorFunction.type"
-export * from "./ConstructorParametersOf.type"
+export * from "./ClassOrInstance.type.js";
+export * from "./ConstructorFunction.type.js";
+export * from "./ConstructorParametersOf.type.js";

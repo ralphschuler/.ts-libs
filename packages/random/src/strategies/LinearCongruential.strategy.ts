@@ -1,6 +1,6 @@
-import { PseudoRandomNumberGenerator } from "../PseudoRandomNumberGenerator";
+import { PseudoRandomNumberGenerator } from "../PseudoRandomNumberGenerator.js";
 import { Buffer } from 'node:buffer';
-import { Seed } from "../Seed";
+import { Seed } from "../Seed.js";
 
 export class LinearCongruential extends PseudoRandomNumberGenerator {
 

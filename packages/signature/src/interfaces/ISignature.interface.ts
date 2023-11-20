@@ -1,5 +1,5 @@
-import { ISerializableSignaturePayload } from "./ISerializableSignaturePayload.interface";
-import { ISignatureHeader } from "./ISignatureHeader.interface";
+import { ISerializableSignaturePayload } from "./ISerializableSignaturePayload.interface.js";
+import { ISignatureHeader } from "./ISignatureHeader.interface.js";
 
 export interface ISignature<T extends ISerializableSignaturePayload> {
   header: ISignatureHeader;

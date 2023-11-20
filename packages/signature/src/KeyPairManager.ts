@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
-import { IKeyPair, IEncryptedKeys } from "./interfaces";
-import { NoKeyPairGeneratedError, UnknownKeyIdError } from "./errors";
-import { KeyPairEncryption } from "./KeyPairEncryption";
+import { IKeyPair, IEncryptedKeys } from "./interfaces/index.js";
+import { NoKeyPairGeneratedError, UnknownKeyIdError } from "./errors/index.js";
+import { KeyPairEncryption } from "./KeyPairEncryption.js";
 
 export class KeyPairManager {
   private keyIdToKeyPairMap: Map<string, IKeyPair> = new Map();
