@@ -15,40 +15,48 @@ jobs:
 
   lint:
     needs: list-packages
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         package: ${{ fromJson(needs.list-packages.outputs.packages) }}
-    uses: ./.github/workflows/lint-code.yml
-    with:
-      node_version: '20'
-      package_name: "${{ matrix.package }}"
+    steps:
+      - uses: ./.github/workflows/lint-code.yml
+        with:
+          node_version: '20'
+          package_name: "${{ matrix.package }}"
 
   format:
     needs: [list-packages, lint]
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         package: ${{ fromJson(needs.list-packages.outputs.packages) }}
-    uses: ./.github/workflows/format-code.yml
-    with:
-      node_version: '20'
-      package_name: "${{ matrix.package }}"
+    steps:
+      - uses: ./.github/workflows/format-code.yml
+        with:
+          node_version: '20'
+          package_name: "${{ matrix.package }}"
 
   build:
     needs: [list-packages, format]
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         package: ${{ fromJson(needs.list-packages.outputs.packages) }}
-    uses: ./.github/workflows/build-code.yml
-    with:
-      node_version: '20'
-      package_name: "${{ matrix.package }}"
+    steps:
+      - uses: ./.github/workflows/build-code.yml
+        with:
+          node_version: '20'
+          package_name: "${{ matrix.package }}"
 
   test:
     needs: [list-packages, build]
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         package: ${{ fromJson(needs.list-packages.outputs.packages) }}
-    uses: ./.github/workflows/test-code.yml
-    with:
-      node_version: '20'
-      package_name: "${{ matrix.package }}"
+    steps:
+      - uses: ./.github/workflows/test-code.yml
+        with:
+          node_version: '20'
+          package_name: "${{ matrix.package }}"
