@@ -386,7 +386,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@lib-lib/logger@npm:^1.0.0, @lib-lib/logger@workspace:packages/logger":
+"@lib-lib/logger@npm:*, @lib-lib/logger@npm:^1.0.0, @lib-lib/logger@workspace:packages/logger":
   version: 0.0.0-use.local
   resolution: "@lib-lib/logger@workspace:packages/logger"
   dependencies:
@@ -472,11 +472,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@lib-lib/priority-queue@npm:^1.0.0, @lib-lib/priority-queue@workspace:packages/priority-queue":
+"@lib-lib/priority-queue@npm:*, @lib-lib/priority-queue@workspace:packages/priority-queue":
   version: 0.0.0-use.local
   resolution: "@lib-lib/priority-queue@workspace:packages/priority-queue"
   dependencies:
-    "@lib-lib/logger": "npm:^1.0.0"
+    "@lib-lib/logger": "npm:*"
     "@types/mongodb": "npm:^4.0.7"
     "@types/node": "npm:^20.7.1"
     "@typescript-eslint/eslint-plugin": "npm:^6.7.3"
@@ -672,9 +672,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@lib-lib/task-manager@workspace:packages/task-manager"
   dependencies:
-    "@lib-lib/logger": "npm:^1.0.0"
-    "@lib-lib/priority-queue": "npm:^1.0.0"
-    "@lib-lib/worker-pool": "npm:^1.0.0"
+    "@lib-lib/logger": "npm:*"
+    "@lib-lib/priority-queue": "npm:*"
+    "@lib-lib/worker-pool": "npm:*"
     "@types/node": "npm:^20.7.1"
     "@typescript-eslint/eslint-plugin": "npm:^6.7.3"
     "@typescript-eslint/parser": "npm:^6.7.3"
@@ -687,7 +687,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@lib-lib/ts-error@npm:^1.0.0, @lib-lib/ts-error@workspace:packages/ts-error":
+"@lib-lib/ts-error@npm:*, @lib-lib/ts-error@workspace:packages/ts-error":
   version: 0.0.0-use.local
   resolution: "@lib-lib/ts-error@workspace:packages/ts-error"
   dependencies:
@@ -738,12 +738,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@lib-lib/worker-pool@npm:^1.0.0, @lib-lib/worker-pool@workspace:packages/worker-pool":
+"@lib-lib/worker-pool@npm:*, @lib-lib/worker-pool@workspace:packages/worker-pool":
   version: 0.0.0-use.local
   resolution: "@lib-lib/worker-pool@workspace:packages/worker-pool"
   dependencies:
-    "@lib-lib/logger": "npm:^1.0.0"
-    "@lib-lib/ts-error": "npm:^1.0.0"
+    "@lib-lib/logger": "npm:*"
+    "@lib-lib/ts-error": "npm:*"
     "@types/node": "npm:^20.7.1"
     "@typescript-eslint/eslint-plugin": "npm:^6.7.3"
     "@typescript-eslint/parser": "npm:^6.7.3"
