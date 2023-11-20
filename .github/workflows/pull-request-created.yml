@@ -2,7 +2,7 @@ name: Check Pull Request
 
 on:
   pull_request:
-    types: [opened]
+    types: [opened, reopened, synchronize, edited]
 
 jobs:
   list-packages:
