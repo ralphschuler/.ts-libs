@@ -5,46 +5,48 @@ on:
     types: [opened, reopened, synchronize, edited]
 
 jobs:
-  list-packages:
-    uses: ./.github/workflows/list-packages.yml
+  list-updated-packages:
+    uses: ./.github/workflows/list-updated-packages.yml
+    with:
+      fetch-depth: 2
 
 
   # lint:
   #   needs: list-packages
   #   strategy:
   #     matrix:
-  #       package: ${{ fromJson(needs.list-packages.outputs.packages) }}
+  #       package: ${{ fromJson(needs.list-updated-packages.outputs.updated_packages) }}
   #   uses: ./.github/workflows/lint-code.yml
   #   with:
   #     node_version: '20'
   #     package_name: "${{ matrix.package }}"
 
   format:
-    # needs: [list-packages, lint]
-    needs: list-packages
+    # needs: [list-updated-packages, lint]
+    needs: list-updated-packages
     strategy:
       matrix:
-        package: ${{ fromJson(needs.list-packages.outputs.packages) }}
+        package: ${{ fromJson(needs.list-updated-packages.outputs.updated_packages) }}
     uses: ./.github/workflows/format-code.yml
     with:
       node_version: '20'
       package_name: "${{ matrix.package }}"
 
   build:
-    needs: [list-packages, format]
+    needs: [list-updated-packages, format]
     strategy:
       matrix:
-        package: ${{ fromJson(needs.list-packages.outputs.packages) }}
+        package: ${{ fromJson(needs.list-updated-packages.outputs.updated_packages) }}
     uses: ./.github/workflows/build-code.yml
     with:
       node_version: '20'
       package_name: "${{ matrix.package }}"
 
   test:
-    needs: [list-packages, build]
+    needs: [list-updated-packages, build]
     strategy:
       matrix:
-        package: ${{ fromJson(needs.list-packages.outputs.packages) }}
+        package: ${{ fromJson(needs.list-updated-packages.outputs.updated_packages) }}
     uses: ./.github/workflows/test-code.yml
     with:
       node_version: '20'

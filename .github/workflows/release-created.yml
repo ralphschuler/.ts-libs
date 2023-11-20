@@ -5,24 +5,26 @@ on:
     types: [created]
 
 jobs: 
-  list-packages:
-    uses: ./.github/workflows/list-packages.yml
+  list-updated-packages:
+    uses: ./.github/workflows/list-updated-packages.yml
+    with:
+      fetch-depth: 2
 
   build:
-    needs: list-packages
+    needs: list-updated-packages
     strategy:
       matrix:
-        package: ${{ fromJson(needs.list-packages.outputs.packages) }}
+        package: ${{ fromJson(needs.list-updated-packages.outputs.updated_packages) }}
     uses: ./.github/workflows/build-code.yml
     with:
       node_version: '20'
       package_name: "${{ matrix.package }}"
 
   publish:
-    needs: [list-packages, build]
+    needs: [list-updated-packages, build]
     strategy:
       matrix:
-        package: ${{ fromJson(needs.list-packages.outputs.packages) }}
+        package: ${{ fromJson(needs.list-updated-packages.outputs.updated_packages) }}
     uses: ./.github/workflows/publish-package.yml
     with:
       node_version: '20'
