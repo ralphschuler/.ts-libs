@@ -1,5 +1,5 @@
 export * from "./strategies/Fortuna.strategy.js";
-export * from "./strategies/RedisFortuna.strategy.js";
+// export * from "./strategies/RedisFortuna.strategy.js";
 export * from "./strategies/LaggedFibonacci.strategy.js";
 export * from "./strategies/LinearCongruential.strategy.js";
 export * from "./strategies/MersenneTwister.strategy.js";
