@@ -45,10 +45,10 @@ jobs:
 
   build-and-test:
     name: Build and test
-    needs: format-and-lint
+    needs: [format-and-lint, list-packages]
     strategy:
       matrix:
-        package: ${{ fromJson(needs.format-and-lint.outputs.package) }}
+        package: ${{ fromJson(needs.list-packages.outputs.packages) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -64,11 +64,11 @@ jobs:
 
   publish:
     name: Publish
-    needs: build-and-test
+    needs: [build-and-test, list-packages]
     if: github.event_name == 'release' && github.event.action == 'created'
     strategy:
       matrix:
-        package: ${{ fromJson(needs.build-and-test.outputs.package) }}
+        package: ${{ fromJson(needs.list-packages.outputs.packages) }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
