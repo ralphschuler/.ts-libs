@@ -4,6 +4,7 @@
     "packages/*"
   ],
   "scripts": {
+    "publish": "yarn workspaces foreach -Apt run publish",
     "prepare": "yarn workspaces foreach -Apt run prepare",
     "build": "yarn workspaces foreach -Apt run build",
     "test": "yarn workspaces foreach -Apt run test",
