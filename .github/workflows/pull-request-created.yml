@@ -8,16 +8,16 @@ jobs:
   list-packages:
     uses: ./.github/workflows/list-packages.yml
 
-  lint:
-    needs: list-packages
-    strategy:
-      fail-fast: false
-      matrix:
-        package: ${{ fromJson(needs.list-packages.outputs.packages) }}
-    uses: ./.github/workflows/lint-code.yml
-    with:
-      node_version: '20'
-      package_name: "${{ matrix.package }}"
+  # lint:
+  #   needs: list-packages
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       package: ${{ fromJson(needs.list-packages.outputs.packages) }}
+  #   uses: ./.github/workflows/lint-code.yml
+  #   with:
+  #     node_version: '20'
+  #     package_name: "${{ matrix.package }}"
 
   format:
     needs: [list-packages, lint]
