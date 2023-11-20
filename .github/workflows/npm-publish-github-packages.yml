@@ -71,7 +71,7 @@ jobs:
       matrix:
         package: ${{ fromJson(needs.list-changes-and-packages.outputs.updated_packages) }}
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && fromJson(needs.list-changes-and-packages.outputs.updated_packages)
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -86,34 +86,32 @@ jobs:
 
   build-and-test:
     name: Build and test
-    needs: [format-and-lint, list-changes-and-packages]
-    strategy:
-      matrix:
-        package: ${{ fromJson(needs.list-changes-and-packages.outputs.updated_packages) }}
+    needs: format-and-lint
     runs-on: ubuntu-latest
+    env:
+      package: ${{fromJson(needs.format-and-lint.outputs.package)}}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: ${{env.NODE_VERSION}}
       - run: corepack enable
-      - run: yarn workspace @lib-lib/${{ matrix.package }} install
-      - run: yarn workspace @lib-lib/${{ matrix.package }} build
-      - run: yarn workspace @lib-lib/${{ matrix.package }} test
+      - run: yarn workspace @lib-lib/${{ env.package }} install
+      - run: yarn workspace @lib-lib/${{ env.package }} build
+      - run: yarn workspace @lib-lib/${{ env.package }} test
     outputs:
-      package: ${{ matrix.package }}
+      package: ${{ env.package }}
 
   publish:
     name: Publish
-    needs: [build-and-test, list-changes-and-packages]
+    needs: build-and-test
     if: github.event_name == 'release' && github.event.action == 'created'
-    strategy:
-      matrix:
-        package: ${{ fromJson(needs.list-changes-and-packages.outputs.updated_packages) }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+    env:
+      package: ${{fromJson(needs.build-and-test.outputs.package)}}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -121,7 +119,7 @@ jobs:
           node-version: ${{env.NODE_VERSION}}
           registry-url: https://npm.pkg.github.com/
       - run: corepack enable
-      - run: yarn workspace @lib-lib/${{ matrix.package }} install
-      - run: yarn workspace @lib-lib/${{ matrix.package }} publish
+      - run: yarn workspace @lib-lib/${{ env.package }} install
+      - run: yarn workspace @lib-lib/${{ env.package }} publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
