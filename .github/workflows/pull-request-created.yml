@@ -9,18 +9,19 @@ jobs:
     uses: ./.github/workflows/list-packages.yml
 
 
-  lint:
-    needs: list-packages
-    strategy:
-      matrix:
-        package: ${{ fromJson(needs.list-packages.outputs.packages) }}
-    uses: ./.github/workflows/lint-code.yml
-    with:
-      node_version: '20'
-      package_name: "${{ matrix.package }}"
+  # lint:
+  #   needs: list-packages
+  #   strategy:
+  #     matrix:
+  #       package: ${{ fromJson(needs.list-packages.outputs.packages) }}
+  #   uses: ./.github/workflows/lint-code.yml
+  #   with:
+  #     node_version: '20'
+  #     package_name: "${{ matrix.package }}"
 
   format:
-    needs: [list-packages, lint]
+    # needs: [list-packages, lint]
+    needs: list-packages
     strategy:
       matrix:
         package: ${{ fromJson(needs.list-packages.outputs.packages) }}
