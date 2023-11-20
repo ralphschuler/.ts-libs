@@ -12,6 +12,38 @@ env:
   NODE_VERSION: 20
 
 jobs:
+  list-changes:
+    name: List changes
+    runs-on: ubuntu-latest
+    outputs:
+      files: ${{ steps.list-changes.outputs.files }}
+      directories: ${{ steps.list-changes.outputs.directories }}
+    steps:
+      - uses: actions/checkout@v3
+      - id: list-changes
+        run: |
+          files=$(git diff --name-only HEAD^ HEAD | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')
+
+          add_directories() {
+            local path="$1"
+            while [ "$path" != "." ]; do
+                echo "$path"
+                path=$(dirname "$path")
+            done
+          }
+
+          declare -A directories
+          for file in "${files[@]}"; do
+            tmp_directories=$(add_directories "$(dirname "$file")")
+
+            for directory in $tmp_directories; do
+                directories["$directory"]=1
+            done
+          done
+
+          echo "files="${files}"" >> ${GITHUB_OUTPUT}
+          echo "directories="${!directories[@]}"" >> ${GITHUB_OUTPUT}
+
   list-packages:
     name: List packages
     runs-on: ubuntu-latest
@@ -23,12 +55,36 @@ jobs:
         run: |
           echo "packages=$(find packages/ -maxdepth 1 -mindepth 1 -type d -exec basename {} \; | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
 
+  list-updated-packages:
+    name: List updated packages
+    needs: [list-changes, list-packages]
+    runs-on: ubuntu-latest
+    outputs:
+      updated_packages: ${{ steps.list-updated-packages.outputs.updated-packages }}
+    steps:
+      - id: list-updated-packages
+        run: |
+          directories=(${{ needs.list-changes.outputs.directories }})
+          packages=(${{ needs.list-packages.outputs.packages }})
+          updated_packages=()
+
+          for package in "${packages[@]}"; do
+            for directory in "${directories[@]}"; do
+              if [[ "$directory" == "packages/$package" ]]; then
+                updated_packages+=("$package")
+                break
+              fi
+            done
+          done
+
+          echo "updated_packages=$(printf '%s\n' "${updated_packages[@]}" | jq -R -s -c 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
+
   format-and-lint:
     name: Format and lint
-    needs: list-packages
+    needs: [list-updated-packages]
     strategy:
       matrix:
-        package: ${{ fromJson(needs.list-packages.outputs.packages) }}
+        package: ${{ fromJson(needs.list-updated-packages.outputs.updated_packages) }}
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
@@ -39,16 +95,16 @@ jobs:
       - run: corepack enable
       - run: yarn workspace @lib-lib/${{ matrix.package }} install
       - run: yarn workspace @lib-lib/${{ matrix.package }} format
-#      - run: yarn workspace @lib-lib/${{ matrix.package }} lint
+    #      - run: yarn workspace @lib-lib/${{ matrix.package }} lint
     outputs:
       package: ${{ matrix.package }}
 
   build-and-test:
     name: Build and test
-    needs: [format-and-lint, list-packages]
+    needs: [format-and-lint, list-updated-packages]
     strategy:
       matrix:
-        package: ${{ fromJson(needs.list-packages.outputs.packages) }}
+        package: ${{ fromJson(needs.list-updated-packages.outputs.updated_packages) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -64,11 +120,11 @@ jobs:
 
   publish:
     name: Publish
-    needs: [build-and-test, list-packages]
+    needs: [build-and-test, list-updated-packages]
     if: github.event_name == 'release' && github.event.action == 'created'
     strategy:
       matrix:
-        package: ${{ fromJson(needs.list-packages.outputs.packages) }}
+        package: ${{ fromJson(needs.list-updated-packages.outputs.updated_packages) }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
