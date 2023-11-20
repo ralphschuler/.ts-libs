@@ -1,6 +1,7 @@
 import { Worker } from "worker_threads";
 import { Task } from "./types/Task.js";
 import { Logger } from "@lib-lib/logger";
+import { noThrow, isError } from "@lib-lib/ts-error";
 
 const logger = Logger.getInstance();
 
@@ -29,7 +30,8 @@ export class WorkerPool {
    */
   constructor(poolSize: number) {
     this.poolSize = poolSize;
-    logger.profileSync(this.initializeWorkers.bind(this), "initializeWorkers");
+    const result = noThrow(() => this.initializeWorkers());
+    this.initializeWorkers();
   }
 
   /**
@@ -60,12 +62,11 @@ export class WorkerPool {
    * @private
    */
   private initializeWorkers() {
-    try {
-      for (let i = 0; i < this.poolSize; i++) {
-        logger.profileSync(() => this.createWorker(i), "createWorker");
+    for (let i = 0; i < this.poolSize; i++) {
+      const result = noThrow(() => this.createWorker(i));
+      if (isError(result)) {
+        logger.error("Error initializing workers: " + result);
       }
-    } catch (error) {
-      logger.error("Error initializing workers: " + error);
     }
   }
 
@@ -74,27 +75,31 @@ export class WorkerPool {
    * @private
    */
   private createWorker(i: number): void {
-    try {
-      const script = WorkerPool.workerScript();
-      const worker = new Worker(script, { eval: true });
-
-      worker.on("message", (message: any) =>
-        logger.profileSync(
-          () => this.handleWorkerResponse(message, worker),
-          "handleWorkerResponse",
-        ),
-      );
-      worker.on("error", (error: Error) =>
-        logger.profileSync(
-          () => this.handleWorkerError(error, worker),
-          "handleWorkerError",
-        ),
-      );
-
-      this.idleWorkers.push(worker);
-    } catch (error) {
-      logger.error("Error creating worker: " + error);
+    const script = noThrow(() => WorkerPool.workerScript());
+    if (isError(script)) {
+      logger.error("Error creating worker: " + script);
+      return;
     }
+    const worker = noThrow(() => new Worker(script, { eval: true }));
+    if (isError(worker)) {
+      logger.error("Error creating worker: " + worker);
+      return;
+    }
+
+    worker.on("message", (message: any) => {
+      const result = noThrow(() => this.handleWorkerResponse(message, worker));
+      if (isError(result)) {
+        logger.error("Error handling worker response: " + result);
+      }
+    });
+    worker.on("error", (error: Error) => {
+      const result = noThrow(() => this.handleWorkerError(error, worker));
+      if (isError(result)) {
+        logger.error("Error handling worker error: " + result);
+      }
+    });
+
+    this.idleWorkers.push(worker);
   }
 
   /**

@@ -1,4 +1,4 @@
-import { NormalizedError } from "../errors/NormalizedError.error";
+import { NormalizedError } from "../errors/NormalizedError.error.js";
 
 export const aggregateErrors = (errors: Error[]): NormalizedError => {
   const aggregatedMessage = errors.map((e) => e.message).join(", ");
