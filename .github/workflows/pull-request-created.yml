@@ -10,6 +10,7 @@ jobs:
     outputs:
       packages: ${{ steps.list-packages.outputs.packages }}
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/workflows/list-packages.yml
         id: list-packages
 
@@ -20,6 +21,7 @@ jobs:
       matrix:
         package: ${{ fromJson(needs.list-packages.outputs.packages) }}
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/workflows/lint-code.yml
         with:
           node_version: '20'
@@ -32,6 +34,7 @@ jobs:
       matrix:
         package: ${{ fromJson(needs.list-packages.outputs.packages) }}
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/workflows/format-code.yml
         with:
           node_version: '20'
@@ -44,6 +47,7 @@ jobs:
       matrix:
         package: ${{ fromJson(needs.list-packages.outputs.packages) }}
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/workflows/build-code.yml
         with:
           node_version: '20'
@@ -56,6 +60,7 @@ jobs:
       matrix:
         package: ${{ fromJson(needs.list-packages.outputs.packages) }}
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/workflows/test-code.yml
         with:
           node_version: '20'

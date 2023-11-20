@@ -21,6 +21,7 @@ jobs:
       matrix:
         package: ${{ fromJson(needs.list-packages.outputs.packages) }}
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/workflows/build-code.yml
         with:
           node_version: '20'
@@ -33,6 +34,7 @@ jobs:
       matrix:
         package: ${{ fromJson(needs.list-packages.outputs.packages) }}
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/workflows/publish-package.yml
         with:
           node_version: '20'

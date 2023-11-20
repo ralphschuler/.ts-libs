@@ -21,6 +21,7 @@ jobs:
       matrix:
         package: ${{ fromJson(needs.list-packages.outputs.packages) }}
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/workflows/unpublish-package.yml
         with:
           node_version: '20'
