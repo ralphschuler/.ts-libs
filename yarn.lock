@@ -110,6 +110,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@lib-lib/assert@workspace:packages/assert":
+  version: 0.0.0-use.local
+  resolution: "@lib-lib/assert@workspace:packages/assert"
+  dependencies:
+    "@types/node": "npm:^20.7.1"
+    "@typescript-eslint/eslint-plugin": "npm:^6.7.3"
+    "@typescript-eslint/parser": "npm:^6.7.3"
+    eslint: "npm:^8.50.0"
+    eslint-config-prettier: "npm:^9.0.0"
+    eslint-plugin-prettier: "npm:^5.0.0"
+    prettier: "npm:^3.0.3"
+    rimraf: "npm:^5.0.5"
+    typescript: "npm:^5.2.2"
+  languageName: unknown
+  linkType: soft
+
 "@lib-lib/better-map@workspace:packages/better-map":
   version: 0.0.0-use.local
   resolution: "@lib-lib/better-map@workspace:packages/better-map"
@@ -291,6 +307,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@lib-lib/random@workspace:packages/random":
+  version: 0.0.0-use.local
+  resolution: "@lib-lib/random@workspace:packages/random"
+  dependencies:
+    "@types/node": "npm:^20.7.1"
+    "@typescript-eslint/eslint-plugin": "npm:^6.7.3"
+    "@typescript-eslint/parser": "npm:^6.7.3"
+    eslint: "npm:^8.50.0"
+    eslint-config-prettier: "npm:^9.0.0"
+    eslint-plugin-prettier: "npm:^5.0.0"
+    prettier: "npm:^3.0.3"
+    rimraf: "npm:^5.0.5"
+    typescript: "npm:^5.2.2"
+  languageName: unknown
+  linkType: soft
+
 "@lib-lib/reactivity@workspace:packages/reactivity":
   version: 0.0.0-use.local
   resolution: "@lib-lib/reactivity@workspace:packages/reactivity"
@@ -310,6 +342,22 @@ __metadata:
 "@lib-lib/safe-array@workspace:packages/safe-array":
   version: 0.0.0-use.local
   resolution: "@lib-lib/safe-array@workspace:packages/safe-array"
+  dependencies:
+    "@types/node": "npm:^20.7.1"
+    "@typescript-eslint/eslint-plugin": "npm:^6.7.3"
+    "@typescript-eslint/parser": "npm:^6.7.3"
+    eslint: "npm:^8.50.0"
+    eslint-config-prettier: "npm:^9.0.0"
+    eslint-plugin-prettier: "npm:^5.0.0"
+    prettier: "npm:^3.0.3"
+    rimraf: "npm:^5.0.5"
+    typescript: "npm:^5.2.2"
+  languageName: unknown
+  linkType: soft
+
+"@lib-lib/signature@workspace:packages/signature":
+  version: 0.0.0-use.local
+  resolution: "@lib-lib/signature@workspace:packages/signature"
   dependencies:
     "@types/node": "npm:^20.7.1"
     "@typescript-eslint/eslint-plugin": "npm:^6.7.3"
@@ -374,7 +422,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@lib-lib/ts-error@workspace:packages/ts-error":
+"@lib-lib/ts-error@npm:^1.0.0, @lib-lib/ts-error@workspace:packages/ts-error":
   version: 0.0.0-use.local
   resolution: "@lib-lib/ts-error@workspace:packages/ts-error"
   dependencies:
@@ -427,6 +475,7 @@ __metadata:
   resolution: "@lib-lib/worker-pool@workspace:packages/worker-pool"
   dependencies:
     "@lib-lib/logger": "npm:^1.0.0"
+    "@lib-lib/ts-error": "npm:^1.0.0"
     "@types/node": "npm:^20.7.1"
     "@typescript-eslint/eslint-plugin": "npm:^6.7.3"
     "@typescript-eslint/parser": "npm:^6.7.3"
