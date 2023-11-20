@@ -1,5 +1,10 @@
 import OpenAI from "openai";
-import { Message, MessageContent, MessageRole, MessageSender } from "./types/Message.js";
+import {
+  Message,
+  MessageContent,
+  MessageRole,
+  MessageSender,
+} from "./types/Message.js";
 import { AIFunction, AIFunctionCall } from "./types/AIFunction.js";
 
 export class AIFunctionCaller {
@@ -27,17 +32,33 @@ export class AIFunctionCaller {
     return response.choices[0].message;
   }
 
-  private async processAiFunctionCall(aiFunctionCall: AIFunctionCall): Promise<MessageContent | AIFunctionCall> {
+  private async processAiFunctionCall(
+    aiFunctionCall: AIFunctionCall,
+  ): Promise<MessageContent | AIFunctionCall> {
     const { name, arguments: args } = aiFunctionCall;
-    const { method } = this.functions.find(f => f.name === name) as AIFunction<any>;
+    const { method } = this.functions.find(
+      (f) => f.name === name,
+    ) as AIFunction<any>;
     const functionResponse = await method(args);
-    return this.processMessage("Function", MessageRole.Function, functionResponse);
+    return this.processMessage(
+      "Function",
+      MessageRole.Function,
+      functionResponse,
+    );
   }
 
-  private async processMessage(sender: MessageSender, role: MessageRole, content: MessageContent | AIFunctionCall): Promise<MessageContent | AIFunctionCall> {
+  private async processMessage(
+    sender: MessageSender,
+    role: MessageRole,
+    content: MessageContent | AIFunctionCall,
+  ): Promise<MessageContent | AIFunctionCall> {
     this.logMessage({ role, name: sender, content: String(content) });
     const modelResponse = await this.executeAIModel();
-    this.logMessage({ role: MessageRole.Assistant, name: 'Assistant', content: String(modelResponse) });
+    this.logMessage({
+      role: MessageRole.Assistant,
+      name: "Assistant",
+      content: String(modelResponse),
+    });
     return modelResponse;
   }
 

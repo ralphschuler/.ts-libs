@@ -6,7 +6,7 @@ export class VerticalBarAnimation extends BaseAnimation {
     super(
       write,
       ["▁", "▃", "▄", "▅", "▆", "▇", "█", "▇", "▆", "▅", "▄", "▃"],
-      100
+      100,
     );
   }
 }

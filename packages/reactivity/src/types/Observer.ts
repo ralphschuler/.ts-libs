@@ -8,13 +8,13 @@ export type Observer<T> = {
    * @param {T} value - The next value in the sequence.
    */
   next: (value: T) => void;
-  
+
   /**
    * Handles an error in the sequence.
    * @param {any} error - The error that occurred.
    */
   error: (error: any) => void;
-  
+
   /**
    * Handles the completion of the sequence.
    */

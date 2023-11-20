@@ -116,7 +116,9 @@ export class Network<T> {
 
   train(input: T[], output: T[]): void {
     const outputActivation = this.activate(input) as any;
-    const error = output.map((value, index) => (value as any) - outputActivation[index]);
+    const error = output.map(
+      (value, index) => (value as any) - outputActivation[index],
+    );
     this.propagate(error as any);
   }
 

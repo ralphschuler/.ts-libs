@@ -41,7 +41,7 @@ export class BouncingBallAnimation extends BaseAnimation {
         "[●         ]",
         "[●         ]",
       ],
-      100
+      100,
     );
   }
 }

@@ -11,10 +11,7 @@ export abstract class AbstractPriorityQueue<T> {
 
   public abstract get length(): number;
   protected abstract getEntry(index: number): Promise<T | null>;
-  protected abstract setEntry(
-    index: number,
-    value: T | null,
-  ): Promise<void>;
+  protected abstract setEntry(index: number, value: T | null): Promise<void>;
   public abstract clear(): Promise<void>;
 
   public async enqueue(value: T): Promise<void> {
@@ -116,8 +113,8 @@ export abstract class AbstractPriorityQueue<T> {
       if (
         leftChildIndex !== null &&
         (await this.comparatorFunction(
-          await this.getEntry(leftChildIndex) as T,
-          await this.getEntry(swapCandidateIndex) as T,
+          (await this.getEntry(leftChildIndex)) as T,
+          (await this.getEntry(swapCandidateIndex)) as T,
         )) < 0
       ) {
         swapCandidateIndex = leftChildIndex;
@@ -126,8 +123,8 @@ export abstract class AbstractPriorityQueue<T> {
       if (
         rightChildIndex !== null &&
         (await this.comparatorFunction(
-          await this.getEntry(rightChildIndex) as T,
-          await this.getEntry(swapCandidateIndex) as T,
+          (await this.getEntry(rightChildIndex)) as T,
+          (await this.getEntry(swapCandidateIndex)) as T,
         )) < 0
       ) {
         swapCandidateIndex = rightChildIndex;

@@ -4,7 +4,7 @@ export type Message = {
   role: MessageRole;
   name: MessageSender;
   content: MessageContent | null;
-  function_call?: AIFunctionCall
+  function_call?: AIFunctionCall;
 };
 export type MessageContent = string;
 export enum MessageRole {

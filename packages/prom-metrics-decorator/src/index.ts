@@ -8,12 +8,12 @@ import {
   Metric,
   Summary,
   SummaryConfiguration,
-} from 'prom-client';
+} from "prom-client";
 
 // Enum for tracking options
 export enum TrackOption {
-  Calls = 'calls',
-  Value = 'value',
+  Calls = "calls",
+  Value = "value",
 }
 
 // Type aliases for metrics and their configurations
@@ -37,34 +37,44 @@ export interface IMetricConfig<T extends MetricConfigurations> {
 export interface IMetric<T extends Metric<any>> {
   metric: T;
   labelValues?: Record<string, string | number>;
-  track?: TrackOption;  // Add this line
+  track?: TrackOption; // Add this line
 }
 
 // Function to track metrics
-function trackMetric<T extends Metric<any>>(metricImpl: IMetric<T>, trackOption: TrackOption, value?: any) {
-  if (trackOption === TrackOption.Calls && 'inc' in metricImpl.metric) {
+function trackMetric<T extends Metric<any>>(
+  metricImpl: IMetric<T>,
+  trackOption: TrackOption,
+  value?: any,
+) {
+  if (trackOption === TrackOption.Calls && "inc" in metricImpl.metric) {
     metricImpl.metric.inc(metricImpl.labelValues || {});
-  } else if (trackOption === TrackOption.Value && 'set' in metricImpl.metric) {
+  } else if (trackOption === TrackOption.Value && "set" in metricImpl.metric) {
     metricImpl.metric.set(metricImpl.labelValues || {}, value);
   }
 }
 
 // Higher-order function for creating decorators
-function createPromMetricDecorator<T extends Metric<any>, C extends MetricConfigurations>(
-  MetricImplementation: new (config: IMetricConfig<C>) => IMetric<T>
-) {
+function createPromMetricDecorator<
+  T extends Metric<any>,
+  C extends MetricConfigurations,
+>(MetricImplementation: new (config: IMetricConfig<C>) => IMetric<T>) {
   return function (config: IMetricConfig<C>) {
     return function (
       target: Object | Function,
       propertyKey?: string | symbol,
-      descriptor?: PropertyDescriptor
+      descriptor?: PropertyDescriptor,
     ) {
-      if (typeof target === 'function') {
+      if (typeof target === "function") {
         handleClassDecorator(target, MetricImplementation, config);
       } else if (descriptor) {
         handleMethodDecorator(target, descriptor, MetricImplementation, config);
       } else {
-        handlePropertyDecorator(target, propertyKey!, MetricImplementation, config);
+        handlePropertyDecorator(
+          target,
+          propertyKey!,
+          MetricImplementation,
+          config,
+        );
       }
     };
   };
@@ -74,9 +84,9 @@ function createPromMetricDecorator<T extends Metric<any>, C extends MetricConfig
 function handleClassDecorator<C extends MetricConfigurations>(
   target: Function,
   MetricImplementation: new (config: IMetricConfig<C>) => IMetric<any>,
-  config: IMetricConfig<C>
+  config: IMetricConfig<C>,
 ) {
-  target.prototype['metricImpl'] = new MetricImplementation(config);
+  target.prototype["metricImpl"] = new MetricImplementation(config);
 }
 
 // Function to handle method decorator logic
@@ -84,7 +94,7 @@ function handleMethodDecorator<C extends MetricConfigurations>(
   target: Object,
   descriptor: PropertyDescriptor,
   MetricImplementation: new (config: IMetricConfig<C>) => IMetric<any>,
-  config: IMetricConfig<C>
+  config: IMetricConfig<C>,
 ) {
   const originalMethod = descriptor.value;
   descriptor.value = function (...args: any[]) {
@@ -100,7 +110,7 @@ function handlePropertyDecorator<C extends MetricConfigurations>(
   target: Object,
   propertyKey: string | symbol,
   MetricImplementation: new (config: IMetricConfig<C>) => IMetric<any>,
-  config: IMetricConfig<C>
+  config: IMetricConfig<C>,
 ) {
   let value: any;
   const getter = function (this: any) {

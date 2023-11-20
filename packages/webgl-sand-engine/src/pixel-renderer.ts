@@ -13,7 +13,7 @@ interface IPixelMatrix {
   data: Uint8Array; // Storing the pixel matrix as an UInt8Array
   getColor(x: number, y: number): Color;
   setColor(x: number, y: number, color: Color): void;
-  indexToCoordinates(index: number): { x: number, y: number };
+  indexToCoordinates(index: number): { x: number; y: number };
   coordinatesToIndex(x: number, y: number): number;
 }
 
@@ -34,7 +34,11 @@ class ShaderProgram implements IShaderProgram {
   private gl: WebGLRenderingContext;
   private program: WebGLProgram | null;
 
-  constructor(gl: WebGLRenderingContext, vertexShader: string, fragmentShader: string) {
+  constructor(
+    gl: WebGLRenderingContext,
+    vertexShader: string,
+    fragmentShader: string,
+  ) {
     this.gl = gl;
     this.vertexShader = vertexShader;
     this.fragmentShader = fragmentShader;
@@ -42,8 +46,14 @@ class ShaderProgram implements IShaderProgram {
   }
 
   link(): boolean {
-    const vertexShader = this.compileShader(this.gl.VERTEX_SHADER, this.vertexShader);
-    const fragmentShader = this.compileShader(this.gl.FRAGMENT_SHADER, this.fragmentShader);
+    const vertexShader = this.compileShader(
+      this.gl.VERTEX_SHADER,
+      this.vertexShader,
+    );
+    const fragmentShader = this.compileShader(
+      this.gl.FRAGMENT_SHADER,
+      this.fragmentShader,
+    );
 
     if (!vertexShader || !fragmentShader) {
       return false;
@@ -59,7 +69,10 @@ class ShaderProgram implements IShaderProgram {
     this.gl.linkProgram(this.program);
 
     if (!this.gl.getProgramParameter(this.program, this.gl.LINK_STATUS)) {
-      console.error("Could not link shader program:", this.gl.getProgramInfoLog(this.program));
+      console.error(
+        "Could not link shader program:",
+        this.gl.getProgramInfoLog(this.program),
+      );
       return false;
     }
 
@@ -90,7 +103,10 @@ class ShaderProgram implements IShaderProgram {
     this.gl.compileShader(shader);
 
     if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
-      console.error("Could not compile shader:", this.gl.getShaderInfoLog(shader));
+      console.error(
+        "Could not compile shader:",
+        this.gl.getShaderInfoLog(shader),
+      );
       this.gl.deleteShader(shader);
       return null;
     }

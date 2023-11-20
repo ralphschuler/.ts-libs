@@ -1,10 +1,19 @@
-type ShaderType = WebGLRenderingContext['VERTEX_SHADER'] | WebGLRenderingContext['FRAGMENT_SHADER'];
+type ShaderType =
+  | WebGLRenderingContext["VERTEX_SHADER"]
+  | WebGLRenderingContext["FRAGMENT_SHADER"];
 
-export class ShaderProgramFactory<U extends Record<string, WebGLUniformLocation>, A extends Record<string, number>> {
+export class ShaderProgramFactory<
+  U extends Record<string, WebGLUniformLocation>,
+  A extends Record<string, number>,
+> {
   private gl: WebGLRenderingContext;
   private program: WebGLProgram;
 
-  constructor(gl: WebGLRenderingContext, vertexSrc: string, fragmentSrc: string) {
+  constructor(
+    gl: WebGLRenderingContext,
+    vertexSrc: string,
+    fragmentSrc: string,
+  ) {
     this.gl = gl;
     this.program = this.initShaderProgram(vertexSrc, fragmentSrc);
   }
@@ -24,16 +33,22 @@ export class ShaderProgramFactory<U extends Record<string, WebGLUniformLocation>
     return shader;
   }
 
-  private initShaderProgram(vertexSrc: string, fragmentSrc: string): WebGLProgram {
+  private initShaderProgram(
+    vertexSrc: string,
+    fragmentSrc: string,
+  ): WebGLProgram {
     const vertexShader = this.loadShader(this.gl.VERTEX_SHADER, vertexSrc);
-    const fragmentShader = this.loadShader(this.gl.FRAGMENT_SHADER, fragmentSrc);
+    const fragmentShader = this.loadShader(
+      this.gl.FRAGMENT_SHADER,
+      fragmentSrc,
+    );
 
     if (!vertexShader || !fragmentShader) {
-      throw new Error('Failed to load shaders');
+      throw new Error("Failed to load shaders");
     }
 
     const program = this.gl.createProgram();
-    if (!program) throw new Error('Failed to create shader program');
+    if (!program) throw new Error("Failed to create shader program");
 
     this.gl.attachShader(program, vertexShader);
     this.gl.attachShader(program, fragmentShader);
@@ -42,7 +57,7 @@ export class ShaderProgramFactory<U extends Record<string, WebGLUniformLocation>
     if (!this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) {
       console.error(this.gl.getProgramInfoLog(program));
       this.gl.deleteProgram(program);
-      throw new Error('Failed to link shader program');
+      throw new Error("Failed to link shader program");
     }
 
     return program;

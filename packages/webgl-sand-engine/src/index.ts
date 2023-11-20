@@ -15,11 +15,11 @@ interface IAddEvent<ItemType> extends IEvent<ItemType> {}
 interface IRemoveEvent extends IEvent<string> {}
 
 // Config Type Maps
-type PixelType = 'Sand' | 'Water';
+type PixelType = "Sand" | "Water";
 
-type PixelConfigMap = 
-  | { type: 'Sand', metadata: { density: number } }
-  | { type: 'Water', metadata: { density: number, temperature?: number } };
+type PixelConfigMap =
+  | { type: "Sand"; metadata: { density: number } }
+  | { type: "Water"; metadata: { density: number; temperature?: number } };
 
 type EntityConfigMap = {
   tree: { health: number; age: number };
@@ -45,7 +45,11 @@ type IPixel = IBaseItem<string, PixelType, PixelConfigMap>;
 
 // Entity Interface
 type EntityType = keyof EntityConfigMap;
-type IEntity<IDType, TypeType extends EntityType> = IBaseItem<IDType, TypeType, EntityConfigMap[TypeType]> & {
+type IEntity<IDType, TypeType extends EntityType> = IBaseItem<
+  IDType,
+  TypeType,
+  EntityConfigMap[TypeType]
+> & {
   pixels: Array<IPixel>;
 };
 
@@ -97,7 +101,10 @@ interface IStorageBackend<StateType> {
 }
 
 // State Storage Interface with Generics
-interface IStateStorage<StateType, BackendType extends IStorageBackend<StateType>> {
+interface IStateStorage<
+  StateType,
+  BackendType extends IStorageBackend<StateType>,
+> {
   serialize(item: StateType): string;
   deserialize(data: string): StateType;
   saveState(key: string, state: StateType): void;
@@ -106,7 +113,8 @@ interface IStateStorage<StateType, BackendType extends IStorageBackend<StateType
 }
 
 // Specific State Storage Implementation for Simulation
-interface ISimulationStateStorage extends IStateStorage<IGrid, IStorageBackend<IGrid>> {}
+interface ISimulationStateStorage
+  extends IStateStorage<IGrid, IStorageBackend<IGrid>> {}
 
 // Neighbor Provider Interface
 interface INeighborProvider<ItemType> {

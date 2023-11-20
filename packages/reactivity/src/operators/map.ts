@@ -1,4 +1,4 @@
-import { SimpleObservable } from '../SimpleObservable.js';
+import { SimpleObservable } from "../SimpleObservable.js";
 
 export const map = (project: any) => (observable: any) => {
   return new SimpleObservable((observer: any) => {

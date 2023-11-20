@@ -20,7 +20,7 @@ export type AIFunctionCall = {
   name: AIFunctionName;
   arguments: AIFunctionCallArguments;
 };
-export type AIFunctionCallArguments = string
+export type AIFunctionCallArguments = string;
 export type AIFunctionExample = string;
 export type AIFunction<AiFunctionCallResponse> = {
   name: AIFunctionName;

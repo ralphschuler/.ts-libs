@@ -39,7 +39,8 @@ export class Logger {
     this.buffer = [];
     this.stdout = stdout;
     this.level =
-      level || (process.env.LOG_LEVEL !== undefined && parseInt(process.env.LOG_LEVEL))
+      level ||
+      (process.env.LOG_LEVEL !== undefined && parseInt(process.env.LOG_LEVEL))
         ? (parseInt(process.env.LOG_LEVEL!) as LogLevel)
         : LogLevel.DEBUG;
   }
@@ -166,14 +167,14 @@ export class Logger {
     name?: string,
   ): Promise<Response> {
     const animation = new ProgressAnimation();
-    animation.start(`Profiling method '${name || 'anonymous'}'`);
+    animation.start(`Profiling method '${name || "anonymous"}'`);
     const start = process.hrtime();
     return await method.finally(() => {
       const elapsed = process.hrtime(start);
 
       const elapsedMs = elapsed[0] * 1000 + elapsed[1] / 1e6;
       const profileMessage = `Method '${
-        name || 'anonymous'
+        name || "anonymous"
       }' took ${elapsedMs.toFixed(4)}ms.`;
       animation.stop(profileMessage);
     });

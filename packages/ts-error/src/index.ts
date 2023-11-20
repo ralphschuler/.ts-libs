@@ -3,17 +3,17 @@
 // Type guard to check if a value is an Error
 export const isError = (value: unknown): value is Error =>
   !!value &&
-  typeof value === 'object' &&
-  'message' in value &&
-  typeof value.message === 'string' &&
-  'stack' in value &&
-  typeof value.stack === 'string';
+  typeof value === "object" &&
+  "message" in value &&
+  typeof value.message === "string" &&
+  "stack" in value &&
+  typeof value.stack === "string";
 
 // Base class for custom errors
 export class CustomError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'CustomError';
+    this.name = "CustomError";
   }
 }
 
@@ -25,11 +25,11 @@ export class NormalizedError extends Error {
 
   constructor(error: Error, originalValue?: unknown) {
     super(error.message);
-    this.name = 'NormalizedError';
+    this.name = "NormalizedError";
     this.stack = error.stack;
     this.originalValue = originalValue;
     this.timestamp = new Date().toISOString();
-    this.environment = process.env.NODE_ENV || 'development';
+    this.environment = process.env.NODE_ENV || "development";
   }
 }
 
@@ -40,8 +40,8 @@ export const toNormalizedError = (value: unknown): NormalizedError => {
   } else {
     const newError = new Error(
       `Unexpected value thrown: ${
-        typeof value === 'object' ? JSON.stringify(value) : String(value)
-      }`
+        typeof value === "object" ? JSON.stringify(value) : String(value)
+      }`,
     );
     return new NormalizedError(newError, value);
   }
@@ -67,6 +67,6 @@ export const noThrow = <A>(action: () => A): NoThrowResult<A> => {
 
 // Function to aggregate multiple errors
 export const aggregateErrors = (errors: Error[]): NormalizedError => {
-  const aggregatedMessage = errors.map(e => e.message).join(', ');
+  const aggregatedMessage = errors.map((e) => e.message).join(", ");
   return new NormalizedError(new Error(aggregatedMessage));
 };

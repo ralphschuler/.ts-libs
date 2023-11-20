@@ -1,11 +1,15 @@
-import 'reflect-metadata';
+import "reflect-metadata";
 
 // Types and Decorators
 export type BasicDataType = "number" | "boolean";
-export type DataType = BasicDataType | { type: "string", length: number } | { type: "array", itemType: DataType, itemCount: number } | { type: "Serialized", class: Function };
+export type DataType =
+  | BasicDataType
+  | { type: "string"; length: number }
+  | { type: "array"; itemType: DataType; itemCount: number }
+  | { type: "Serialized"; class: Function };
 
 function addSchema(target: any, propertyKey: string, typeData: DataType) {
-  let schema = Reflect.getMetadata("schema", target) || {};
+  const schema = Reflect.getMetadata("schema", target) || {};
   schema[propertyKey] = typeData;
   Reflect.defineMetadata("schema", schema, target);
 }
@@ -21,7 +25,10 @@ export function Serializable(target: Function) {
   };
   target.prototype.deserialize = function (buffer: Buffer) {
     const binarySerializer = new BinarySerializer(this.getSchema());
-    return Object.assign(this, binarySerializer.setBuffer(buffer).deserialize(this.getSchema()));
+    return Object.assign(
+      this,
+      binarySerializer.setBuffer(buffer).deserialize(this.getSchema()),
+    );
   };
 }
 
@@ -50,9 +57,13 @@ export function AsArray(itemType: DataType | Function, itemCount: number) {
   return function (target: any, propertyKey: string) {
     if (typeof itemType === "function") {
       if (!Reflect.getMetadata("Serializable", itemType)) {
-        throw new Error("Array type must be Serializable")
+        throw new Error("Array type must be Serializable");
       }
-      addSchema(target, propertyKey, { type: "array", itemType: { type: "Serialized", class: itemType }, itemCount });
+      addSchema(target, propertyKey, {
+        type: "array",
+        itemType: { type: "Serialized", class: itemType },
+        itemCount,
+      });
     } else {
       addSchema(target, propertyKey, { type: "array", itemType, itemCount });
     }
@@ -80,9 +91,13 @@ export class BinarySerializer {
       } else if (typeof type === "object" && type.type === "string") {
         size += 4 + type.length;
       } else if (typeof type === "object" && type.type === "array") {
-        size += 4 + this.calculateBufferSize({ item: type.itemType }) * type.itemCount;
+        size +=
+          4 +
+          this.calculateBufferSize({ item: type.itemType }) * type.itemCount;
       } else {
-        size += type.class.prototype.calculateBufferSize(type.class.prototype.getSchema());
+        size += type.class.prototype.calculateBufferSize(
+          type.class.prototype.getSchema(),
+        );
       }
     }
     return size;
@@ -96,7 +111,7 @@ export class BinarySerializer {
       this.buffer.writeUInt8(value ? 1 : 0, this.offset);
       this.offset++;
     } else if (typeof type === "object" && type.type === "string") {
-      const str = value.padEnd(type.length, '\0');  // Pad string to fixed length
+      const str = value.padEnd(type.length, "\0"); // Pad string to fixed length
       this.buffer.write(str, this.offset);
       this.offset += type.length;
     } else if (typeof type === "object" && type.type === "array") {
@@ -126,7 +141,9 @@ export class BinarySerializer {
       this.offset++;
       return value;
     } else if (typeof type === "object" && type.type === "string") {
-      const value = this.buffer.toString("utf-8", this.offset, this.offset + type.length).replace(/\0/g, '');
+      const value = this.buffer
+        .toString("utf-8", this.offset, this.offset + type.length)
+        .replace(/\0/g, "");
       this.offset += type.length;
       return value;
     } else if (typeof type === "object" && type.type === "array") {

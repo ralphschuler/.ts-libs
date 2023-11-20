@@ -23,7 +23,7 @@ export class SimpleObservable<T> implements IObservable<T> {
    * @param {(observer: Observer<T>) => ISubscription} subscribeFunction - The subscription logic.
    */
   constructor(
-    private subscribeFunction: (observer: Observer<T>) => ISubscription
+    private subscribeFunction: (observer: Observer<T>) => ISubscription,
   ) {
     logger.debug("Creating observable...");
   }
@@ -91,10 +91,10 @@ export class SimpleObservable<T> implements IObservable<T> {
       if (operators.length === 0) {
         return this;
       }
-  
+
       return operators.reduce(
         (prevObservable, operator) => operator(prevObservable),
-        this as any
+        this as any,
       );
     } catch (error) {
       logger.error("Failed piping operators: " + error);
