@@ -16,8 +16,8 @@
     "dist"
   ],
   "dependencies": {
-    "@lib-lib/logger": "*",
-    "@lib-lib/ts-error": "*"
+    "@lib-lib/logger": "workspace:^",
+    "@lib-lib/ts-error": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "^20.7.1",

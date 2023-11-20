@@ -386,7 +386,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@lib-lib/logger@npm:*, @lib-lib/logger@npm:^1.0.0, @lib-lib/logger@workspace:packages/logger":
+"@lib-lib/logger@npm:*, @lib-lib/logger@npm:^1.0.0, @lib-lib/logger@workspace:^, @lib-lib/logger@workspace:packages/logger":
   version: 0.0.0-use.local
   resolution: "@lib-lib/logger@workspace:packages/logger"
   dependencies:
@@ -550,7 +550,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@lib-lib/reactivity@workspace:packages/reactivity"
   dependencies:
-    "@lib-lib/logger": "npm:^1.0.0"
+    "@lib-lib/logger": "workspace:^"
     "@types/node": "npm:^20.7.1"
     "@typescript-eslint/eslint-plugin": "npm:^6.7.3"
     "@typescript-eslint/parser": "npm:^6.7.3"

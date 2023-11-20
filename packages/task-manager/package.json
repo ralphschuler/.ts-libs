@@ -16,9 +16,9 @@
     "dist"
   ],
   "dependencies": {
-    "@lib-lib/logger": "*",
-    "@lib-lib/priority-queue": "*",
-    "@lib-lib/worker-pool": "*"
+    "@lib-lib/logger": "workspace:^",
+    "@lib-lib/priority-queue": "workspace:^",
+    "@lib-lib/worker-pool": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "^20.7.1",
