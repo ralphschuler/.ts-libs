@@ -1,9 +1,15 @@
-import 'reflect-metadata';
-import { describe, it } from 'node:test';
-import { strictEqual } from 'node:assert/strict
-import { Serializable, AsNumber, AsBoolean, AsString, AsArray } from './your-library'; // Import your library here
+import "reflect-metadata";
+import { describe, it } from "node:test";
+import { strictEqual } from "node:assert/strict";
+import {
+  Serializable,
+  AsNumber,
+  AsBoolean,
+  AsString,
+  AsArray,
+} from "./index.js";
 
-describe('Serialization Tests', () => {
+describe("Serialization Tests", () => {
   @Serializable
   class TestClass {
     @AsNumber
@@ -19,11 +25,11 @@ describe('Serialization Tests', () => {
     scores: number[];
   }
 
-  it('should serialize and deserialize correctly', () => {
+  it("should serialize and deserialize correctly", () => {
     const instance = new TestClass();
     instance.age = 30;
     instance.isActive = true;
-    instance.name = 'John';
+    instance.name = "John";
     instance.scores = [95, 88, 75];
 
     // @ts-expect-error
