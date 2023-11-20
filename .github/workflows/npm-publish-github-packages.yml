@@ -21,7 +21,9 @@ jobs:
       packages: ${{ steps.list-changes-and-packages.outputs.packages }}
       updated_packages: ${{ steps.list-changes-and-packages.outputs.updated-packages }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - id: list-changes-and-packages
         run: |
