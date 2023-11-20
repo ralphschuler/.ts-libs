@@ -4,15 +4,14 @@
     "packages/*"
   ],
   "scripts": {
-    "yarn:foreach": "yarn workspaces foreach --exclude @lib-lib/random --exclude @lib-lib/signature -Apt",
-    "publish": "yarn yarn:foreach run publish",
-    "prepare": "yarn yarn:foreach run prepare",
-    "build": "yarn yarn:foreach run build",
-    "test": "yarn yarn:foreach run test",
-    "lint": "yarn yarn:foreach run lint",
-    "lint:fix": "yarn yarn:foreach run lint:fix",
-    "format": "yarn yarn:foreach run format",
-    "clean": "yarn yarn:foreach run clean",
+    "publish": "yarn workspaces foreach --exclude @lib-lib/random --exclude @lib-lib/signature -Apt run publish",
+    "prepare": "yarn workspaces foreach --exclude @lib-lib/random --exclude @lib-lib/signature -Apt run prepare",
+    "build": "yarn workspaces foreach --exclude @lib-lib/random --exclude @lib-lib/signature -Apt run build",
+    "test": "yarn workspaces foreach --exclude @lib-lib/random --exclude @lib-lib/signature -Apt run test",
+    "lint": "yarn workspaces foreach --exclude @lib-lib/random --exclude @lib-lib/signature -Apt run lint",
+    "lint:fix": "yarn workspaces foreach --exclude @lib-lib/random --exclude @lib-lib/signature -Apt run lint:fix",
+    "format": "yarn workspaces foreach --exclude @lib-lib/random --exclude @lib-lib/signature -Apt run format",
+    "clean": "yarn workspaces foreach --exclude @lib-lib/random --exclude @lib-lib/signature -Apt run clean",
     "prepublish": "yarn build",
     "start": "tsx src/index.ts"
   },
