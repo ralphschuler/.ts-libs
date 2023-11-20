@@ -37,7 +37,7 @@
     "start": "tsx src/index.ts"
   },
   "dependencies": {
-    "tsx": "^4.1.4",
-    "@lib-lib/logger": "*"
+    "@lib-lib/logger": "*",
+    "tsx": "^4.1.4"
   }
 }

@@ -547,6 +547,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@lib-lib/reactivity@workspace:packages/reactivity"
   dependencies:
+    "@lib-lib/logger": "npm:*"
     "@types/node": "npm:^20.7.1"
     "@typescript-eslint/eslint-plugin": "npm:^6.7.3"
     "@typescript-eslint/parser": "npm:^6.7.3"
