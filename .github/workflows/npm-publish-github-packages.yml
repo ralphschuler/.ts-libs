@@ -32,8 +32,8 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{env.NODE_VERSION}}
           cache: 'yarn'
@@ -50,8 +50,8 @@ jobs:
         package: ${{ fromJson(needs.format-and-lint.outputs.package) }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{env.NODE_VERSION}}
           cache: 'yarn'
@@ -72,8 +72,8 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{env.NODE_VERSION}}
           registry-url: https://npm.pkg.github.com/
