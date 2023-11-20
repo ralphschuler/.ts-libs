@@ -82,12 +82,18 @@ abstract class Reel<T extends ISymbol> {
 class FruitReel extends Reel<BaseSymbol> {
   constructor() {
     super([
-      new BaseSymbol("🍒", 0.5),
+      new BaseSymbol("🍒", 1),
       new BaseSymbol("🍋", 1),
-      new BaseSymbol("🍊", 2),
-      new BaseSymbol("🍉", 3),
-      new WildSymbol("⭐", 5),
-      new ScatterSymbol("🎲", 5),
+      new BaseSymbol("🍊", 1),
+      new BaseSymbol("🍉", 1),
+      new BaseSymbol("🍇", 1.5),
+      new BaseSymbol("🍎", 2),
+      new BaseSymbol("🍓", 4),
+      new BaseSymbol("🍌", 8),
+      new BaseSymbol("🍐", 12),
+      new BaseSymbol("🍀", 15),
+      new WildSymbol("⭐", 17),
+      new ScatterSymbol("🎲", 20),
     ]);
   }
 }

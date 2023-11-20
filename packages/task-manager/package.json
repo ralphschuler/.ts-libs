@@ -16,9 +16,9 @@
     "dist"
   ],
   "dependencies": {
-    "@lib-lib/logger": "^1.0.0",
-    "@lib-lib/priority-queue": "^1.0.0",
-    "@lib-lib/worker-pool": "^1.0.0",
+    "@lib-lib/logger": "*",
+    "@lib-lib/priority-queue": "*",
+    "@lib-lib/worker-pool": "*",
     "tsx": "^4.1.4"
   },
   "devDependencies": {

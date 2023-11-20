@@ -24,7 +24,8 @@
     "eslint-plugin-prettier": "^5.0.0",
     "prettier": "^3.0.3",
     "rimraf": "^5.0.5",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "web-streams-polyfill": "^3.2.1"
   },
   "scripts": {
     "build": "tsc",
