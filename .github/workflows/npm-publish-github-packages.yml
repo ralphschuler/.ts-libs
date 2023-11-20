@@ -24,7 +24,7 @@ jobs:
           echo "packages=$(ls packages/ | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   format-and-lint:
-    name: format and lint
+    name: Format and lint
     needs: list-packages
     strategy:
       matrix:
@@ -44,6 +44,7 @@ jobs:
       package: ${{ matrix.package }}
 
   build-and-test:
+    name: Build and test
     needs: format-and-lint
     strategy:
       matrix:
@@ -62,6 +63,7 @@ jobs:
       package: ${{ matrix.package }}
 
   publish:
+    name: Publish
     needs: build-and-test
     if: github.event_name == 'release' && github.event.action == 'created'
     strategy:

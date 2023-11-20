@@ -1,15 +1,8 @@
 {
+  "extends": "../../tsconfig.build.json",
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "NodeNext",
-    "lib": ["ESNext"],
     "rootDir": "src/",
-    "outDir": "dist/",
-    "moduleResolution": "NodeNext",
-    "sourceMap": true,
-    "declaration": true,
-
-    "strict": true
+    "outDir": "./dist",
   },
   "include": ["src/**/*"],
   "exclude": ["src/**/*.test.ts"]
