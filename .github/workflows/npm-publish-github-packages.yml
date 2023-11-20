@@ -37,6 +37,7 @@ jobs:
         with:
           node-version: ${{env.NODE_VERSION}}
           cache: 'yarn'
+      - run: corepack enable
       - run: yarn workspace @lib-lib/${{ matrix.package }} install
       - run: yarn workspace @lib-lib/${{ matrix.package }} format
       - run: yarn workspace @lib-lib/${{ matrix.package }} lint
@@ -56,6 +57,7 @@ jobs:
         with:
           node-version: ${{env.NODE_VERSION}}
           cache: 'yarn'
+      - run: corepack enable
       - run: yarn workspace @lib-lib/${{ matrix.package }} install
       - run: yarn workspace @lib-lib/${{ matrix.package }} build
       - run: yarn workspace @lib-lib/${{ matrix.package }} test
@@ -80,6 +82,7 @@ jobs:
           node-version: ${{env.NODE_VERSION}}
           registry-url: https://npm.pkg.github.com/
           cache: 'yarn'
+      - run: corepack enable
       - run: yarn workspace @lib-lib/${{ matrix.package }} install
       - run: yarn workspace @lib-lib/${{ matrix.package }} publish
         env:

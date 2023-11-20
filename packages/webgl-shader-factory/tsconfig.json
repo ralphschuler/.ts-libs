@@ -3,6 +3,7 @@
   "compilerOptions": {
     "rootDir": "src/",
     "outDir": "./dist",
+    "lib": ["DOM"]
   },
   "include": ["src/**/*"],
   "exclude": ["src/**/*.test.ts"]
