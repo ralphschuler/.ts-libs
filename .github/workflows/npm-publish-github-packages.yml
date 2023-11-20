@@ -9,7 +9,7 @@ on:
 
 env:
   NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-  NODE_VERSION: 18
+  NODE_VERSION: 20
 
 jobs:
   list-packages:
