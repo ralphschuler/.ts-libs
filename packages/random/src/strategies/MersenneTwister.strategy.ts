@@ -12,10 +12,13 @@ export class MersenneTwister extends PseudoRandomNumberGenerator {
   private mti: number = this.N + 1;
 
   constructor(seed: Seed) {
-    const seedBuffer = seed.length >= 4 ? seed : Buffer.alloc(4, seed);
+    const seedBuffer =
+      seed.length >= 4
+        ? seed
+        : new Seed(Buffer.alloc(4, seed.toString("hex"), "hex"));
     super(seedBuffer);
 
-    this.init_genrand(this.seed);
+    this.init_genrand(this.seed.buffer);
   }
 
   private init_genrand(seedBuffer: Buffer): void {
@@ -31,10 +34,14 @@ export class MersenneTwister extends PseudoRandomNumberGenerator {
           0;
       }
       this.updateSeed();
-    } catch (error: any) {
-      throw new Error(
-        `[Mersenne Twister] Error initializing Mersenne Twister: ${error.message}`,
-      );
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(
+          `[Mersenne Twister] Error initializing seed: ${error.message}`,
+        );
+      } else {
+        throw error;
+      }
     }
   }
 
@@ -44,11 +51,15 @@ export class MersenneTwister extends PseudoRandomNumberGenerator {
       for (let i = 0; i < this.N; i++) {
         buffer.writeUInt32LE(this.mt[i], i * 4);
       }
-      this.seed = buffer;
-    } catch (error: any) {
-      throw new Error(
-        `[Mersenne Twister] Error updating seed: ${error.message}`,
-      );
+      this.seed = new Seed(buffer);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(
+          `[Mersenne Twister] Error updating seed: ${error.message}`,
+        );
+      } else {
+        throw error;
+      }
     }
   }
 
@@ -90,20 +101,28 @@ export class MersenneTwister extends PseudoRandomNumberGenerator {
       this.updateSeed();
 
       return y >>> 0;
-    } catch (error: any) {
-      throw new Error(
-        `[Mersenne Twister] Error generating random number: ${error.message}`,
-      );
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(
+          `[Mersenne Twister] Error generating random number: ${error.message}`,
+        );
+      } else {
+        throw error;
+      }
     }
   }
 
   public nextFloat(): number {
     try {
       return this.genrand_int32() * (1.0 / 4294967296.0);
-    } catch (error: any) {
-      throw new Error(
-        `[Mersenne Twister] Error generating random number: ${error.message}`,
-      );
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(
+          `[Mersenne Twister] Error generating random number: ${error.message}`,
+        );
+      } else {
+        throw error;
+      }
     }
   }
 }

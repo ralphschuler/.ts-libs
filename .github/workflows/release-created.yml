@@ -13,6 +13,7 @@ jobs:
   build:
     needs: list-updated-packages
     strategy:
+      fail-fast: true
       matrix:
         package: ${{ fromJson(needs.list-updated-packages.outputs.updated_packages) }}
     uses: ./.github/workflows/build-code.yml
@@ -23,6 +24,7 @@ jobs:
   publish:
     needs: [list-updated-packages, build]
     strategy:
+      fail-fast: true
       matrix:
         package: ${{ fromJson(needs.list-updated-packages.outputs.updated_packages) }}
     uses: ./.github/workflows/publish-package.yml

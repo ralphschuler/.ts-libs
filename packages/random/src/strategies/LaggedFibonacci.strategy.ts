@@ -28,13 +28,17 @@ export class LaggedFibonacci extends PseudoRandomNumberGenerator {
       for (let i = 0; i < this.size; i++) {
         this.s[i] = Buffer.from(
           (this.nextFloat() * 0xffffffff).toString(16),
-          "hex"
+          "hex",
         );
       }
-    } catch (error: any) {
-      throw new Error(
-        `[LaggedFibonacci] Error initializing seed array: ${error.message}`
-      );
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(
+          `[LaggedFibonacci] Error initializing seed array: ${error.message}`,
+        );
+      } else {
+        throw error;
+      }
     }
   }
 
@@ -57,10 +61,14 @@ export class LaggedFibonacci extends PseudoRandomNumberGenerator {
       this.index = (this.index + 1) % this.size;
 
       return Number(newSeedBigInt) / Number(m);
-    } catch (error: any) {
-      throw new Error(
-        `[LaggedFibonacci] Error generating random number: ${error.message}`
-      );
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(
+          `[LaggedFibonacci] Error generating random number: ${error.message}`,
+        );
+      } else {
+        throw error;
+      }
     }
   }
 }

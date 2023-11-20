@@ -1,4 +1,4 @@
-import crypto from "node:crypto";
+import crypto, { BinaryLike } from "node:crypto";
 import { Buffer } from "node:buffer";
 import { PseudoRandomNumberGenerator } from "../PseudoRandomNumberGenerator.js";
 import { Seed } from "../Seed.js";
@@ -8,7 +8,7 @@ export class Fortuna extends PseudoRandomNumberGenerator {
   private poolIndex: number = 0;
   private reseedCounter: number = 0;
   private readonly keySize: number = 32; // AES-256
-  private cipherKey: Buffer;
+  private cipherKey: BinaryLike;
   private autoPoolIndex: number = 0;
 
   constructor(seed: Seed) {
@@ -16,7 +16,7 @@ export class Fortuna extends PseudoRandomNumberGenerator {
     this.pools = Array(32).fill(Buffer.alloc(this.keySize));
     this.cipherKey = Buffer.alloc(this.keySize)
       .fill(0)
-      .map((_: any, i: number) => this.seed[i % this.seed.length]);
+      .map((_: unknown, i: number) => this.seed[i % this.seed.length]);
   }
 
   // Function to add entropy (random events) to the pools
@@ -27,8 +27,14 @@ export class Fortuna extends PseudoRandomNumberGenerator {
         .update(Buffer.concat([this.pools[poolIndex], event]))
         .digest();
       this.autoPoolIndex = (this.autoPoolIndex + 1) % 32;
-    } catch (error: any) {
-      throw new Error(`[Fortuna] Error adding event to pool: ${error.message}`);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(
+          `[Fortuna] Error adding event to pool: ${error.message}`,
+        );
+      } else {
+        throw error;
+      }
     }
   }
 
@@ -38,8 +44,14 @@ export class Fortuna extends PseudoRandomNumberGenerator {
       const hash = crypto.createHmac("sha256", this.cipherKey);
       hash.update(data);
       return hash.digest();
-    } catch (error: any) {
-      throw new Error(`[Fortuna] Error creating seeded hash: ${error.message}`);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(
+          `[Fortuna] Error creating seeded hash: ${error.message}`,
+        );
+      } else {
+        throw error;
+      }
     }
   }
 
@@ -49,8 +61,14 @@ export class Fortuna extends PseudoRandomNumberGenerator {
       const encrypted = this.createSeededHash(this.pools[this.poolIndex]);
       this.pools[this.poolIndex] = encrypted;
       this.poolIndex = (this.poolIndex + 1) % this.keySize;
-    } catch (error: any) {
-      throw new Error(`[Fortuna] Error updating pool: ${error.message}`);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(
+          `[Fortuna] Error updating pool with new entropy: ${error.message}`,
+        );
+      } else {
+        throw error;
+      }
     }
   }
 
@@ -64,8 +82,14 @@ export class Fortuna extends PseudoRandomNumberGenerator {
         );
         this.reseedCounter = 0;
       }
-    } catch (error: any) {
-      throw new Error(`[Fortuna] Error reseeding: ${error.message}`);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(
+          `[Fortuna] Error reseeding the generator: ${error.message}`,
+        );
+      } else {
+        throw error;
+      }
     }
   }
 
@@ -76,10 +100,14 @@ export class Fortuna extends PseudoRandomNumberGenerator {
       this.reseed();
       this.reseedCounter++;
       return super.nextFloat();
-    } catch (error: any) {
-      throw new Error(
-        `[Fortuna] Error generating random number: ${error.message}`,
-      );
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(
+          `[Fortuna] Error generating random number: ${error.message}`,
+        );
+      } else {
+        throw error;
+      }
     }
   }
 
@@ -90,10 +118,14 @@ export class Fortuna extends PseudoRandomNumberGenerator {
       this.reseed();
       this.reseedCounter++;
       return super.nextInt(min, max);
-    } catch (error: any) {
-      throw new Error(
-        `[Fortuna] Error generating random number: ${error.message}`,
-      );
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(
+          `[Fortuna] Error generating random number: ${error.message}`,
+        );
+      } else {
+        throw error;
+      }
     }
   }
 }

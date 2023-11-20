@@ -8,12 +8,15 @@ export class WichmannHill extends PseudoRandomNumberGenerator {
   private s3: number;
 
   constructor(seed: Seed) {
-    const seedBuffer = seed.length >= 12 ? seed : Buffer.alloc(12, seed);
+    const seedBuffer =
+      seed.length >= 12
+        ? seed
+        : new Seed(Buffer.alloc(12, seed.toString("hex"), "hex"));
     super(seedBuffer);
 
-    this.s1 = Math.max(1, seedBuffer.readUInt32LE(0) % 30269);
-    this.s2 = Math.max(1, seedBuffer.readUInt32LE(4) % 30307);
-    this.s3 = Math.max(1, seedBuffer.readUInt32LE(8) % 30323);
+    this.s1 = Math.max(1, seedBuffer.buffer.readUInt32LE(0) % 30269);
+    this.s2 = Math.max(1, seedBuffer.buffer.readUInt32LE(4) % 30307);
+    this.s3 = Math.max(1, seedBuffer.buffer.readUInt32LE(8) % 30323);
   }
 
   public nextFloat(): number {
@@ -28,10 +31,14 @@ export class WichmannHill extends PseudoRandomNumberGenerator {
       this.updateSeed();
 
       return r;
-    } catch (error: any) {
-      throw new Error(
-        `[WichmannHill] Error generating random number: ${error.message}`,
-      );
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(
+          `[WichmannHill] Error generating random number: ${error.message}`,
+        );
+      } else {
+        throw error;
+      }
     }
   }
 
@@ -41,19 +48,27 @@ export class WichmannHill extends PseudoRandomNumberGenerator {
       newSeedBuffer.writeUInt32LE(this.s1, 0);
       newSeedBuffer.writeUInt32LE(this.s2, 4);
       newSeedBuffer.writeUInt32LE(this.s3, 8);
-      this.seed = newSeedBuffer;
-    } catch (error: any) {
-      throw new Error(`[WichmannHill] Error updating seed: ${error.message}`);
+      this.seed = new Seed(newSeedBuffer);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(`[WichmannHill] Error updating seed: ${error.message}`);
+      } else {
+        throw error;
+      }
     }
   }
 
   public nextInt(min: number, max: number): number {
     try {
       return Math.floor(this.nextFloat() * (max - min + 1)) + min;
-    } catch (error: any) {
-      throw new Error(
-        `[WichmannHill] Error generating random number: ${error.message}`,
-      );
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(
+          `[WichmannHill] Error generating random number: ${error.message}`,
+        );
+      } else {
+        throw error;
+      }
     }
   }
 }

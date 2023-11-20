@@ -38,11 +38,7 @@ export class PseudoRandomItemSelector<T extends ItemSymbol> {
     } else if (typeof rngOrSeed === "function") {
       this.rng = new rngOrSeed(
         seed ||
-          new Seed(
-            Buffer.alloc(32)
-              .fill(0)
-              .map((_: any, i: number) => i),
-          ),
+          new Seed(Buffer.alloc(32).map(() => Math.floor(Math.random() * 256))),
       );
     } else if (rngOrSeed) {
       this.rng = new PseudoRandomNumberGenerator(rngOrSeed);

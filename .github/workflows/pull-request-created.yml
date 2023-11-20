@@ -10,21 +10,21 @@ jobs:
     with:
       fetch-depth: 2
 
-
-  # lint:
-  #   needs: list-packages
-  #   strategy:
-  #     matrix:
-  #       package: ${{ fromJson(needs.list-updated-packages.outputs.updated_packages) }}
-  #   uses: ./.github/workflows/lint-code.yml
-  #   with:
-  #     node_version: '20'
-  #     package_name: "${{ matrix.package }}"
-
-  format:
-    # needs: [list-updated-packages, lint]
+  lint:
     needs: list-updated-packages
     strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJson(needs.list-updated-packages.outputs.updated_packages) }}
+    uses: ./.github/workflows/lint-code.yml
+    with:
+      node_version: '20'
+      package_name: "${{ matrix.package }}"
+
+  format:
+    needs: [list-updated-packages, lint]
+    strategy:
+      fail-fast: false
       matrix:
         package: ${{ fromJson(needs.list-updated-packages.outputs.updated_packages) }}
     uses: ./.github/workflows/format-code.yml
@@ -35,6 +35,7 @@ jobs:
   build:
     needs: [list-updated-packages, format]
     strategy:
+      fail-fast: false
       matrix:
         package: ${{ fromJson(needs.list-updated-packages.outputs.updated_packages) }}
     uses: ./.github/workflows/build-code.yml
@@ -45,6 +46,7 @@ jobs:
   test:
     needs: [list-updated-packages, build]
     strategy:
+      fail-fast: false
       matrix:
         package: ${{ fromJson(needs.list-updated-packages.outputs.updated_packages) }}
     uses: ./.github/workflows/test-code.yml

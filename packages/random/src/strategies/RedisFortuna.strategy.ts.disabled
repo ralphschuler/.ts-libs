@@ -23,10 +23,14 @@ export class RedisFortuna extends Fortuna {
           this.addEvent(Buffer.from(message));
         }
       });
-    } catch (error: any) {
-      throw new Error(
-        `[RedisFortuna] Error subscribing to Redis channel: ${error.message}`,
-      );
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(
+          `[RedisFortuna] Error subscribing to Redis channel: ${error.message}`,
+        );
+      } else {
+        throw error;
+      }
     }
   }
 }
