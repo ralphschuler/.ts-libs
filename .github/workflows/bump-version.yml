@@ -1,0 +1,20 @@
+name: Bump Package Version
+
+on:
+  workflow_call:
+    inputs:
+      package_name:
+        required: true
+        type: string
+      version_type:
+        required: true
+        type: string
+        description: "Version bump type (major, minor, patch)"
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bump version
+        run: yarn version --${{ inputs.version_type }}

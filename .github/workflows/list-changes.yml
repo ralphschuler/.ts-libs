@@ -1,0 +1,48 @@
+name: List Changes
+
+on:
+  workflow_call:
+    inputs:
+      fetch-depth:
+        required: false
+        default: 2
+        type: number
+    outputs:
+      files:
+        description: "List of changed files"
+        value: ${{ jobs.list-changes.outputs.files }}
+      directories:
+        description: "List of changed directories"
+        value: ${{ jobs.list-changes.outputs.directories }}
+
+jobs:
+  list-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      files: ${{ steps.list-changes.outputs.files }}
+      directories: ${{ steps.list-changes.outputs.directories }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: ${{ inputs.fetch-depth }}
+
+      - id: list-changes
+        run: |
+          files=$(git diff --name-only HEAD^ HEAD | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')
+          add_directories() {
+              local path="$1"
+              while [ "$path" != "." ]; do
+                  echo "$path"
+                  path=$(dirname "$path")
+              done
+          }
+          declare -A directories
+          for file in "${files[@]}"; do
+            tmp_directories=$(add_directories "$(dirname "$file")")
+            for directory in $tmp_directories; do
+                directories["$directory"]=1
+            done
+          done
+          echo "files=${files}" >> ${GITHUB_OUTPUT}
+          echo "directories=${!directories[@]}" >> ${GITHUB_OUTPUT}

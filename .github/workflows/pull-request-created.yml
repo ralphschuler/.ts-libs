@@ -1,0 +1,54 @@
+name: Check Pull Request
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  list-packages:
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.list-packages.outputs.packages }}
+    steps:
+      - uses: ./.github/workflows/list-packages.yml
+        id: list-packages
+
+  lint:
+    needs: list-packages
+    strategy:
+      matrix:
+        package: ${{ fromJson(needs.list-packages.outputs.packages) }}
+    uses: ./.github/workflows/lint-code.yml
+    with:
+      node_version: '20'
+      package_name: "${{ matrix.package }}"
+
+  format:
+    needs: [list-packages, lint]
+    strategy:
+      matrix:
+        package: ${{ fromJson(needs.list-packages.outputs.packages) }}
+    uses: ./.github/workflows/format-code.yml
+    with:
+      node_version: '20'
+      package_name: "${{ matrix.package }}"
+
+  build:
+    needs: [list-packages, format]
+    strategy:
+      matrix:
+        package: ${{ fromJson(needs.list-packages.outputs.packages) }}
+    uses: ./.github/workflows/build-code.yml
+    with:
+      node_version: '20'
+      package_name: "${{ matrix.package }}"
+
+  test:
+    needs: [list-packages, build]
+    strategy:
+      matrix:
+        package: ${{ fromJson(needs.list-packages.outputs.packages) }}
+    uses: ./.github/workflows/test-code.yml
+    with:
+      node_version: '20'
+      package_name: "${{ matrix.package }}"

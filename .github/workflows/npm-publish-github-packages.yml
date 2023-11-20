@@ -12,66 +12,26 @@ env:
   NODE_VERSION: 20
 
 jobs:
-  list-changes-and-packages:
-    name: List Changes and Packages
+  list-updated-packages:
+    name: List updated packages
     runs-on: ubuntu-latest
     outputs:
-      files: ${{ steps.list-changes-and-packages.outputs.files }}
-      directories: ${{ steps.list-changes-and-packages.outputs.directories }}
-      packages: ${{ steps.list-changes-and-packages.outputs.packages }}
-      updated_packages: ${{ steps.list-changes-and-packages.outputs.updated-packages }}
+      updated_packages: ${{ steps.list-updated-packages.outputs.updated_packages }}
     steps:
-      - uses: actions/checkout@v4
+      - name: List updated packages
+        id: list-updated-packages
+        uses: ./.github/workflows/list-updated-packages
         with:
           fetch-depth: 2
 
-      - id: list-changes-and-packages
-        run: |
-          # Listing changes
-          files=$(git diff --name-only HEAD^ HEAD | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')
-          add_directories() {
-              local path="$1"
-              while [ "$path" != "." ]; do
-                  echo "$path"
-                  path=$(dirname "$path")
-              done
-          }
-          declare -A directories
-          for file in "${files[@]}"; do
-            tmp_directories=$(add_directories "$(dirname "$file")")
-            for directory in $tmp_directories; do
-                directories["$directory"]=1
-            done
-          done
-
-          # Listing packages
-          packages=$(find packages/ -maxdepth 1 -mindepth 1 -type d -exec basename {} \; | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')
-
-          # Determining updated packages
-          updated_packages=()
-          for package in "${packages[@]}"; do
-            for directory in "${!directories[@]}"; do
-              if [[ "$directory" == "packages/$package" ]]; then
-                updated_packages+=("$package")
-                break
-              fi
-            done
-          done
-
-          # Setting outputs
-          echo "files=${files}" >> ${GITHUB_OUTPUT}
-          echo "directories=${!directories[@]}" >> ${GITHUB_OUTPUT}
-          echo "packages=${packages}" >> ${GITHUB_OUTPUT}
-          echo "updated_packages=$(printf '%s\n' "${updated_packages[@]}" | jq -R -s -c 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
-
   format-and-lint:
+    if: ${{ needs.list-updated-packages.outputs.updated_packages != '' && toJson(needs.list-updated-packages.outputs.updated_packages) != '[]' }}
     name: Format and lint
-    needs: [list-changes-and-packages]
+    needs: [list-updated-packages]
     strategy:
       matrix:
-        package: ${{ fromJson(needs.list-changes-and-packages.outputs.updated_packages) }}
+        package: ${{ fromJson(needs.list-updated-packages.outputs.updated_packages) }}
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && fromJson(needs.list-changes-and-packages.outputs.updated_packages)
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -103,9 +63,9 @@ jobs:
       package: ${{ env.package }}
 
   publish:
+    if: ${{ github.event_name == 'release' && startsWith(github.event.action, 'created') }}
     name: Publish
     needs: build-and-test
-    if: github.event_name == 'release' && github.event.action == 'created'
     runs-on: ubuntu-latest
     permissions:
       contents: read
