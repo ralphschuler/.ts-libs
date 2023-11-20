@@ -30,15 +30,20 @@ export class StateStore<StateType extends StateProperties> {
    */
   private createProxy(): StateStore<StateType> {
     return new Proxy(this, {
-      get: (target, property: keyof StateType) => target.state[property],
-      set: (target, property: keyof StateType, value: any) => {
+      get: (target, property: string | symbol) =>
+        target.state[property as keyof StateType],
+      set: (target, property: string | symbol, value: unknown): boolean => {
         if (typeof value === "function") {
-          target.listeners[property] = target.listeners[property] || [];
-          target.listeners[property]!.push(
+          target.listeners[property as keyof StateType] =
+            target.listeners[property as keyof StateType] || [];
+          target.listeners[property as keyof StateType]!.push(
             value as Listener<StateType[keyof StateType]>,
           );
         } else {
-          target.updateState(property, value);
+          target.updateState(
+            property as keyof StateType,
+            value as StateType[keyof StateType],
+          );
         }
         return true;
       },
@@ -58,7 +63,7 @@ export class StateStore<StateType extends StateProperties> {
   ): void {
     const newValue = this.applyInterceptors(property, value);
     this.applyMiddlewares(property, newValue, () => {
-      this.state[property] = newValue as any;
+      this.state[property as keyof StateType] = newValue;
       this.notifyListeners(property, newValue);
     });
   }

@@ -1,5 +1,5 @@
 import { ConstructorFunction } from "./ConstructorFunction.type.js";
-import { ConstructorParametersOf } from "./ConstructorParametersOf.type";
+import { ConstructorParametersOf } from "./ConstructorParametersOf.type.js";
 
 /**
  * Type that can either be a class constructor or an instance of that class,

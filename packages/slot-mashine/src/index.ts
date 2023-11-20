@@ -46,8 +46,8 @@ abstract class Reel<T extends ISymbol> {
     this.rows = rows;
   }
 
-  spin(): T[][] {
-    const spunReels: T[][] = [];
+  spin(): T[] {
+    const spunReels: T[] = [];
 
     for (let i = 0; i < this.rows; i++) {
       spunReels.push(this.getRandomSymbol());
@@ -107,7 +107,7 @@ class SlotMachine<T extends ISymbol> {
     this.credit = initialCredit;
   }
 
-  betAndSpin(bet: number): T[][] {
+  protected betAndSpin(bet: number): T[][] {
     if (bet > this.credit) {
       console.log("Insufficient credit to place bet.");
       return [];
@@ -139,7 +139,7 @@ class FruitSlotMachine extends SlotMachine<BaseSymbol> {
     this.displayInitial();
   }
 
-  betAndSpin(bet: number): void {
+  betAndSpin(bet: number): BaseSymbol[][] {
     let spunReels: BaseSymbol[][];
     bet = parseFloat(bet.toFixed(2));
 
@@ -171,6 +171,7 @@ class FruitSlotMachine extends SlotMachine<BaseSymbol> {
         console.log(`No win. Remaining credit: ${this.getCredit()}`);
       }
     }
+    return spunReels;
   }
 
   display(spunReels: BaseSymbol[][], win: number, credit: number): void {
@@ -205,7 +206,7 @@ class FruitSlotMachine extends SlotMachine<BaseSymbol> {
       "%9%",
     ];
 
-    let art = slotMachineArt
+    const art = slotMachineArt
       .replace(
         winTemplate,
         " ".repeat(winTemplate.length - win.toString().length) + win,

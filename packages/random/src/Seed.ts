@@ -7,10 +7,6 @@ export class Seed extends Buffer {
     return super.length;
   }
 
-  public set length(value: number) {
-    super.length = value;
-  }
-
   constructor(seed?: string | number | Buffer) {
     if (seed === undefined) {
       super(32);
