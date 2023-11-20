@@ -14,5 +14,5 @@
     "clean": "yarn workspaces foreach -Apt run clean",
     "prepublish": "yarn build"
   },
-  "packageManager": "yarn@4.0.0-rc.51"
+  "packageManager": "yarn@4.0.2"
 }
