@@ -6,62 +6,45 @@ on:
 
 jobs:
   list-packages:
-    runs-on: ubuntu-latest
-    outputs:
-      packages: ${{ steps.list-packages.outputs.packages }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/workflows/list-packages.yml
-        id: list-packages
+    uses: ./.github/workflows/list-packages.yml
+
 
   lint:
     needs: list-packages
-    runs-on: ubuntu-latest
     strategy:
       matrix:
         package: ${{ fromJson(needs.list-packages.outputs.packages) }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/workflows/lint-code.yml
-        with:
-          node_version: '20'
-          package_name: "${{ matrix.package }}"
+    uses: ./.github/workflows/lint-code.yml
+    with:
+      node_version: '20'
+      package_name: "${{ matrix.package }}"
 
   format:
     needs: [list-packages, lint]
-    runs-on: ubuntu-latest
     strategy:
       matrix:
         package: ${{ fromJson(needs.list-packages.outputs.packages) }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/workflows/format-code.yml
-        with:
-          node_version: '20'
-          package_name: "${{ matrix.package }}"
+    uses: ./.github/workflows/format-code.yml
+    with:
+      node_version: '20'
+      package_name: "${{ matrix.package }}"
 
   build:
     needs: [list-packages, format]
-    runs-on: ubuntu-latest
     strategy:
       matrix:
         package: ${{ fromJson(needs.list-packages.outputs.packages) }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/workflows/build-code.yml
-        with:
-          node_version: '20'
-          package_name: "${{ matrix.package }}"
+    uses: ./.github/workflows/build-code.yml
+    with:
+      node_version: '20'
+      package_name: "${{ matrix.package }}"
 
   test:
     needs: [list-packages, build]
-    runs-on: ubuntu-latest
     strategy:
       matrix:
         package: ${{ fromJson(needs.list-packages.outputs.packages) }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/workflows/test-code.yml
-        with:
-          node_version: '20'
-          package_name: "${{ matrix.package }}"
+    uses: ./.github/workflows/test-code.yml
+    with:
+      node_version: '20'
+      package_name: "${{ matrix.package }}"

@@ -13,30 +13,27 @@ on:
         description: 'List of updated packages'
         value: ${{ jobs.list-updated-packages.outputs.updated_packages }}
 jobs:
+  list-changes:
+    uses: ./.github/workflows/list-changes.yml
+    with:
+      fetch-depth: ${{ github.event.inputs.fetch-depth }}
+
+  list-packages:
+    uses: ./.github/workflows/list-packages.yml
+
   list-updated-packages:
+    needs: [list-changes, list-packages]
     runs-on: ubuntu-latest
     outputs:
       updated_packages: ${{ steps.determine-updated-packages.outputs.updated-packages }}
-
     steps:
-      - uses: actions/checkout@v4
-      - name: List Changes
-        id: list-changes
-        uses: ./.github/workflows/list-changes.yml
-        with:
-          fetch-depth: 2
-
-      - name: List Packages
-        id: list-packages
-        uses: ./.github/workflows/list-packages.yml
-
       - name: Determine Updated Packages
         id: determine-updated-packages
         run: |
           # Script to determine updated packages using outputs from list-changes and list-packages
           updated_packages=()
-          for package in ${{ steps.list-packages.outputs.packages }}; do
-            for directory in ${{ steps.list-changes.outputs.directories }}; do
+          for package in ${{ needs.list-packages.outputs.packages }}; do
+            for directory in ${{ needs.list-changes.outputs.directories }}; do
               if [[ "$directory" == "packages/$package" ]]; then
                 updated_packages+=("$package")
                 break

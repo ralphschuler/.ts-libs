@@ -6,23 +6,15 @@ on:
 
 jobs:
   list-packages:
-    runs-on: ubuntu-latest
-    outputs:
-      packages: ${{ steps.list-packages.outputs.packages }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/workflows/list-packages.yml
-        id: list-packages
+    uses: ./.github/workflows/list-packages.yml
+
 
   unpublish-package:
     needs: list-packages
-    runs-on: ubuntu-latest
     strategy:
       matrix:
         package: ${{ fromJson(needs.list-packages.outputs.packages) }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/workflows/unpublish-package.yml
-        with:
-          node_version: '20'
-          package_name: "${{ matrix.package }}"
+    uses: ./.github/workflows/unpublish-package.yml
+    with:
+      node_version: '20'
+      package_name: "${{ matrix.package }}"
