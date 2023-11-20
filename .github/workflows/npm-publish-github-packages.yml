@@ -36,6 +36,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: ${{env.NODE_VERSION}}
+          cache: 'yarn'
       - run: yarn workspace ${{ matrix.package }} install
       - run: yarn workspace ${{ matrix.package }} format
       - run: yarn workspace ${{ matrix.package }} lint
@@ -53,6 +54,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: ${{env.NODE_VERSION}}
+          cache: 'yarn'
       - run: yarn workspace ${{ matrix.package }} install
       - run: yarn workspace ${{ matrix.package }} build
       - run: yarn workspace ${{ matrix.package }} test
@@ -75,6 +77,7 @@ jobs:
         with:
           node-version: ${{env.NODE_VERSION}}
           registry-url: https://npm.pkg.github.com/
+          cache: 'yarn'
       - run: yarn workspace ${{ matrix.package }} install
       - run: yarn workspace ${{ matrix.package }} publish
         env:
