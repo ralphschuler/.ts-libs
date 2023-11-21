@@ -40,10 +40,12 @@ class ScatterSymbol extends BaseSymbol {
 abstract class Reel<T extends ISymbol> {
   protected symbols: T[];
   protected rows: number;
+  protected weightedSymbols: T[];
 
   constructor(symbols: T[], rows: number = 3) {
     this.symbols = symbols;
     this.rows = rows;
+    this.weightedSymbols = this.calculateWeightedSymbols();
   }
 
   spin(): T[] {
@@ -56,26 +58,24 @@ abstract class Reel<T extends ISymbol> {
     return spunReels;
   }
 
-  private getRandomSymbol(): T {
-    // Calculate the total weight
-    let totalWeight = 0;
-    for (const symbol of this.symbols) {
-      totalWeight += 1 / symbol.getMultiplier();
-    }
+  private calculateWeightedSymbols(): T[] {
+    const weightedSymbols: T[] = [];
 
-    // Generate a random value within this total weight
-    let randomWeight = Math.random() * totalWeight;
-
-    // Find the symbol corresponding to the randomWeight
     for (const symbol of this.symbols) {
-      randomWeight -= 1 / symbol.getMultiplier();
-      if (randomWeight <= 0) {
-        return symbol;
+      const weight = symbol.getMultiplier();
+      const numberOfSymbols = Math.ceil(1 / weight);
+
+      for (let i = 0; i < numberOfSymbols; i++) {
+        weightedSymbols.push(symbol);
       }
     }
 
-    // Fallback in case of rounding errors
-    return this.symbols[this.symbols.length - 1];
+    return weightedSymbols;
+  }
+
+  private getRandomSymbol(): T {
+    const randomIndex = Math.floor(Math.random() * this.weightedSymbols.length);
+    return this.weightedSymbols[randomIndex];
   }
 }
 
@@ -84,16 +84,11 @@ class FruitReel extends Reel<BaseSymbol> {
     super([
       new BaseSymbol("🍒", 1),
       new BaseSymbol("🍋", 1),
-      new BaseSymbol("🍊", 1),
-      new BaseSymbol("🍉", 1),
-      new BaseSymbol("🍇", 1.5),
+      new BaseSymbol("🍊", 1.5),
+      new BaseSymbol("🍉", 1.5),
       new BaseSymbol("🍎", 2),
-      new BaseSymbol("🍓", 4),
-      new BaseSymbol("🍌", 8),
-      new BaseSymbol("🍐", 12),
-      new BaseSymbol("🍀", 15),
-      new WildSymbol("⭐", 17),
-      new ScatterSymbol("🎲", 20),
+      new WildSymbol("🍀", 2),
+      new ScatterSymbol("🎲", 7),
     ]);
   }
 }
