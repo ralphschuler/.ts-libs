@@ -10,6 +10,7 @@
     "build": "yarn workspaces foreach -Apt run build",
     "test": "yarn workspaces foreach -Apt run test",
     "lint": "yarn workspaces foreach -Apt run lint",
+    "lint:report": "yarn workspaces foreach -Apt run lint:report",
     "lint:fix": "yarn workspaces foreach -Apt run lint:fix",
     "format": "yarn workspaces foreach -Apt run format",
     "format:fix": "yarn workspaces foreach -Apt run format:fix",
