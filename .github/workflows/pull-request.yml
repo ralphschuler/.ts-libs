@@ -17,7 +17,7 @@ jobs:
       - run: yarn
       - run: yarn lint:report
         continue-on-error: true
-      - uses: "./.github/workflows/merge-eslint-reports.yml"
+      - uses: ./.github/workflows/merge-eslint-reports.yml
         with:
           target: "eslint_report.json"
       - uses: ataylorme/eslint-annotate-action@v2
@@ -44,6 +44,9 @@ jobs:
       #   with:
       #     pattern: "**/test_report.json"
       #     target: "test_reports/"
+      # - uses: ./.github/workflows/merge-test-reports.yml
+      #   with:
+      #     target: "test_report.json"
 
   format:
     if: ${{ github.event.pull_request.merged == true }}
