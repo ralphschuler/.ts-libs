@@ -1,5 +1,5 @@
 {
-  "name": "@lib-lib/logger",
+  "name": "@ralphschuler/logger",
   "version": "1.0.0",
   "license": "MIT",
   "type": "module",
@@ -9,9 +9,9 @@
       "require": "./dist/index.js"
     }
   },
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
@@ -30,9 +30,15 @@
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint src/ --ext .ts",
+    "lint:report": "eslint --output-file eslint_report.json --format json src/ --ext .ts",
     "lint:fix": "eslint src/ --ext .ts --fix",
-    "format": "prettier --write src/",
-    "clean": "rimraf dist",
-    "prepublish": "yarn build"
+    "format": "prettier src/",
+    "format:fix": "prettier --write src/",
+    "clean": "rimraf dist node_modules",
+    "prepublish": "yarn build",
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "tsx": "^4.1.4"
   }
 }

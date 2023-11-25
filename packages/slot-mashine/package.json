@@ -1,0 +1,45 @@
+{
+  "name": "@ralphschuler/slot-mashine",
+  "version": "1.0.0",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "@types/node": "^20.7.1",
+    "@typescript-eslint/eslint-plugin": "^6.7.3",
+    "@typescript-eslint/parser": "^6.7.3",
+    "eslint": "^8.50.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "prettier": "^3.0.3",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.2.2"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint src/ --ext .ts",
+    "lint:report": "eslint --output-file eslint_report.json --format json src/ --ext .ts",
+    "lint:fix": "eslint src/ --ext .ts --fix",
+    "format": "prettier src/",
+    "format:fix": "prettier --write src/",
+    "clean": "rimraf dist node_modules",
+    "prepublish": "yarn build",
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "readline": "^1.3.0",
+    "tsx": "^4.1.4"
+  }
+}

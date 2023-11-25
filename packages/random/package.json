@@ -1,5 +1,5 @@
 {
-  "name": "@lib-lib/random",
+  "name": "@ralphschuler/random",
   "version": "1.0.0",
   "license": "MIT",
   "type": "module",
@@ -9,14 +9,15 @@
       "require": "./dist/index.js"
     }
   },
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
   "devDependencies": {
     "@types/node": "^20.7.1",
+    "@types/redis": "^4.0.11",
     "@typescript-eslint/eslint-plugin": "^6.7.3",
     "@typescript-eslint/parser": "^6.7.3",
     "eslint": "^8.50.0",
@@ -30,9 +31,16 @@
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint src/ --ext .ts",
+    "lint:report": "eslint --output-file eslint_report.json --format json src/ --ext .ts",
     "lint:fix": "eslint src/ --ext .ts --fix",
-    "format": "prettier --write src/",
-    "clean": "rimraf dist",
-    "prepublish": "yarn build"
+    "format": "prettier src/",
+    "format:fix": "prettier --write src/",
+    "clean": "rimraf dist node_modules",
+    "prepublish": "yarn build",
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "redis": "^4.6.11",
+    "tsx": "^4.1.4"
   }
 }

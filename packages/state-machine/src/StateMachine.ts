@@ -1,4 +1,4 @@
-import { Logger } from "@lib-lib/logger";
+import { Logger } from "@ralphschuler/logger";
 import { IStateConfig } from "./interfaces/IStateConfig.js";
 import { IStateMachine } from "./interfaces/IStateMachine.js";
 import { Action } from "./types/Action.js";

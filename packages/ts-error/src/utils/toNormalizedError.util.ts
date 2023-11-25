@@ -1,5 +1,8 @@
+import { NormalizedError } from "../errors/NormalizedError.error.js";
+import { isError } from "./isError.util.js";
+
 export const toNormalizedError = (value: unknown): NormalizedError => {
-  if (isError(value) || value instanceof CustomError) {
+  if (isError(value)) {
     return new NormalizedError(value);
   } else {
     const newError = new Error(

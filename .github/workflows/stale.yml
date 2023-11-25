@@ -1,0 +1,15 @@
+name: 'Close stale issues and PRs'
+on:
+  schedule:
+    - cron: '30 1 * * *'
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v8
+        with:
+          stale-issue-message: |
+            Hi there. It looks like there hasn't been any activity on this issue recently. Has the issue been resolved, or can we close it?
+          stale-pr-message: |
+            Hi there. It looks like there hasn't been any activity on this pull request recently. Has the issue been resolved, or can we close it?

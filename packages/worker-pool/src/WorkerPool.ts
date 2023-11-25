@@ -1,7 +1,7 @@
 import { Worker } from "worker_threads";
 import { Task } from "./types/Task.js";
-import { Logger } from "@lib-lib/logger";
-import { noThrow, isError } from "@lib-lib/ts-error";
+import { Logger } from "@ralphschuler/logger";
+import { noThrow, isError } from "@ralphschuler/ts-error";
 
 const logger = Logger.getInstance();
 

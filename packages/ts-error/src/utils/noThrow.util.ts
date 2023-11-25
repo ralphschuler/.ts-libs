@@ -1,5 +1,5 @@
-import { NoThrowResult } from "../types/NoThrowResult.type";
-import { toNormalizedError } from "./toNormalizedError.util";
+import { NoThrowResult } from "../types/NoThrowResult.type.js";
+import { toNormalizedError } from "./toNormalizedError.util.js";
 
 export const noThrow = <A>(action: () => A): NoThrowResult<A> => {
   try {

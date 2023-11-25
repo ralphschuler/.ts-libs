@@ -3,7 +3,7 @@ import { IObservable } from "./interfaces/IObservable.js";
 import { IOperatorFunction } from "./interfaces/IOperatorFunction.js";
 import { ISubscription } from "./interfaces/ISubscription.js";
 import { Observer } from "./types/Observer.js";
-import { Logger } from "@lib-lib/logger";
+import { Logger } from "@ralphschuler/logger";
 
 const logger = Logger.getInstance();
 

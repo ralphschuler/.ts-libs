@@ -1,0 +1,64 @@
+name: Release
+
+on:
+  release:
+    types: [created, deleted]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    if: ${{ github.event.action == 'created' }}
+    name: Publish to ${{ matrix.registry }}
+    runs-on: ubuntu-latest
+    env:
+      NODE_AUTH_TOKEN: ${{ matrix.auth-token }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - registry: npm
+            registry-url: https://registry.npmjs.org/
+            auth-token: ${{ secrets.NPM_TOKEN }}
+            scope: ''
+          - registry: gpr
+            registry-url: https://npm.pkg.github.com/
+            auth-token: ${{ secrets.GITHUB_TOKEN }}
+            scope: '@${{ github.repository_owner }}'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4.0.0
+        with:
+          node-version: 20
+      - run: corepack enable
+      - run: yarn
+      - run: yarn publish
+
+  unpublish:
+    if: ${{ github.event.action == 'deleted' }}
+    name: Unpublish from ${{ matrix.registry }}
+    runs-on: ubuntu-latest
+    env:
+      NODE_AUTH_TOKEN: ${{ matrix.auth-token }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - registry: npm
+            registry-url: https://registry.npmjs.org/
+            auth-token: ${{ secrets.NPM_TOKEN }}
+            scope: ''
+          - registry: gpr
+            registry-url: https://npm.pkg.github.com/
+            auth-token: ${{ secrets.GITHUB_TOKEN }}
+            scope: '@${{ github.repository_owner }}'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4.0.0
+        with:
+          node-version: 20
+      - run: corepack enable
+      - run: yarn
+      - run: yarn unpublish --force

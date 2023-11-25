@@ -1,4 +1,4 @@
-import { Logger } from "@lib-lib/logger";
+import { Logger } from "@ralphschuler/logger";
 import { ComparatorFunction } from "./types/ComparatorFunction.js";
 import { Optional } from "./types/Optional.js";
 import { PriorityQueueOptions } from "./types/PriorityQueueOptions.js";

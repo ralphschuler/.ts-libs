@@ -1,4 +1,4 @@
-import { AssertionError } from "../errors/AssertionError.error";
+import { AssertionError } from "../errors/AssertionError.error.js";
 
 export function assert(
   condition: boolean,
