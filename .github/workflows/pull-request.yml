@@ -9,93 +9,62 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4.0.0
         with:
           node-version: 20
       - run: corepack enable
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v3
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
       - run: yarn
       - run: yarn lint:report
         continue-on-error: true
-      - name: Merge reports
-        uses: actions/github-script@v3
+      - uses: "./.github/actions/merge-eslint-reports.yml"
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const readDir = (dir, files = []) => {
-              const fs = require('fs');
-              const path = require('path');
-              fs.readdirSync(dir).forEach(file => {
-                const filePath = path.join(dir, file);
-                const stat = fs.statSync(filePath);
-                if (stat.isDirectory()) {
-                  readDir(filePath, files);
-                } else {
-                  files.push(filePath);
-                }
-              });
-              return files;
-            };
-
-            const reports = readDir('./').filter(file => file.includes('eslint_report.json'));
-
-            const merged = reports.reduce((acc, report) => {
-              const json = JSON.parse(fs.readFileSync(report, 'utf8'));
-              return {
-                ...acc,
-                ...json
-              };
-            }, {});
-
-            fs.writeFileSync('eslint_report.json', JSON.stringify(merged, null, 2));
+          target: "eslint_report.json"
       - uses: ataylorme/eslint-annotate-action@v2
         with:
           report-json: "eslint_report.json"
 
-  format:
-    if: ${{ github.event.pull_request.merged == true }}
-    needs: check
-    name: Format
+  test:
+    name: Test
+    needs: lint
     runs-on: ubuntu-latest
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4.0.0
         with:
           node-version: 20
       - run: corepack enable
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v3
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+      - run: yarn
+      - run: yarn test
+      # - run: mkdir -p test_reports
+      # - name: Collect Reports
+      #   uses: "./.github/actions/collect-files.yml"
+      #   with:
+      #     pattern: "**/test_report.json"
+      #     target: "test_reports/"
+
+  format:
+    if: ${{ github.event.pull_request.merged == true }}
+    name: Format
+    runs-on: ubuntu-latest
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4.0.0
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
+          node-version: 20
+      - run: corepack enable
       - run: yarn
       - run: yarn format:fix
-      - name: Commit changes
-        uses: actions/github-script@v3
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const output = fs.readFileSync(process.env.GITHUB_OUTPUT, 'utf8');
-            const dir = output.split('=')[1];
-            const git = require('simple-git')(dir);
-            git.addConfig('user.name', 'github-actions[bot]');
-            git.addConfig('user.email', 'github-actions[bot]@users.noreply.github.com');
-            git.add('./*');
-            git.commit('chore: format code');
-            git.push();
+      - run: |
+          git config --global user.name '${{ github.pull_request.user.login }}'
+          git config --global user.email '${{ github.pull_request.user.email }}'
+          git add .
+          git commit -m "chore: format code"
+          git push
