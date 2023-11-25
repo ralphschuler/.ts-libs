@@ -1,21 +1,30 @@
 name: Collect Files
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       pattern:
+        type: string
         description: 'Glob pattern to match files against'
         required: true
       target:
+        type: string
         description: 'Target directory to copy files to'
-        required: true
+        required: false
+    outputs:
+      target:
+        description: 'Target directory to copy files to'
+        value: ${{ jobs.collect.outputs.target }}
 
 jobs:
   collect:
     runs-on: ubuntu-latest
+    outputs:
+      target: ${{ steps.set_output.outputs.target }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/github-script@v7.0.1
+        id: collect_files
         env:
           INPUT_PATTERN: ${{ github.event.inputs.pattern }}
           INPUT_TARGET: ${{ github.event.inputs.target }}
@@ -40,10 +49,14 @@ jobs:
               });
             
               console.log(GREEN, `Done.`);
+              return target;
             }
             
-            collectFiles({
+            return collectFiles({
               pattern: process.env.INPUT_PATTERN,
-              target: process.env.INPUT_TARGET
+              target: process.env.INPUT_TARGET || `./${Buffer.from(new Date().toISOString()).toString('base64')}`
             });
-          
+      - id: set_output
+        run: echo "target=${TARGET}" >> $GITHUB_OUTPUT
+        env:
+          TARGET: ${{ steps.collect_files.outputs.result }}

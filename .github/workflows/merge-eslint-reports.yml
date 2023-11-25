@@ -1,24 +1,30 @@
 name: Merge ESLint reports
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       target:
-        description: "Target output file"
+        type: string
         required: false
         default: "./eslint_report.json"
+    outputs:
+      target:
+        description: 'The final target directory for the ESLint report'
+        value: ${{ jobs.merge-eslint-reports.outputs.target }}
 
 jobs:
   merge-eslint-reports:
     runs-on: ubuntu-latest
+    outputs:
+      target: ${{ steps.set_output.outputs.target }}
     steps:
       - uses: actions/checkout@v2
-      - run: mkdir -p ./.eslint_reports/
       - uses: ./.github/workflows/collect-files.yml
         with:
           pattern: "**/eslint_report.json"
           target: "./.eslint_reports/"
       - uses: actions/github-script@v7.0.1
+        id: merge_reports
         env:
           target: ${{ github.event.inputs.target }}
         with:
@@ -37,3 +43,8 @@ jobs:
             }, []);
 
             fs.writeFileSync(target, JSON.stringify(annotations, null, 2));
+            return target;
+      - id: set_output
+        run: echo "target=${TARGET}" >> $GITHUB_OUTPUT
+        env:
+          TARGET: ${{ steps.merge_reports.outputs.result }}
