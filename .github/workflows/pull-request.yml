@@ -32,7 +32,7 @@ jobs:
       - run: yarn ${{ matrix.job }}
 
   format:
-    if: github.event.pull_request.merged == true # only run on merged PRs
+    if: ${{ github.event.pull_request.merged == true }}
     needs: check
     name: Format
     runs-on: ubuntu-latest

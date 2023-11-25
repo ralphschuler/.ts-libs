@@ -5,7 +5,8 @@
   ],
   "scripts": {
     "publish": "yarn workspaces foreach -Apt run publish",
-    "prepare": "yarn workspaces foreach -Apt run prepare",
+    "husky:install": "husky install",
+    "prepare": "yarn husky:install && yarn workspaces foreach -Apt run prepare",
     "build": "yarn workspaces foreach -Apt run build",
     "test": "yarn workspaces foreach -Apt run test",
     "lint": "yarn workspaces foreach -Apt run lint",
@@ -13,11 +14,15 @@
     "format": "yarn workspaces foreach -Apt run format",
     "format:fix": "yarn workspaces foreach -Apt run format:fix",
     "clean": "yarn workspaces foreach -Apt run clean",
-    "prepublish": "yarn build",
-    "start": "tsx src/index.ts"
+    "prepublish": "yarn build"
   },
   "packageManager": "yarn@4.0.2",
   "dependencies": {
     "tsx": "^4.1.4"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^18.4.3",
+    "@commitlint/config-conventional": "^18.4.3",
+    "husky": "^8.0.3"
   }
 }
