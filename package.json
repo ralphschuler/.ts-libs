@@ -11,6 +11,7 @@
     "lint": "yarn workspaces foreach -Apt run lint",
     "lint:fix": "yarn workspaces foreach -Apt run lint:fix",
     "format": "yarn workspaces foreach -Apt run format",
+    "format:fix": "yarn workspaces foreach -Apt run format:fix",
     "clean": "yarn workspaces foreach -Apt run clean",
     "prepublish": "yarn build",
     "start": "tsx src/index.ts"

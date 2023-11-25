@@ -1,58 +1,17 @@
-name: Publish Packages
+name: Pull Request
 
 on:
-  workflow_dispatch:
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
 
 jobs:
-  release:
-    name: Release
+  check:
+    name: Lint and Test
     runs-on: ubuntu-latest
-    env:
-      NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4.0.0
-        with:
-          node-version: 20
-          cache: 'yarn'
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v3
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-      - run: yarn
-      - name: Create Release Pull Request
-        uses: changesets/action@v1.4.5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  publish:
-    name: Publish to ${{ matrix.registry }}
-    needs: release
-    runs-on: ubuntu-latest
-    env:
-      NODE_AUTH_TOKEN: ${{ matrix.auth-token }}
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - registry: npm
-            registry-url: https://registry.npmjs.org/
-            auth-token: ${{ secrets.NPM_TOKEN }}
-            scope: ''
-          - registry: gpr
-            registry-url: https://npm.pkg.github.com/
-            auth-token: ${{ secrets.GITHUB_TOKEN }}
-            scope: '@${{ github.repository_owner }}'
+        job: [lint, test]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4.0.0
@@ -70,4 +29,41 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
       - run: yarn
-      - run: yarn publish
+      - run: yarn ${{ matrix.job }}
+
+  format:
+    if: github.event.pull_request.merged == true # only run on merged PRs
+    needs: check
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4.0.0
+        with:
+          node-version: 20
+          cache: 'yarn'
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v3
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - run: yarn
+      - run: yarn format:fix
+      - name: Commit changes
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = fs.readFileSync(process.env.GITHUB_OUTPUT, 'utf8');
+            const dir = output.split('=')[1];
+            const git = require('simple-git')(dir);
+            git.addConfig('user.name', 'github-actions[bot]');
+            git.addConfig('user.email', 'github-actions[bot]@users.noreply.github.com');
+            git.add('./*');
+            git.commit('chore: format code');
+            git.push();
