@@ -1,0 +1,15 @@
+name: 'Collect Files'
+description: 'Collects files based on a glob pattern and copies them to a specified target directory.'
+inputs:
+  pattern:
+    description: 'Glob pattern to match files against'
+    required: true
+  output_directory:
+    description: 'The target directory where files are copied'
+    required: false
+outputs:
+  output_directory:
+    description: 'The target directory where files are copied'
+runs:
+  using: 'node20'
+  main: 'index.js'

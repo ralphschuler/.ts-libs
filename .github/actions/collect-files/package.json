@@ -1,0 +1,9 @@
+{
+  "name": "collect-files-action",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "@actions/core": "^1.2.6",
+    "glob": "^7.1.6"
+  }
+}

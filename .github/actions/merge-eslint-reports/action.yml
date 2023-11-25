@@ -1,0 +1,16 @@
+name: 'Merge ESLint Reports'
+description: 'Merges multiple ESLint report files into a single JSON file.'
+inputs:
+  input_directory:
+    description: 'The directory containing the ESLint report files'
+    required: true
+  output_file:
+    description: 'The file to write the merged report to'
+    required: false
+    default: './eslint_report.json'
+outputs:
+  output_file:
+    description: 'The file to write the merged report to'
+runs:
+  using: 'node20'
+  main: 'index.js'
