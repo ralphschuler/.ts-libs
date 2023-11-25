@@ -24,7 +24,7 @@ jobs:
           node-version: ${{ inputs.node_version }}
           registry-url: ${{ inputs.registry_url }}
       - run: corepack enable
-      - run: yarn workspace @lib-lib/${{ inputs.package_name }} install
-      - run: yarn workspace @lib-lib/${{ inputs.package_name }} publish
+      - run: yarn workspace @ralphschuler/${{ inputs.package_name }} install
+      - run: yarn workspace @ralphschuler/${{ inputs.package_name }} publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}

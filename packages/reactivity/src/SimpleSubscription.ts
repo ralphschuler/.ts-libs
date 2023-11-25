@@ -1,5 +1,5 @@
 import { ISubscription } from "./interfaces/ISubscription.js";
-import { Logger } from "@lib-lib/logger";
+import { Logger } from "@ralphschuler/logger";
 
 const logger = Logger.getInstance();
 

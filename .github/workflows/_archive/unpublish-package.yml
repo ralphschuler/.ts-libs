@@ -1,6 +1,6 @@
-name: Format Code
+name: Unpublish Git NPM Package
 
-on: 
+on:
   workflow_call:
     inputs:
       node_version:
@@ -11,14 +11,12 @@ on:
         type: string
 
 jobs:
-  format:
-    name: Format
+  unpublish-package:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node_version }}
-      - run: corepack enable
-      - run: yarn workspace @lib-lib/${{ inputs.package_name }} install
-      - run: yarn workspace @lib-lib/${{ inputs.package_name }} format
+      - name: Unpublish Package
+        run: npm unpublish @ralphschuler/${{ inputs.package_name }} --force

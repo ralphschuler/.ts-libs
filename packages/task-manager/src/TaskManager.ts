@@ -1,8 +1,8 @@
-import { MemoryPriorityQueue } from "@lib-lib/priority-queue";
-import { WorkerPool } from "@lib-lib/worker-pool";
+import { MemoryPriorityQueue } from "@ralphschuler/priority-queue";
+import { WorkerPool } from "@ralphschuler/worker-pool";
 import { ITaskManager } from "./interfaces/ITaskManager.js";
 import { Task } from "./types/Task.js";
-import { Logger } from "@lib-lib/logger";
+import { Logger } from "@ralphschuler/logger";
 
 const logger = Logger.getInstance();
 

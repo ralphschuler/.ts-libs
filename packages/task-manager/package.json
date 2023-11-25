@@ -1,5 +1,5 @@
 {
-  "name": "@lib-lib/task-manager",
+  "name": "@ralphschuler/task-manager",
   "version": "1.0.0",
   "license": "MIT",
   "type": "module",
@@ -16,9 +16,9 @@
     "dist"
   ],
   "dependencies": {
-    "@lib-lib/logger": "workspace:^",
-    "@lib-lib/priority-queue": "workspace:^",
-    "@lib-lib/worker-pool": "workspace:^"
+    "@ralphschuler/logger": "workspace:^",
+    "@ralphschuler/priority-queue": "workspace:^",
+    "@ralphschuler/worker-pool": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "^20.7.1",

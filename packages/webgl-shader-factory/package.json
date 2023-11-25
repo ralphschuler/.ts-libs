@@ -1,5 +1,5 @@
 {
-  "name": "@lib-lib/webgl-shader-factory",
+  "name": "@ralphschuler/webgl-shader-factory",
   "version": "1.0.0",
   "license": "MIT",
   "type": "module",

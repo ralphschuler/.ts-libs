@@ -1,5 +1,5 @@
 {
-  "name": "@lib-lib/reactivity",
+  "name": "@ralphschuler/reactivity",
   "version": "1.0.0",
   "license": "MIT",
   "type": "module",
@@ -37,7 +37,7 @@
     "start": "tsx src/index.ts"
   },
   "dependencies": {
-    "@lib-lib/logger": "workspace:^",
+    "@ralphschuler/logger": "workspace:^",
     "tsx": "^4.1.4"
   }
 }

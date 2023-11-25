@@ -20,5 +20,5 @@ jobs:
         with:
           node-version: ${{ inputs.node_version }}
       - run: corepack enable
-      - run: yarn workspace @lib-lib/${{ inputs.package_name }} install
-      - run: yarn workspace @lib-lib/${{ inputs.package_name }} build
+      - run: yarn workspace @ralphschuler/${{ inputs.package_name }} install
+      - run: yarn workspace @ralphschuler/${{ inputs.package_name }} build

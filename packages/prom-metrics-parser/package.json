@@ -1,5 +1,5 @@
 {
-  "name": "@lib-lib/prom-metrics-parser",
+  "name": "@ralphschuler/prom-metrics-parser",
   "version": "1.0.0",
   "license": "MIT",
   "type": "module",

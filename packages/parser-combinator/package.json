@@ -1,5 +1,5 @@
 {
-  "name": "@lib-lib/parser-combinator",
+  "name": "@ralphschuler/parser-combinator",
   "version": "1.0.0",
   "license": "MIT",
   "type": "module",
