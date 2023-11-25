@@ -1,9 +1,6 @@
 name: Pull Request
 
-on:
-  pull_request:
-    branches:
-      - main
+on: pull_request
 
 jobs:
   lint:
@@ -20,7 +17,7 @@ jobs:
       - run: yarn
       - run: yarn lint:report
         continue-on-error: true
-      - uses: "./.github/actions/merge-eslint-reports.yml"
+      - uses: "./.github/workflows/merge-eslint-reports.yml"
         with:
           target: "eslint_report.json"
       - uses: ataylorme/eslint-annotate-action@v2
