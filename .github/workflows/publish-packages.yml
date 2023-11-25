@@ -47,7 +47,7 @@ jobs:
   #         node-version: 20
   #         registry-url: https://registry.npmjs.org/
   #     - run: yarn
-  #     - run: yarn publish-ci
+  #     - run: yarn publish
 
   publish-gpr:
     needs: build
@@ -60,4 +60,4 @@ jobs:
           registry-url: https://npm.pkg.github.com/
           scope: "@ralphschuler"
       - run: yarn
-      - run: yarn publish-ci
+      - run: yarn publish
