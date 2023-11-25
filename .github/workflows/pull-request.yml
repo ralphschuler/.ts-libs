@@ -22,7 +22,7 @@ jobs:
         uses: ./.github/actions/collect-files
         with:
           pattern: "**/eslint_report.json"
-          target_directory: "eslint_reports/"
+          output_directory: "eslint_reports/"
       - uses: ./.github/actions/merge-eslint-reports
         with:
           input_directory: "eslint_reports/"
