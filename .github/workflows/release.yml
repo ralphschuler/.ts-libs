@@ -18,23 +18,27 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NODE_AUTH_TOKEN: ${{ matrix.auth-token }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     strategy:
       fail-fast: false
       matrix:
         include:
           - registry: npm
             registry-url: https://registry.npmjs.org/
-            auth-token: ${{ secrets.NPM_TOKEN }}
             scope: ''
           - registry: gpr
             registry-url: https://npm.pkg.github.com/
-            auth-token: ${{ secrets.GITHUB_TOKEN }}
             scope: '@${{ github.repository_owner }}'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4.0.0
         with:
           node-version: 20
+          registry-url: ${{ matrix.registry-url }}
+          scope: ${{ matrix.scope }}
+        env:
+          NODE_AUTH_TOKEN: ${{ matrix.registry == 'npm' && secrets.NPM_TOKEN || secrets.GITHUB_TOKEN }}
       - run: corepack enable
       - run: yarn
       - run: yarn publish
