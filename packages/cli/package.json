@@ -1,5 +1,5 @@
 {
-  "name": "@ralphschuler/i811n",
+  "name": "@ralphschuler/cli",
   "repository": "https://github.com/ralphschuler/ts-libs",
   "version": "1.0.0",
   "license": "MIT",
@@ -41,6 +41,7 @@
     "start": "tsx src/index.ts"
   },
   "dependencies": {
+    "@ralphschuler/ts-error": "workspace:^",
     "tsx": "^4.1.4"
   }
 }

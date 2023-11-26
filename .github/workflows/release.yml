@@ -11,57 +11,71 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   publish:
     if: ${{ github.event.action != 'deleted' }}
     name: Publish to ${{ matrix.registry }}
     runs-on: ubuntu-latest
     env:
-      NODE_AUTH_TOKEN: ${{ matrix.auth-token }}
+      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - registry: npm
-            registry-url: https://registry.npmjs.org/
-            auth-token: ${{ secrets.NPM_TOKEN }}
-            scope: ''
+          # - registry: npm
+          #   registry-url: https://registry.npmjs.org/
+          #   scope: ''
           - registry: gpr
             registry-url: https://npm.pkg.github.com/
-            auth-token: ${{ secrets.GITHUB_TOKEN }}
             scope: '@${{ github.repository_owner }}'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4.0.0
         with:
           node-version: 20
+          registry-url: "${{ matrix.registry-url }}"
+          scope: "${{ matrix.scope }}"
+          always-auth: true
       - run: corepack enable
       - run: yarn
-      - run: yarn publish
+      - run: yarn publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ matrix.registry == 'npm' && env.NPM_TOKEN || env.GITHUB_TOKEN }}
 
   unpublish:
     if: ${{ github.event.action == 'deleted' }}
     name: Unpublish from ${{ matrix.registry }}
     runs-on: ubuntu-latest
     env:
-      NODE_AUTH_TOKEN: ${{ matrix.auth-token }}
+      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     strategy:
       fail-fast: false
       matrix:
         include:
           - registry: npm
             registry-url: https://registry.npmjs.org/
-            auth-token: ${{ secrets.NPM_TOKEN }}
             scope: ''
           - registry: gpr
             registry-url: https://npm.pkg.github.com/
-            auth-token: ${{ secrets.GITHUB_TOKEN }}
             scope: '@${{ github.repository_owner }}'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4.0.0
         with:
           node-version: 20
+          registry-url: "${{ matrix.registry-url }}"
+          scope: "${{ matrix.scope }}"
+          always-auth: true
       - run: corepack enable
       - run: yarn
       - run: yarn unpublish --force
+        env:
+          NODE_AUTH_TOKEN: ${{ matrix.registry == 'npm' && env.NPM_TOKEN || env.GITHUB_TOKEN }}
