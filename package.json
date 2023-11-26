@@ -5,7 +5,6 @@
   ],
   "scripts": {
     "publish": "yarn workspaces foreach -Apt run publish",
-    "husky:install": "husky install",
     "prepare": "yarn husky:install && yarn workspaces foreach -Apt run prepare",
     "build": "yarn workspaces foreach -Apt run build",
     "test": "yarn workspaces foreach -Apt run test",
@@ -20,10 +19,5 @@
   "packageManager": "yarn@4.0.2",
   "dependencies": {
     "tsx": "^4.1.4"
-  },
-  "devDependencies": {
-    "@commitlint/cli": "^18.4.3",
-    "@commitlint/config-conventional": "^18.4.3",
-    "husky": "^8.0.3"
   }
 }
