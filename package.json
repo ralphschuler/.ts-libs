@@ -9,6 +9,7 @@
     }
   },
   "scripts": {
+    "docs": "yarn workspaces foreach -Apt run docs",
     "publish": "yarn workspaces foreach -Apt run publish",
     "husky:install": "husky install",
     "prepare": "yarn husky:install && yarn workspaces foreach -Apt run prepare",
@@ -27,6 +28,9 @@
     "tsx": "^4.1.4"
   },
   "devDependencies": {
-    "husky": "^8.0.3"
+    "husky": "^8.0.3",
+    "typedoc": "^0.25.3",
+    "typedoc-github-wiki-theme": "^1.1.0",
+    "typedoc-plugin-markdown": "^3.17.1"
   }
 }

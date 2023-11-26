@@ -29,6 +29,7 @@
     "web-streams-polyfill": "^3.2.1"
   },
   "scripts": {
+    "docs": "typedoc --plugin typedoc-plugin-markdown --plugin typedoc-github-wiki-theme --out docs",
     "build": "tsc",
     "publish": "yarn npm publish",
     "test": "echo \"Error: no test specified\" && exit 0",
