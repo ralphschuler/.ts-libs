@@ -1,0 +1,42 @@
+name: Bump Version
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    types: [closed]
+    branches: [master, main]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  bump-version:
+    name: Bump Version
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+      - name: Configure Git
+        run: |
+          git config --global user.email ""
+          git config --global user.name "GitHub Actions Robot"
+      - name: Bump Version
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GIT_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [[ "${{github.event.head_commit.message}}" =~ ^.*\((m|M)ajor\)\:.*$ ]]; then
+            bash ./.github/scripts/bump-version.sh MAJOR "$(bash ./.github/scripts/generate-changelog.sh)"
+          elif [[ "${{github.event.head_commit.message}}" =~ ^.*\((m|M)inor\)\:.*$ ]]; then
+            bash ./.github/scripts/bump-version.sh MINOR "$(bash ./.github/scripts/generate-changelog.sh)"
+          else
+            bash ./.github/scripts/bump-version.sh PATCH "$(bash ./.github/scripts/generate-changelog.sh)"
+          fi
