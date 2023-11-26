@@ -9,8 +9,10 @@
     }
   },
   "scripts": {
+    "docs:all": "yarn docs:build; yarn docs:bundle:markdown && yarn docs:bundle:html",
     "docs:build": "yarn workspaces foreach -Apt run docs",
-    "docs:bundle": "yarn typedoc --plugin typedoc-plugin-markdown --plugin typedoc-github-wiki-theme --out docs --entryPointStrategy merge \"./**/docs/*.json\"",
+    "docs:bundle:markdown": "yarn typedoc --plugin typedoc-plugin-markdown --plugin typedoc-github-wiki-theme --out docs/markdown --entryPointStrategy merge \"./**/docs/*.json\"",
+    "docs:bundle:html": "yarn typedoc --out docs/html --entryPointStrategy merge \"./**/docs/*.json\"",
     "publish": "yarn workspaces foreach -Apt run publish",
     "husky:install": "husky install",
     "prepare": "yarn husky:install && yarn workspaces foreach -Apt run prepare",
