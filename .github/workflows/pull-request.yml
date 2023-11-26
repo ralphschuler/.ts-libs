@@ -71,23 +71,56 @@ jobs:
       #   with:
       #     report-json: "test_report.json"
 
-  format:
-    if: ${{ github.event.action == 'closed' && github.event.pull_request.merged == true }}
-    name: Format
+  # format:
+  #   if: ${{ github.event.pull_request.merged == true }}
+  #   name: Format
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-node@v4.0.0
+  #       with:
+  #         node-version: 20
+  #     - run: corepack enable
+  #     - run: yarn
+  #     - run: yarn format:fix
+  #     - run: |
+  #         git config --global user.name '${{ github.pull_request.user.login }}'
+  #         git config --global user.email '${{ github.pull_request.user.email }}'
+  #         git add .
+  #         git commit -m "chore: format code"
+  #         git push
+
+  opencommit:
+    if: ${{ github.event.pull_request.merged == true }}
+    timeout-minutes: 10
+    name: OpenCommit
     runs-on: ubuntu-latest
-    env:
-      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    permissions: write-all
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4.0.0
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v2
         with:
-          node-version: 20
-      - run: corepack enable
-      - run: yarn
-      - run: yarn format:fix
-      - run: |
-          git config --global user.name '${{ github.pull_request.user.login }}'
-          git config --global user.email '${{ github.pull_request.user.email }}'
-          git add .
-          git commit -m "chore: format code"
-          git push
+          node-version: '16'
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: di-sukharev/opencommit@github-action-v1.0.4
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+        env:
+          # set openAI api key in repo actions secrets,
+          # for openAI keys go to: https://platform.openai.com/account/api-keys
+          # for repo secret go to: <your_repo_url>/settings/secrets/actions
+          OCO_OPENAI_API_KEY: ${{ secrets.OCO_OPENAI_API_KEY }}
+
+          # customization
+          OCO_OPENAI_MAX_TOKENS: 500
+          OCO_OPENAI_BASE_PATH: ''
+          OCO_DESCRIPTION: false
+          OCO_EMOJI: false
+          OCO_MODEL: gpt-3.5-turbo-16k
+          OCO_LANGUAGE: en
+          OCO_PROMPT_MODULE: conventional-commit
