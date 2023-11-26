@@ -9,6 +9,23 @@ import { AIFunction, AIFunctionCall } from "./types/AIFunction.js";
 
 /**
  * A class for calling AI functions and managing interactions.
+ * @example
+ * ```ts
+ * import { AIFunctionCaller } from "@withorbit/ai-function-caller";
+ * import { AIFunction } from "@withorbit/ai-function-caller";
+ *
+ * const functions: AIFunction<any>[] = [
+ *  {
+ *   name: "add",
+ *   method: async (args: any) => {
+ *   return args.a + args.b;
+ *  }
+ * ];
+ *
+ * const aiFunctionCaller = new AIFunctionCaller(functions);
+ * const response = await aiFunctionCaller.query("What is 2 + 2?");
+ * console.log(response); // 4
+ * ```
  */
 export class AIFunctionCaller {
   public messages: Message[] = [];
@@ -29,6 +46,7 @@ export class AIFunctionCaller {
   /**
    * Logs a message to the message array.
    * @param message - The message to log.
+   * @example
    */
   private logMessage(message: Message): void {
     this.messages.push(message);
@@ -94,6 +112,11 @@ export class AIFunctionCaller {
    * Processes a user query and returns the response.
    * @param userMessage - The user message to process.
    * @returns A Promise resolving to the response.
+   * @example
+   * ```ts
+   * const response = await aiFunctionCaller.query("What is 2 + 2?");
+   * console.log(response); // 4
+   * ```
    */
   public async query(userMessage: string): Promise<any> {
     return await this.processMessage("User", MessageRole.User, userMessage);
