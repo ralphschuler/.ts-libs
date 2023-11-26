@@ -8,6 +8,17 @@ permissions:
   checks: write
 
 jobs:
+  review:
+    if: ${{ github.event.action != 'closed' }}
+    name: Chat GPT Code Peer Review
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: edelauna/gpt-review@v1
+        with:
+          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+          ignore_files: package-lock.json
+
   lint:
     if: ${{ github.event.action != 'closed' }}
     name: Lint
