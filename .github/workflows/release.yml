@@ -28,9 +28,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - registry: npm
-            registry-url: https://registry.npmjs.org/
-            scope: ''
+          # - registry: npm
+          #   registry-url: https://registry.npmjs.org/
+          #   scope: ''
           - registry: gpr
             registry-url: https://npm.pkg.github.com/
             scope: '@${{ github.repository_owner }}'
