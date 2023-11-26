@@ -654,6 +654,24 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@ralphschuler/cli@workspace:packages/cli":
+  version: 0.0.0-use.local
+  resolution: "@ralphschuler/cli@workspace:packages/cli"
+  dependencies:
+    "@ralphschuler/ts-error": "workspace:^"
+    "@types/node": "npm:^20.7.1"
+    "@typescript-eslint/eslint-plugin": "npm:^6.7.3"
+    "@typescript-eslint/parser": "npm:^6.7.3"
+    eslint: "npm:^8.50.0"
+    eslint-config-prettier: "npm:^9.0.0"
+    eslint-plugin-prettier: "npm:^5.0.0"
+    prettier: "npm:^3.0.3"
+    rimraf: "npm:^5.0.5"
+    tsx: "npm:^4.1.4"
+    typescript: "npm:^5.2.2"
+  languageName: unknown
+  linkType: soft
+
 "@ralphschuler/complex-compare@workspace:packages/complex-compare":
   version: 0.0.0-use.local
   resolution: "@ralphschuler/complex-compare@workspace:packages/complex-compare"
