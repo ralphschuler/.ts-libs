@@ -1,6 +1,6 @@
 {
   "entryPoints": ["packages/*"],
-  "name": "Packages Example",
+  "name": "Typescript Libraries",
   "entryPointStrategy": "packages",
   "includeVersion": false,
   "navigation": {
