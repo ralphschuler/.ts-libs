@@ -1,7 +1,6 @@
 name: 'OpenCommit Action'
 
-on:
-  push:
+on: [push]
 
 jobs:
   opencommit:
