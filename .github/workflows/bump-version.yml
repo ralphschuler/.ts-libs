@@ -3,9 +3,6 @@ name: Bump Version
 on:
   push:
     branches: [master, main]
-  pull_request:
-    types: [closed]
-    branches: [master, main]
 
 permissions:
   contents: write
@@ -16,10 +13,9 @@ jobs:
   bump-version:
     name: Bump Version
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
