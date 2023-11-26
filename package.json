@@ -12,7 +12,7 @@
     "docs:all": "yarn docs:build; yarn docs:bundle:markdown && yarn docs:bundle:html",
     "docs:build": "yarn workspaces foreach -Apt run docs",
     "docs:bundle:markdown": "yarn typedoc --plugin typedoc-plugin-markdown --plugin typedoc-github-wiki-theme --out docs/markdown --entryPointStrategy merge \"./**/docs/*.json\"",
-    "docs:bundle:html": "yarn typedoc --out docs/html --theme ./node_modules/typedoc-neo-theme/bin/default --entryPointStrategy merge \"./**/docs/*.json\"",
+    "docs:bundle:html": "yarn typedoc --out docs/html --theme just-the-docs --plugin typedoc-plugin-markdown --entryPointStrategy merge \"./**/docs/*.json\"",
     "publish": "yarn workspaces foreach -Apt run publish",
     "husky:install": "husky install",
     "prepare": "yarn husky:install && yarn workspaces foreach -Apt run prepare",
@@ -34,6 +34,7 @@
     "husky": "^8.0.3",
     "typedoc": "^0.25.3",
     "typedoc-github-wiki-theme": "^1.1.0",
+    "typedoc-just-the-docs-theme": "^0.0.1",
     "typedoc-neo-theme": "^1.1.1",
     "typedoc-plugin-markdown": "^3.17.1",
     "typedoc-plugin-rename-defaults": "^0.7.0"
