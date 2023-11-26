@@ -1,0 +1,32 @@
+name: Generate TypeDoc Documentation
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4.0.0
+        with:
+          node-version: 20
+      - run: corepack enable
+      - run: yarn
+      - name: Run TypeDoc
+        run: yarn docs:build; yarn docs:bundle
+      - name: Deploy to Wiki
+        uses: spenserblack/actions-wiki@v0.3.0
+        with:
+          # Whatever directory you choose will be mirrored to the GitHub
+          # .wiki.git. The default is .github/wiki.
+          path: docs

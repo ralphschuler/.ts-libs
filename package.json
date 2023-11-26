@@ -3,8 +3,16 @@
   "workspaces": [
     "packages/*"
   ],
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn format:fix && git add -A ."
+    }
+  },
   "scripts": {
+    "docs:build": "yarn workspaces foreach -Apt run docs",
+    "docs:bundle": "yarn typedoc --plugin typedoc-plugin-markdown --plugin typedoc-github-wiki-theme --out docs --entryPointStrategy merge \"./**/docs/*.json\"",
     "publish": "yarn workspaces foreach -Apt run publish",
+    "husky:install": "husky install",
     "prepare": "yarn husky:install && yarn workspaces foreach -Apt run prepare",
     "build": "yarn workspaces foreach -Apt run build",
     "test": "yarn workspaces foreach -Apt run test",
@@ -19,5 +27,11 @@
   "packageManager": "yarn@4.0.2",
   "dependencies": {
     "tsx": "^4.1.4"
+  },
+  "devDependencies": {
+    "husky": "^8.0.3",
+    "typedoc": "^0.25.3",
+    "typedoc-github-wiki-theme": "^1.1.0",
+    "typedoc-plugin-markdown": "^3.17.1"
   }
 }
