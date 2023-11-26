@@ -43,7 +43,7 @@
   "scripts": {
     "build": "tsc",
     "clean": "rimraf dist node_modules docs",
-    "docs": "typedoc --json docs/docs.json --readme ./README.md",
+    "docs": "typedoc --entrypointStrategy expand --json docs/docs.json --plugin typedoc-plugin-missing-exports --plugin typedoc-plugin-rename-defaults --plugin typedoc-plugin-mdn-links --readme ./README.md src/",
     "fixpack": "fixpack",
     "format": "prettier src/",
     "format:fix": "prettier --write src/",
