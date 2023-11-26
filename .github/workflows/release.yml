@@ -5,7 +5,7 @@ on:
     tags:
       - '*'
   release:
-    types: [deleted]
+    types: [created, deleted]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   publish:
-    if: ${{ github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/v') }}
+    if: ${{ github.event.action != 'deleted' }}
     name: Publish to ${{ matrix.registry }}
     runs-on: ubuntu-latest
     env:
