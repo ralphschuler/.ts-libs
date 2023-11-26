@@ -1,32 +1,39 @@
-# 
+# @ralphschuler/ts-libs
 
+A collection of useful TypeScript libraries
 
+## Install
 
+Install with [npm](https://www.npmjs.com/):
 
-## Tests
+    npm install @ralphschuler/ts-libs
 
-```sh
-npm install
-npm test
-```
+## Usage
 
-## Dependencies
+- [ ] Write usage instructions
 
-None
+## Changelog
 
-## Dev Dependencies
+See [Releases page](https://ralphschuler.github.io/ts-libs//releases).
 
-- [@commitlint/cli](https://ghub.io/@commitlint/cli): Lint your commit messages
-- [@commitlint/config-conventional](https://ghub.io/@commitlint/config-conventional): Shareable commitlint config enforcing conventional commits
-- [@types/is-ci](https://ghub.io/@types/is-ci): TypeScript definitions for is-ci
-- [fixpack](https://ghub.io/fixpack): cli tool that cleans up package.json files.
-- [husky](https://ghub.io/husky): Modern native Git hooks made easy
-- [is-ci](https://ghub.io/is-ci): Detect if the current environment is a CI server
-- [package-json-to-readme](https://ghub.io/package-json-to-readme): Generate a README.md from package.json contents
-- [typedoc](https://ghub.io/typedoc): Create api documentation for TypeScript projects.
-- [typedoc-github-wiki-theme](https://ghub.io/typedoc-github-wiki-theme): An extension of the default theme from typedoc-plugin-markdown to create a compatible file structure for Github Wiki pages.
-- [typedoc-just-the-docs-theme](https://ghub.io/typedoc-just-the-docs-theme): An extension of the default theme from typedoc-plugin-markdown to create a compatible just-the-docs markdown.
-- [typedoc-plugin-markdown](https://ghub.io/typedoc-plugin-markdown): A plugin for TypeDoc that enables TypeScript API documentation to be generated in Markdown.
-- [typedoc-plugin-rename-defaults](https://ghub.io/typedoc-plugin-rename-defaults): A TypeDoc plugin that renames the `default` exports to their original name
-- [tsx](https://ghub.io/tsx): TypeScript Execute (tsx): Node.js enhanced with esbuild to run TypeScript &amp; ESM files
+## Running tests
 
+Install devDependencies and Run `npm test`:
+
+    npm i -d && npm test
+
+## Contributing
+
+Pull requests and stars are always welcome.
+For bugs and feature requests, [please create an issue](https://github.com/ralphschuler/ts-libs/issues).
+
+1. Fork it!
+2. Create your feature branch: `git checkout -b my-new-feature`
+3. Commit your changes: `git commit -am 'Add some feature'`
+4. Push to the branch: `git push origin my-new-feature`
+5. Submit a pull request :D
+
+## License
+
+Copyright © 2023-present Ralph Schuler.
+Licensed under the MIT license.
