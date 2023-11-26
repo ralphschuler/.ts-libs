@@ -17,7 +17,7 @@ jobs:
     name: Publish to ${{ matrix.registry }}
     runs-on: ubuntu-latest
     env:
-      NODE_AUTH_TOKEN: ${{ matrix.auth-token }}
+      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     strategy:
@@ -37,18 +37,18 @@ jobs:
           node-version: 20
           registry-url: ${{ matrix.registry-url }}
           scope: ${{ matrix.scope }}
-        env:
-          NODE_AUTH_TOKEN: ${{ matrix.registry == 'npm' && secrets.NPM_TOKEN || secrets.GITHUB_TOKEN }}
       - run: corepack enable
       - run: yarn
-      - run: yarn publish
+      - run: yarn publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ matrix.registry == 'npm' && env.NPM_TOKEN || env.GITHUB_TOKEN }}
 
   unpublish:
     if: ${{ github.event.action == 'deleted' }}
     name: Unpublish from ${{ matrix.registry }}
     runs-on: ubuntu-latest
     env:
-      NODE_AUTH_TOKEN: ${{ matrix.auth-token }}
+      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     strategy:
@@ -68,8 +68,8 @@ jobs:
           node-version: 20
           registry-url: ${{ matrix.registry-url }}
           scope: ${{ matrix.scope }}
-        env:
-          NODE_AUTH_TOKEN: ${{ matrix.registry == 'npm' && secrets.NPM_TOKEN || secrets.GITHUB_TOKEN }}
       - run: corepack enable
       - run: yarn
       - run: yarn unpublish --force
+        env:
+          NODE_AUTH_TOKEN: ${{ matrix.registry == 'npm' && env.NPM_TOKEN || env.GITHUB_TOKEN }}
