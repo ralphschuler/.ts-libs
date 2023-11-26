@@ -3327,6 +3327,7 @@ __metadata:
     tsx: "npm:^4.1.4"
     typedoc: "npm:^0.25.3"
     typedoc-github-wiki-theme: "npm:^1.1.0"
+    typedoc-just-the-docs-theme: "npm:^0.0.1"
     typedoc-neo-theme: "npm:^1.1.1"
     typedoc-plugin-markdown: "npm:^3.17.1"
     typedoc-plugin-rename-defaults: "npm:^0.7.0"
@@ -3706,6 +3707,16 @@ __metadata:
     typedoc: ">=0.24.0"
     typedoc-plugin-markdown: ">=3.15.0"
   checksum: 84661e8c1a4540929b5a23bd8fcd81fdbdbf7f2d9338751bcb6861307fde08de7ddb876870e114aac34773590ced24de0b4c456fabc411bd9a41830ea069833f
+  languageName: node
+  linkType: hard
+
+"typedoc-just-the-docs-theme@npm:^0.0.1":
+  version: 0.0.1
+  resolution: "typedoc-just-the-docs-theme@npm:0.0.1"
+  peerDependencies:
+    typedoc: ">=0.22.9"
+    typedoc-plugin-markdown: ">=3.11.10"
+  checksum: da5a3831796e839d60930b74ca618afebf52aafe7c51707e58c4eeaa6efc63f9e11a6a8678b512d158f34736baa026974458922871fd75e7dff75e94f0f82e58
   languageName: node
   linkType: hard
 
