@@ -1,5 +1,20 @@
 {
   "name": "@ralphschuler/task-manager",
+  "author": {
+    "name": "Ralph Schuler",
+    "email": "ralph.schuler@nyphon.de"
+  },
+  "keywords": [
+    "typescript",
+    "library",
+    "utils",
+    "helpers",
+    "tools"
+  ],
+  "bugs": {
+    "url": "https://github.com/ralphschuler/ts-libs/issues"
+  },
+  "homepage": "https://ralphschuler.github.io/ts-libs",
   "repository": "https://github.com/ralphschuler/ts-libs",
   "version": "1.0.0",
   "license": "MIT",
@@ -44,6 +59,8 @@
     "format:fix": "prettier --write src/",
     "clean": "rimraf dist node_modules docs",
     "prepublish": "yarn build",
-    "start": "tsx src/index.ts"
+    "readme:build": "pkg-to-readme -f -t ../../_readme.md",
+    "start": "tsx src/index.ts",
+    "fixpack": "fixpack"
   }
 }

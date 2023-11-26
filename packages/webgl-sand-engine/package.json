@@ -1,21 +1,13 @@
 {
   "name": "@ralphschuler/webgl-sand-engine",
-  "repository": "https://github.com/ralphschuler/ts-libs",
   "version": "1.0.0",
-  "license": "MIT",
-  "type": "module",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.js"
-    }
+  "author": {
+    "name": "Ralph Schuler",
+    "email": "ralph.schuler@nyphon.de"
   },
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
+  "bugs": {
+    "url": "https://github.com/ralphschuler/ts-libs/issues"
+  },
   "devDependencies": {
     "@types/node": "^20.7.1",
     "@typescript-eslint/eslint-plugin": "^6.7.3",
@@ -27,21 +19,43 @@
     "rimraf": "^5.0.5",
     "typescript": "^5.2.2"
   },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "homepage": "https://ralphschuler.github.io/ts-libs",
+  "keywords": [
+    "helpers",
+    "library",
+    "tools",
+    "typescript",
+    "utils"
+  ],
+  "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "repository": "https://github.com/ralphschuler/ts-libs",
   "scripts": {
-    "docs": "typedoc --plugin typedoc-plugin-rename-defaults --json docs/docs.json",
     "build": "tsc",
-    "publish": "yarn npm publish",
-    "test": "echo \"Error: no test specified\" && exit 0",
-    "lint": "eslint src/ --ext .ts",
-    "lint:report": "eslint --output-file eslint_report.json --format json src/ --ext .ts",
-    "lint:fix": "eslint src/ --ext .ts --fix",
+    "clean": "rimraf dist node_modules docs",
+    "docs": "typedoc --plugin typedoc-plugin-rename-defaults --json docs/docs.json",
+    "fixpack": "fixpack",
     "format": "prettier src/",
     "format:fix": "prettier --write src/",
-    "clean": "rimraf dist node_modules docs",
+    "lint": "eslint src/ --ext .ts",
+    "lint:fix": "eslint src/ --ext .ts --fix",
+    "lint:report": "eslint --output-file eslint_report.json --format json src/ --ext .ts",
     "prepublish": "yarn build",
-    "start": "tsx src/index.ts"
+    "publish": "yarn npm publish",
+    "readme:build": "pkg-to-readme -f -t ../../_readme.md",
+    "start": "tsx src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 0"
   },
-  "dependencies": {
-    "tsx": "^4.1.4"
-  }
+  "type": "module",
+  "types": "dist/index.d.ts"
 }
