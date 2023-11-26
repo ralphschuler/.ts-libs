@@ -4,6 +4,7 @@ on: pull_request
 
 jobs:
   lint:
+    if: ${{ github.event.action != 'closed' }}
     name: Lint
     runs-on: ubuntu-latest
     env:
@@ -33,7 +34,7 @@ jobs:
 
   test:
     name: Test
-    needs: lint
+    if: ${{ github.event.action != 'closed' }}
     runs-on: ubuntu-latest
     env:
       NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -60,7 +61,7 @@ jobs:
       #     report-json: "test_report.json"
 
   format:
-    if: ${{ github.event.pull_request.merged == true }}
+    if: ${{ github.event.action == 'closed' && github.event.pull_request.merged == true }}
     name: Format
     runs-on: ubuntu-latest
     env:
