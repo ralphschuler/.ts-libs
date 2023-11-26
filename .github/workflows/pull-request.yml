@@ -2,8 +2,14 @@ name: Pull Request
 
 on: pull_request
 
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
 jobs:
   lint:
+    if: ${{ github.event.action != 'closed' }}
     name: Lint
     runs-on: ubuntu-latest
     env:
@@ -17,16 +23,23 @@ jobs:
       - run: yarn
       - run: yarn lint:report
         continue-on-error: true
-      - uses: ./.github/workflows/merge-eslint-reports.yml
+      - run: mkdir -p eslint_reports
+      - name: Collect Reports
+        uses: ralphschuler/collect-files-action@v1.0.1
         with:
-          target: "eslint_report.json"
+          pattern: "**/eslint_report.json"
+          output_directory: "eslint_reports/"
+      - uses: ralphschuler/merge-eslint-reports-action@v1.0.1
+        with:
+          input_directory: "eslint_reports/"
+          output_file: "eslint_report.json"
       - uses: ataylorme/eslint-annotate-action@v2
         with:
           report-json: "eslint_report.json"
 
   test:
     name: Test
-    needs: lint
+    if: ${{ github.event.action != 'closed' }}
     runs-on: ubuntu-latest
     env:
       NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -40,16 +53,20 @@ jobs:
       - run: yarn test
       # - run: mkdir -p test_reports
       # - name: Collect Reports
-      #   uses: "./.github/actions/collect-files.yml"
+      #   uses: ./.github/actions/collect-files
       #   with:
       #     pattern: "**/test_report.json"
-      #     target: "test_reports/"
-      # - uses: ./.github/workflows/merge-test-reports.yml
+      #     target_directory: "test_reports/"
+      # - uses: ./.github/actions/merge-test-reports
       #   with:
-      #     target: "test_report.json"
+      #     input_directory: "test_reports/"
+      #     output_file: "test_report.json"
+      # - uses: ataylorme/test-annotate-action@v2
+      #   with:
+      #     report-json: "test_report.json"
 
   format:
-    if: ${{ github.event.pull_request.merged == true }}
+    if: ${{ github.event.action == 'closed' && github.event.pull_request.merged == true }}
     name: Format
     runs-on: ubuntu-latest
     env:
