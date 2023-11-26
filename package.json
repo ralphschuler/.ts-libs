@@ -14,7 +14,7 @@
     "docs:bundle:markdown": "yarn typedoc --plugin typedoc-plugin-markdown --plugin typedoc-github-wiki-theme --out docs/markdown --entryPointStrategy merge \"./**/docs/*.json\"",
     "docs:bundle:html": "yarn typedoc --out docs/html --theme just-the-docs --plugin typedoc-just-the-docs-theme --plugin typedoc-plugin-rename-defaults --plugin typedoc-plugin-markdown --entryPointStrategy merge \"./**/docs/*.json\"",
     "publish": "yarn workspaces foreach -Apt run publish",
-    "husky:install": "husky install",
+    "husky:install": "is-ci || husky install",
     "prepare": "yarn husky:install && yarn workspaces foreach -Apt run prepare",
     "build": "yarn workspaces foreach -Apt run build",
     "test": "yarn workspaces foreach -Apt run test",
@@ -31,7 +31,11 @@
     "tsx": "^4.1.4"
   },
   "devDependencies": {
-    "husky": "^8.0.3",
+    "@commitlint/cli": "^18.4.3",
+    "@commitlint/config-conventional": "^18.4.3",
+    "@types/is-ci": "^3",
+    "husky": "^8.0.0",
+    "is-ci": "^3.0.1",
     "typedoc": "^0.25.3",
     "typedoc-github-wiki-theme": "^1.1.0",
     "typedoc-just-the-docs-theme": "^0.0.1",
