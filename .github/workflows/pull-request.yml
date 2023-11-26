@@ -25,11 +25,11 @@ jobs:
         continue-on-error: true
       - run: mkdir -p eslint_reports
       - name: Collect Reports
-        uses: ralphschuler/collect-files-action@v1
+        uses: ralphschuler/collect-files-action@v1.0.1
         with:
           pattern: "**/eslint_report.json"
           output_directory: "eslint_reports/"
-      - uses: ralphschuler/merge-eslint-reports-action@v1
+      - uses: ralphschuler/merge-eslint-reports-action@v1.0.1
         with:
           input_directory: "eslint_reports/"
           output_file: "eslint_report.json"
