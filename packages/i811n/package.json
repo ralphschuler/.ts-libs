@@ -1,5 +1,6 @@
 {
   "name": "@ralphschuler/i811n",
+  "repository": "https://github.com/ralphschuler/ts-libs",
   "version": "1.0.0",
   "license": "MIT",
   "type": "module",

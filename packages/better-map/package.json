@@ -1,5 +1,6 @@
 {
   "name": "@ralphschuler/better-map",
+  "repository": "https://github.com/ralphschuler/ts-libs",
   "version": "1.0.0",
   "license": "MIT",
   "type": "module",
