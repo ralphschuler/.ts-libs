@@ -9,7 +9,8 @@
     }
   },
   "scripts": {
-    "docs": "yarn workspaces foreach -Apt run docs",
+    "docs:build": "yarn workspaces foreach -Apt run docs",
+    "docs:bundle": "yarn typedoc --plugin typedoc-plugin-markdown --plugin typedoc-github-wiki-theme --out docs --entryPointStrategy merge \"./**/docs/*.json\"",
     "publish": "yarn workspaces foreach -Apt run publish",
     "husky:install": "husky install",
     "prepare": "yarn husky:install && yarn workspaces foreach -Apt run prepare",
