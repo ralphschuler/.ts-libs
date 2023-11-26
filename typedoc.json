@@ -1,9 +1,15 @@
 {
   "entryPoints": ["packages/*"],
+  "packages": ["packages/*"],
   "name": "Packages Example",
   "entryPointStrategy": "packages",
-  "includeVersion": false
-
-  // Potentially useful for debugging
-  // "logLevel": "Verbose"
+  "includeVersion": false,
+  "navigation": {
+    "includeCategories": true,
+    "includeGroups": false
+  },
+  "navigationLinks": {
+    "GitHub": "https://github.com/ralphschuler/ts-libs"
+  },
+  "categorizeByGroup": false
 }
