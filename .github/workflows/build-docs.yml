@@ -6,12 +6,19 @@ on:
       - main
 
 permissions:
-  contents: write
-  issues: write
-  pull-requests: write
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "docs"
+  cancel-in-progress: false
 
 jobs:
-  build:
+  deploy:
+    environment:
+      name: "docs"
+      url: ${{ steps.deployment.outputs.url }}
     runs-on: ubuntu-latest
     env:
       NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -25,14 +32,20 @@ jobs:
       - name: Run build docs
         run: yarn docs:build
         continue-on-error: true
-      - name: Bundle docs
-        run: yarn docs:bundle
+      - name: Bundle markdown docs
+        run: yarn docs:bundle:markdown
+      - name: Bundle HTML docs
+        run: yarn docs:bundle:html
       - name: Deploy to Wiki
         uses: spenserblack/actions-wiki@v0.3.0
         with:
           path: docs/markdown
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/html
+          path: 'docs/html'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
