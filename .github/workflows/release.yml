@@ -11,6 +11,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   publish:
     if: ${{ github.event.action != 'deleted' }}
@@ -35,8 +39,9 @@ jobs:
       - uses: actions/setup-node@v4.0.0
         with:
           node-version: 20
-          registry-url: ${{ matrix.registry-url }}
-          scope: ${{ matrix.scope }}
+          registry-url: "${{ matrix.registry-url }}"
+          scope: "${{ matrix.scope }}"
+          always-auth: true
       - run: corepack enable
       - run: yarn
       - run: yarn publish --access public
@@ -66,8 +71,9 @@ jobs:
       - uses: actions/setup-node@v4.0.0
         with:
           node-version: 20
-          registry-url: ${{ matrix.registry-url }}
-          scope: ${{ matrix.scope }}
+          registry-url: "${{ matrix.registry-url }}"
+          scope: "${{ matrix.scope }}"
+          always-auth: true
       - run: corepack enable
       - run: yarn
       - run: yarn unpublish --force
