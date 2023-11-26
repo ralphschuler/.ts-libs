@@ -33,9 +33,15 @@ jobs:
         with:
           input_directory: "eslint_reports/"
           output_file: "eslint_report.json"
-      - uses: ataylorme/eslint-annotate-action@v2
+      - uses: ataylorme/eslint-annotate-action@2.2.0
         with:
           report-json: "eslint_report.json"
+      - name: Upload ESLint report
+        uses: actions/upload-artifact@v3
+        with:
+          name: eslint_report.json
+          path: eslint_report.json
+          retention-days: 5
 
   test:
     name: Test
