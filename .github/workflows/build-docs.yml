@@ -24,18 +24,15 @@ jobs:
       NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4.0.0
-        with:
-          node-version: 20
-      - run: corepack enable
-      - run: yarn
+      - uses: oven-sh/setup-bun@v1
+      - run: bun install
       - name: Run build docs
-        run: yarn docs:build
+        run: bun run docs:build
         continue-on-error: true
       - name: Bundle markdown docs
-        run: yarn docs:bundle:markdown
+        run: bun run docs:bundle:markdown
       - name: Bundle HTML docs
-        run: yarn docs:bundle:html
+        run: bun run docs:bundle:html
       - name: Deploy to Wiki
         uses: spenserblack/actions-wiki@v0.3.0
         with:

@@ -1,0 +1,5 @@
+[install.scopes]
+"@ralphschuler" = {
+  token = "$GITHUB_TOKEN",
+  url = "https://npm.pkg.github.com"
+}
