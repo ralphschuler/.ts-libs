@@ -1,6 +1,5 @@
 import "reflect-metadata";
-import { describe, it } from "node:test";
-import { strictEqual } from "node:assert/strict";
+import { expect, test, describe } from "bun:test";
 import {
   Serializable,
   AsNumber,
@@ -25,7 +24,7 @@ describe("Serialization Tests", () => {
     scores: number[];
   }
 
-  it("should serialize and deserialize correctly", () => {
+  test("should serialize and deserialize correctly", () => {
     const instance = new TestClass();
     instance.age = 30;
     instance.isActive = true;
@@ -37,6 +36,8 @@ describe("Serialization Tests", () => {
     const deserializedInstance = new TestClass();
     // @ts-expect-error
     deserializedInstance.deserialize(serializedData);
+
+    expect(deserializedInstance.age).toEqual(instance.age);
 
     strictEqual(deserializedInstance.age, instance.age);
     strictEqual(deserializedInstance.isActive, instance.isActive);
