@@ -10,15 +10,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - uses: actions/setup-node@v3
-        name: Setup Node
-        with:
-          node-version: "16.x"
-          cache: 'yarn'
-          registry-url: "https://npm.pkg.github.com"
-          scope: 'inhaus-ai-limited'
-      - name: Generate licenses
-        run: yarn dlx license-checker --csv --out licenses.csv
+      - uses: oven-sh/setup-bun@v1
+      - run: bun install
+      - run: bun run license:report
       - name: Check licenses
         id: license_check_report
         uses: pilosus/action-pip-license-checker@5b5956a1093c68ebac6ff53c8427790d04ee5c26

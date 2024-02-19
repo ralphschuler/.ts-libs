@@ -8,9 +8,8 @@
   "bugs": {
     "url": "https://github.com/ralphschuler/ts-libs/issues"
   },
-  "dependencies": {
-  },
   "devDependencies": {
+    "@types/license-checker": "^25",
     "@types/node": "^20.7.1",
     "@typescript-eslint/eslint-plugin": "^6.7.3",
     "@typescript-eslint/parser": "^6.7.3",
@@ -44,6 +43,7 @@
   "repository": "https://github.com/ralphschuler/ts-libs",
   "scripts": {
     "build": "tsc",
+    "license:report": "license-checker --csv --out licenses.csv",
     "clean": "rimraf dist node_modules docs",
     "docs": "typedoc --entryPointStrategy expand --json docs/docs.json --plugin typedoc-plugin-missing-exports --plugin typedoc-plugin-rename-defaults --plugin typedoc-plugin-mdn-links --readme ./README.md src/",
     "fixpack": "fixpack",
@@ -59,5 +59,8 @@
     "test": "echo \"Error: no test specified\" && exit 0"
   },
   "type": "module",
-  "types": "dist/index.d.ts"
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "license-checker": "^25.0.1"
+  }
 }
