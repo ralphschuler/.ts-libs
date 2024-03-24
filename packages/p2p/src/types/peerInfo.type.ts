@@ -4,6 +4,6 @@ export type PeerInfo = {
   port: number;
   publicKey: string;
   annotations: {
-    [key: string]: string
-  }
-}
+    [key: string]: string;
+  };
+};

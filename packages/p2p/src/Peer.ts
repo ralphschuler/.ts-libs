@@ -1,7 +1,7 @@
-import * as net from 'net';
-import { EventEmitter } from 'events';
-import { KeyPairEncryption } from './KeyPairEncryption.js';
-import { PeerInfo } from './types/index.js';
+import * as net from "net";
+import { EventEmitter } from "events";
+import { KeyPairEncryption } from "./KeyPairEncryption.js";
+import { PeerInfo } from "./types/index.js";
 
 export class Peer extends EventEmitter {
   private socket: net.Socket | null = null;
@@ -16,20 +16,23 @@ export class Peer extends EventEmitter {
 
   public connect(): void {
     if (this.socket) {
-      console.log('Already connected to peer.');
+      console.log("Already connected to peer.");
       return;
     }
 
-    this.socket = net.createConnection({ host: this.info.hostname, port: this.info.port }, () => {
-      this.emit('connected');
+    this.socket = net.createConnection(
+      { host: this.info.hostname, port: this.info.port },
+      () => {
+        this.emit("connected");
+      },
+    );
+
+    this.socket.on("close", () => {
+      this.emit("close");
     });
 
-    this.socket.on('close', () => {
-      this.emit('close');
-    });
-
-    this.socket.on('error', (err) => {
-      this.emit('error', err);
+    this.socket.on("error", (err) => {
+      this.emit("error", err);
     });
   }
 
@@ -39,12 +42,15 @@ export class Peer extends EventEmitter {
 
   public send(data: Buffer): void {
     if (!this.socket) {
-      console.log('Cannot send data, not connected to peer.');
+      console.log("Cannot send data, not connected to peer.");
       return;
     }
 
     const signedData = this.keyPairEncryption.sign(data);
-    const encryptedData = this.keyPairEncryption.encrypt(data, this.info.publicKey);
+    const encryptedData = this.keyPairEncryption.encrypt(
+      data,
+      this.info.publicKey,
+    );
 
     this.socket.write(encryptedData);
   }

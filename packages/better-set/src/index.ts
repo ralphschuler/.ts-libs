@@ -1,10 +1,8 @@
-
 /**
  * A better Set class with more methods.
  * @template v The type of the values.
  */
 export class BetterSet<v> extends Set<v> {
-  
   /**
    * Filters the set by a predicate.
    * @param predicate - The predicate to filter by.

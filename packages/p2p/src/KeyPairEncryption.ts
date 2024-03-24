@@ -1,4 +1,4 @@
-export export class KeyPairEncryption {
+export class KeyPairEncryption {
   private privateKey: string;
   private publicKey: string;
 
@@ -12,11 +12,15 @@ export export class KeyPairEncryption {
   }
 
   public generateKeys(): void {
-    const { privateKey, publicKey } = generateKeyPairSync('rsa', {
+    const { privateKey, publicKey } = generateKeyPairSync("rsa", {
       modulusLength: 2048,
     });
-    this.privateKey = privateKey.export({ type: 'pkcs1', format: 'pem' }).toString();
-    this.publicKey = publicKey.export({ type: 'pkcs1', format: 'pem' }).toString();
+    this.privateKey = privateKey
+      .export({ type: "pkcs1", format: "pem" })
+      .toString();
+    this.publicKey = publicKey
+      .export({ type: "pkcs1", format: "pem" })
+      .toString();
   }
 
   public getPublicKey(): string {
@@ -28,18 +32,18 @@ export export class KeyPairEncryption {
   }
 
   public decrypt(data: Buffer): Buffer {
-    return privateDecrypt({ key: this.privateKey, passphrase: '' }, data);
+    return privateDecrypt({ key: this.privateKey, passphrase: "" }, data);
   }
 
   public sign(data: Buffer): Buffer {
-    const sign = createSign('SHA256');
+    const sign = createSign("SHA256");
     sign.update(data);
     sign.end();
     return sign.sign(this.privateKey);
   }
 
   public verify(data: Buffer, signature: Buffer, publicKey: string): boolean {
-    const verify = createVerify('SHA256');
+    const verify = createVerify("SHA256");
     verify.update(data);
     verify.end();
     return verify.verify(publicKey, signature);

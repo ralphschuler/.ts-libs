@@ -1,1 +1,1 @@
-export * from "./peerInfo.type.js"
+export * from "./peerInfo.type.js";
