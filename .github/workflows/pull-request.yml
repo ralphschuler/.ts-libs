@@ -29,8 +29,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         name: Setup Node
-        with:
-          cache: 'yarn'
       - run: corepack enable
       - run: yarn install
       - run: yarn lint:report
@@ -64,8 +62,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with:
-          node-version: 20
       - run: corepack enable
       - run: yarn
       - run: yarn test
@@ -113,8 +109,6 @@ jobs:
     steps:
       - name: Setup Node.js Environment
         uses: actions/setup-node@v4
-        with:
-          cache: 'yarn'
       - run: corepack enable
       - uses: actions/checkout@v3
         with:

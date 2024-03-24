@@ -43,7 +43,6 @@
   "scripts": {
     "build": "yarn workspaces foreach -Apt run build",
     "clean": "yarn workspaces foreach -Apt run clean",
-    "license:report": "yarn workspaces foreach -Apt run license:report",
     "docs:all": "yarn docs:build; yarn docs:bundle:markdown && yarn docs:bundle:html",
     "docs:build": "yarn workspaces foreach -Apt run docs",
     "docs:bundle:html": "typedoc --out docs/html --plugin @mxssfd/typedoc-theme --theme my-theme --plugin typedoc-plugin-markdown --readme ./README.md --entryPointStrategy merge \"./**/docs/*.json\"",
@@ -52,6 +51,7 @@
     "format": "yarn workspaces foreach -Apt run format",
     "format:fix": "yarn workspaces foreach -Apt run format:fix",
     "husky:install": "is-ci || husky install",
+    "license:report": "yarn workspaces foreach -Apt run license:report",
     "lint": "yarn workspaces foreach -Apt run lint",
     "lint:fix": "yarn workspaces foreach -Apt run lint:fix",
     "lint:report": "yarn workspaces foreach -Apt run lint:report",

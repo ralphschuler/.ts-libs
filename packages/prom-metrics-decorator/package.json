@@ -47,12 +47,12 @@
   "repository": "https://github.com/ralphschuler/ts-libs",
   "scripts": {
     "build": "tsc",
-    "license:report": "license-checker --csv --out licenses.csv",
     "clean": "rimraf dist node_modules docs",
     "docs": "typedoc --entryPointStrategy expand --json docs/docs.json --plugin typedoc-plugin-missing-exports --plugin typedoc-plugin-rename-defaults --plugin typedoc-plugin-mdn-links --readme ./README.md src/",
     "fixpack": "fixpack",
     "format": "prettier src/",
     "format:fix": "prettier --write src/",
+    "license:report": "license-checker --csv --out licenses.csv",
     "lint": "eslint src/ --ext .ts",
     "lint:fix": "eslint src/ --ext .ts --fix",
     "lint:report": "eslint --output-file eslint_report.json --format json src/ --ext .ts",
