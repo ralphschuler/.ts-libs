@@ -1,0 +1,66 @@
+{
+  "name": "@ralphschuler/functional",
+  "version": "1.0.0",
+  "author": {
+    "name": "Ralph Schuler",
+    "email": "ralph.schuler@nyphon.de"
+  },
+  "bugs": {
+    "url": "https://github.com/ralphschuler/ts-libs/issues"
+  },
+  "dependencies": {
+    "license-checker": "^25.0.1"
+  },
+  "devDependencies": {
+    "@types/license-checker": "^25",
+    "@types/node": "^20.7.1",
+    "@typescript-eslint/eslint-plugin": "^6.7.3",
+    "@typescript-eslint/parser": "^6.7.3",
+    "eslint": "^8.50.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "prettier": "^3.0.3",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.2.2"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "homepage": "https://ralphschuler.github.io/ts-libs",
+  "keywords": [
+    "helpers",
+    "library",
+    "tools",
+    "typescript",
+    "utils"
+  ],
+  "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "repository": "https://github.com/ralphschuler/ts-libs",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf dist node_modules docs",
+    "docs": "typedoc --entryPointStrategy expand --json docs/docs.json --plugin typedoc-plugin-missing-exports --plugin typedoc-plugin-rename-defaults --plugin typedoc-plugin-mdn-links --readme ./README.md src/",
+    "fixpack": "fixpack",
+    "format": "prettier src/",
+    "format:fix": "prettier --write src/",
+    "license:report": "license-checker --csv --out licenses.csv",
+    "lint": "eslint src/ --ext .ts",
+    "lint:fix": "eslint src/ --ext .ts --fix",
+    "lint:report": "eslint --output-file eslint_report.json --format json src/ --ext .ts",
+    "prepublish": "yarn build",
+    "publish": "yarn npm publish",
+    "readme:build": "pkg-to-readme -f -t ../../_readme.md",
+    "start": "tsx src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 0"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts"
+}

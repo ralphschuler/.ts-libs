@@ -6,17 +6,23 @@ declare global {
   }
 
   interface ObjectConstructor {
-    difference<T>(obj1: { [key: string]: T }, obj2: { [key: string]: T }): DiffResult<T>;
+    difference<T>(
+      obj1: { [key: string]: T },
+      obj2: { [key: string]: T },
+    ): DiffResult<T>;
   }
 }
 
 // Implement the extension for Array
 Array.prototype.difference = function <T>(this: T[], otherArray: T[]): T[] {
-  return this.filter(x => !otherArray.includes(x));
+  return this.filter((x) => !otherArray.includes(x));
 };
 
 // Implement the extension for Object
-Object.difference = function <T>(obj1: { [key: string]: T }, obj2: { [key: string]: T }): DiffResult<T> {
+Object.difference = function <T>(
+  obj1: { [key: string]: T },
+  obj2: { [key: string]: T },
+): DiffResult<T> {
   const diff: DiffResult<T> = {};
   for (const key in obj1) {
     if (obj1.hasOwnProperty(key) && obj2.hasOwnProperty(key)) {

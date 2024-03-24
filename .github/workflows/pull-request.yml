@@ -27,11 +27,10 @@ jobs:
       NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4.0.0
-        with:
-          node-version: 20
+      - uses: actions/setup-node@v4
+        name: Setup Node
       - run: corepack enable
-      - run: yarn
+      - run: yarn install
       - run: yarn lint:report
         continue-on-error: true
       - run: mkdir -p eslint_reports
@@ -62,9 +61,7 @@ jobs:
       NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4.0.0
-        with:
-          node-version: 20
+      - uses: actions/setup-node@v4
       - run: corepack enable
       - run: yarn
       - run: yarn test
@@ -111,9 +108,8 @@ jobs:
     permissions: write-all
     steps:
       - name: Setup Node.js Environment
-        uses: actions/setup-node@v2
-        with:
-          node-version: '16'
+        uses: actions/setup-node@v4
+      - run: corepack enable
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0

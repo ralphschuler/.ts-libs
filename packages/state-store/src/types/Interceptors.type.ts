@@ -6,7 +6,7 @@ import { Interceptor } from "./Interceptor.type.js";
  * It is particularly useful in scenarios where you want to apply one or more interceptors to different properties of your state.
  *
  * @template StateType This is the state type whose keys are used to associate interceptors.
- * @property {Interceptor<StateType[Property]>[]} This optional property is an array of `Interceptor` functions associated with each `StateType` property.  
+ * @property {Interceptor<StateType[Property]>[]} This optional property is an array of `Interceptor` functions associated with each `StateType` property.
  * Its key is derived using `keyof StateType` which provides the set of keys of an object.
  */
 export type Interceptors<StateType> = {

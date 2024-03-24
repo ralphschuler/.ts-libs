@@ -33,7 +33,7 @@ export class KeyPairManager {
     if (!keyPair) {
       throw new UnknownKeyIdError(
         Array.from(this.keyIdToKeyPairMap.keys()),
-        keyId
+        keyId,
       );
     }
     return keyPair;
@@ -48,7 +48,7 @@ export class KeyPairManager {
         hash: "SHA-256",
       },
       true,
-      ["sign", "verify"]
+      ["sign", "verify"],
     );
 
     const publicKey = keyPair.publicKey;
@@ -59,14 +59,14 @@ export class KeyPairManager {
 
   public async getPersistableKeyPair(
     keyId: string,
-    passphrase: string
+    passphrase: string,
   ): Promise<string> {
     this.validateKeyPairExistence();
     const keyPair = this.findKeyPairById(keyId);
     const encryptedKeys = await KeyPairEncryption.encrypt(
       keyPair.privateKey,
       keyPair.publicKey,
-      passphrase
+      passphrase,
     );
     return JSON.stringify(encryptedKeys);
   }
@@ -74,12 +74,12 @@ export class KeyPairManager {
   public async loadKeyPairFromJSON(
     keyId: string,
     json: string,
-    passphrase: string
+    passphrase: string,
   ): Promise<void> {
     const encryptedKeys: IEncryptedKeys = JSON.parse(json);
     const { privateKey, publicKey } = await KeyPairEncryption.decrypt(
       encryptedKeys,
-      passphrase
+      passphrase,
     );
 
     this.keyIdToKeyPairMap.set(keyId, { privateKey, publicKey });

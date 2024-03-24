@@ -24,8 +24,8 @@ export class ProgressBarAnimation extends BaseAnimation {
       this.originalMessage.length > MAX_MESSAGE_LENGTH
         ? `${this.originalMessage.substring(0, MAX_MESSAGE_LENGTH - 3)}...`
         : this.originalMessage.length < MAX_MESSAGE_LENGTH
-        ? this.originalMessage.padEnd(MAX_MESSAGE_LENGTH, " ")
-        : this.originalMessage;
+          ? this.originalMessage.padEnd(MAX_MESSAGE_LENGTH, " ")
+          : this.originalMessage;
     const messageString = `${stepString} ${percentageString} ${trimmedMessage}`;
 
     super.setMessage(messageString);

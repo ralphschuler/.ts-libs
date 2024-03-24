@@ -36,15 +36,11 @@ jobs:
             scope: '@${{ github.repository_owner }}'
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4.0.0
-        with:
-          node-version: 20
-          registry-url: "${{ matrix.registry-url }}"
-          scope: "${{ matrix.scope }}"
-          always-auth: true
+      - uses: actions/setup-node@v4
+        name: Setup Node
       - run: corepack enable
-      - run: yarn
-      - run: yarn publish --access public
+      - run: yarn install
+      - run: yarn publish --public
         env:
           NODE_AUTH_TOKEN: ${{ matrix.registry == 'npm' && env.NPM_TOKEN || env.GITHUB_TOKEN }}
 
@@ -68,14 +64,10 @@ jobs:
             scope: '@${{ github.repository_owner }}'
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4.0.0
-        with:
-          node-version: 20
-          registry-url: "${{ matrix.registry-url }}"
-          scope: "${{ matrix.scope }}"
-          always-auth: true
+      - uses: actions/setup-node@v4
+        name: Setup Node
       - run: corepack enable
-      - run: yarn
+      - run: yarn install
       - run: yarn unpublish --force
         env:
           NODE_AUTH_TOKEN: ${{ matrix.registry == 'npm' && env.NPM_TOKEN || env.GITHUB_TOKEN }}

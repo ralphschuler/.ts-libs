@@ -1,4 +1,4 @@
-import { KeyObject } from 'node:crypto';
+import { KeyObject } from "node:crypto";
 
 export interface IKeyPair {
   privateKey: KeyObject;

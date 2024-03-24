@@ -34,9 +34,11 @@
   "dependencies": {
     "@ralphschuler/logger": "workspace:^",
     "@ralphschuler/priority-queue": "workspace:^",
-    "@ralphschuler/worker-pool": "workspace:^"
+    "@ralphschuler/worker-pool": "workspace:^",
+    "license-checker": "^25.0.1"
   },
   "devDependencies": {
+    "@types/license-checker": "^25",
     "@types/node": "^20.7.1",
     "@typescript-eslint/eslint-plugin": "^6.7.3",
     "@typescript-eslint/parser": "^6.7.3",
@@ -50,6 +52,7 @@
   "scripts": {
     "docs": "typedoc --entryPointStrategy expand --json docs/docs.json --plugin typedoc-plugin-missing-exports --plugin typedoc-plugin-rename-defaults --plugin typedoc-plugin-mdn-links --readme ./README.md src/",
     "build": "tsc",
+    "license:report": "license-checker --csv --out licenses.csv",
     "publish": "yarn npm publish",
     "test": "echo \"Error: no test specified\" && exit 0",
     "lint": "eslint src/ --ext .ts",

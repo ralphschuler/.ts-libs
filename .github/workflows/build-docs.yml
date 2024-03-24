@@ -24,11 +24,11 @@ jobs:
       NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4.0.0
+      - uses: actions/setup-node@v4
+        name: Setup Node
         with:
-          node-version: 20
-      - run: corepack enable
-      - run: yarn
+          cache: 'yarn'
+      - run: yarn install
       - name: Run build docs
         run: yarn docs:build
         continue-on-error: true

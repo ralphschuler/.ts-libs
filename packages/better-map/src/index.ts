@@ -1,4 +1,3 @@
-
 /**
  * A better Map class that has some more useful methods.
  *
@@ -6,7 +5,6 @@
  * @template v The type of the values.
  */
 export class BetterMap<k, v> extends Map<k, v> {
-  
   /**
    * Updates a value in the map if it exists, otherwise sets it to the default value.
    * @param key - The key of the value to update.

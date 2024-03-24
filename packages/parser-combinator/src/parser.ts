@@ -1,12 +1,15 @@
-import { encoder } from './unicode.js';
-import { InputType, InputTypes, isTypedArray } from './inputTypes.js';
+import { encoder } from "./unicode.js";
+import { InputType, InputTypes, isTypedArray } from "./inputTypes.js";
 
 // createParserState :: x -> s -> ParserState e a s
-const createParserState = <D>(target: InputType, data: D | null = null): ParserState<null, string | null, D | null> => {
+const createParserState = <D>(
+  target: InputType,
+  data: D | null = null,
+): ParserState<null, string | null, D | null> => {
   let dataView: DataView;
   let inputType;
 
-  if (typeof target === 'string') {
+  if (typeof target === "string") {
     const bytes = encoder.encode(target);
     dataView = new DataView(bytes.buffer);
     inputType = InputTypes.STRING;
@@ -38,23 +41,37 @@ const createParserState = <D>(target: InputType, data: D | null = null): ParserS
 };
 
 // updateError :: (ParserState e a s, f) -> ParserState f a s
-export const updateError = <T, E, D, E2>(state: ParserState<T, E, D>, error: E2): ParserState<T, E2, D> => ({ ...state, isError: true, error });
+export const updateError = <T, E, D, E2>(
+  state: ParserState<T, E, D>,
+  error: E2,
+): ParserState<T, E2, D> => ({ ...state, isError: true, error });
 
 // updateResult :: (ParserState e a s, b) -> ParserState e b s
-export const updateResult = <T, E, D, T2>(state: ParserState<T, E, D>, result: T2): ParserState<T2, E, D> => ({ ...state, result });
+export const updateResult = <T, E, D, T2>(
+  state: ParserState<T, E, D>,
+  result: T2,
+): ParserState<T2, E, D> => ({ ...state, result });
 
 // updateData :: (ParserState e a s, t) -> ParserState e b t
-export const updateData = <T, E, D, D2>(state: ParserState<T, E, D>, data: D2): ParserState<T, E, D2> => ({ ...state, data });
+export const updateData = <T, E, D, D2>(
+  state: ParserState<T, E, D>,
+  data: D2,
+): ParserState<T, E, D2> => ({ ...state, data });
 
 // updateResult :: (ParserState e a s, b, Integer) -> ParserState e b s
-export const updateParserState = <T, E, D, T2>(state: ParserState<T, E, D>, result: T2, index: number): ParserState<T2, E, D> => ({
+export const updateParserState = <T, E, D, T2>(
+  state: ParserState<T, E, D>,
+  result: T2,
+  index: number,
+): ParserState<T2, E, D> => ({
   ...state,
   result,
   index,
 });
 
-
-type StateTransformerFunction<T, E = any, D = any> = (state: ParserState<any, any, any>) => ParserState<T, E, D>;
+type StateTransformerFunction<T, E = any, D = any> = (
+  state: ParserState<any, any, any>,
+) => ParserState<T, E, D>;
 export type FnReturingParserIterator<T> = () => Iterator<Parser<any>, T>;
 
 export type ParserState<T, E, D> = {
@@ -118,7 +135,9 @@ export class Parser<T, E = string, D = any> {
 
   // fork :: Parser e a s ~> x -> (e -> ParserState e a s -> f) -> (a -> ParserState e a s -> b)
   fork<F>(
-    target: InputType, errorFn: (errorMsg: E, parsingState: ParserState<T, E, D>) => F, successFn: (result: T, parsingState: ParserState<T, E, D>) => F
+    target: InputType,
+    errorFn: (errorMsg: E, parsingState: ParserState<T, E, D>) => F,
+    successFn: (result: T, parsingState: ParserState<T, E, D>) => F,
   ) {
     const state = createParserState(target);
     const newState = this.p(state);
@@ -133,9 +152,7 @@ export class Parser<T, E = string, D = any> {
   // map :: Parser e a s ~> (a -> b) -> Parser e b s
   map<T2>(fn: (x: T) => T2): Parser<T2, E, D> {
     const p = this.p;
-    return new Parser(function Parser$map$state(
-      state,
-    ): ParserState<T2, E, D> {
+    return new Parser(function Parser$map$state(state): ParserState<T2, E, D> {
       const newState = p(state);
       if (newState.isError) return newState as unknown as ParserState<T2, E, D>;
       return updateResult(newState, fn(newState.result));
@@ -177,7 +194,8 @@ export class Parser<T, E = string, D = any> {
       state,
     ): ParserState<T, E2, D> {
       const nextState = p(state);
-      if (!nextState.isError) return nextState as unknown as ParserState<T, E2, D>;
+      if (!nextState.isError)
+        return nextState as unknown as ParserState<T, E2, D>;
 
       return updateError(
         nextState,
@@ -212,21 +230,20 @@ export class Parser<T, E = string, D = any> {
   // mapFromData :: Parser e a s ~> (StateData a s -> b) -> Parser e b s
   mapFromData<T2>(fn: (data: Ok<T, D>) => T2): Parser<T2, E, D> {
     const p = this.p;
-    return new Parser(
-      (state): ParserState<T2, E, D> => {
-        const newState = p(state);
-        if (newState.isError && newState.error) return newState as unknown as ParserState<T2, E, D>;
-        return updateResult(
-          newState,
-          fn({
-            isError: false,
-            result: newState.result,
-            data: newState.data,
-            index: newState.index,
-          }),
-        );
-      },
-    );
+    return new Parser((state): ParserState<T2, E, D> => {
+      const newState = p(state);
+      if (newState.isError && newState.error)
+        return newState as unknown as ParserState<T2, E, D>;
+      return updateResult(
+        newState,
+        fn({
+          isError: false,
+          result: newState.result,
+          data: newState.data,
+          index: newState.index,
+        }),
+      );
+    });
   }
 
   // chainFromData :: Parser e a s ~> (StateData a s -> Parser f b t) -> Parser f b t
@@ -238,7 +255,8 @@ export class Parser<T, E = string, D = any> {
       state,
     ): ParserState<T2, E2, D> {
       const newState = p(state);
-      if (newState.isError && newState.error) return newState as unknown as ParserState<T2, E2, D>;
+      if (newState.isError && newState.error)
+        return newState as unknown as ParserState<T2, E2, D>;
       return fn({ result: newState.result, data: newState.data }).p(newState);
     });
   }
@@ -254,6 +272,6 @@ export class Parser<T, E = string, D = any> {
 
   // of :: a -> Parser e a s
   static of<T, E = any, D = null>(x: T): Parser<T, E, D> {
-    return new Parser(state => updateResult(state, x));
+    return new Parser((state) => updateResult(state, x));
   }
 }

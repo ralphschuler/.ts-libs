@@ -1,0 +1,43 @@
+name: License check
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  license_check:
+    runs-on: ubuntu-latest
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        name: Setup Node
+      - run: corepack enable
+      - run: yarn install
+      - run: yarn license:report
+      - name: Check licenses
+        id: license_check_report
+        uses: pilosus/action-pip-license-checker@5b5956a1093c68ebac6ff53c8427790d04ee5c26
+        with:
+          external: 'licenses.csv'
+          external-format: 'csv'
+          external-options: '{:skip-header false :package-column-index 0 :license-column-index 2}'
+          report-format: 'json-pretty'
+          formatter: '%-65s %-65s %-20s %-40s'
+          totals: true
+          headers: true
+          fail: 'StrongCopyleft,NetworkCopyleft,Other,Error'
+          verbose: 1
+      - name: Save report
+        if: ${{ always() }}
+        run: echo "${{ steps.license_check_report.outputs.report }}" > license-report.json
+      - name: Upload artifact
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: license-report
+          path: license-report.json
