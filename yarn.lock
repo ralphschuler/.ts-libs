@@ -839,6 +839,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@ralphschuler/proof-of-work@workspace:packages/proof-of-work":
+  version: 0.0.0-use.local
+  resolution: "@ralphschuler/proof-of-work@workspace:packages/proof-of-work"
+  dependencies:
+    "@types/node": "npm:^20.7.1"
+    "@typescript-eslint/eslint-plugin": "npm:^6.7.3"
+    "@typescript-eslint/parser": "npm:^6.7.3"
+    eslint: "npm:^8.50.0"
+    eslint-config-prettier: "npm:^9.0.0"
+    eslint-plugin-prettier: "npm:^5.0.0"
+    prettier: "npm:^3.0.3"
+    rimraf: "npm:^5.0.5"
+    typescript: "npm:^5.2.2"
+  languageName: unknown
+  linkType: soft
+
 "@ralphschuler/random@workspace:packages/random":
   version: 0.0.0-use.local
   resolution: "@ralphschuler/random@workspace:packages/random"
@@ -2992,9 +3008,9 @@ __metadata:
   linkType: hard
 
 "ip@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "ip@npm:2.0.0"
-  checksum: 1270b11e534a466fb4cf4426cbcc3a907c429389f7f4e4e3b288b42823562e88d6a509ceda8141a507de147ca506141f745005c0aa144569d94cf24a54eb52bc
+  version: 2.0.1
+  resolution: "ip@npm:2.0.1"
+  checksum: d6dd154e1bc5e8725adfdd6fb92218635b9cbe6d873d051bd63b178f009777f751a5eea4c67021723a7056325fc3052f8b6599af0a2d56f042c93e684b4a0349
   languageName: node
   linkType: hard
 
