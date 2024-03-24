@@ -36,9 +36,15 @@ jobs:
             scope: '@${{ github.repository_owner }}'
     steps:
       - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v1
-      - run: bun install
-      - run: bun run publish --public
+      - uses: actions/setup-node@v3
+        name: Setup Node
+        with:
+          node-version: "16.x"
+          cache: 'yarn'
+          registry-url: "https://npm.pkg.github.com"
+          scope: 'inhaus-ai-limited'
+      - run: yarn install
+      - run: yarn publish --public
         env:
           NODE_AUTH_TOKEN: ${{ matrix.registry == 'npm' && env.NPM_TOKEN || env.GITHUB_TOKEN }}
 
@@ -62,8 +68,11 @@ jobs:
             scope: '@${{ github.repository_owner }}'
     steps:
       - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v1
-      - run: bun install
-      - run: bun run unpublish --force
+      - uses: actions/setup-node@v3
+        name: Setup Node
+        with:
+          cache: 'yarn'
+      - run: yarn install
+      - run: yarn unpublish --force
         env:
           NODE_AUTH_TOKEN: ${{ matrix.registry == 'npm' && env.NPM_TOKEN || env.GITHUB_TOKEN }}

@@ -27,9 +27,12 @@ jobs:
       NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v1
-      - run: bun install
-      - run: bun run lint:report
+      - uses: actions/setup-node@v3
+        name: Setup Node
+        with:
+          cache: 'yarn'
+      - run: yarn install
+      - run: yarn lint:report
         continue-on-error: true
       - run: mkdir -p eslint_reports
       - name: Collect Reports
