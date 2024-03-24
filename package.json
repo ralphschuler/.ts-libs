@@ -38,7 +38,6 @@
   ],
   "license": "MIT",
   "main": "",
-  "packageManager": "yarn@4.0.2",
   "private": true,
   "scripts": {
     "build": "yarn workspaces foreach -Apt run build",
