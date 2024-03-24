@@ -40,6 +40,7 @@ jobs:
         name: Setup Node
         with:
           cache: 'yarn'
+      - run: corepack enable
       - run: yarn install
       - run: yarn publish --public
         env:
@@ -69,6 +70,7 @@ jobs:
         name: Setup Node
         with:
           cache: 'yarn'
+      - run: corepack enable
       - run: yarn install
       - run: yarn unpublish --force
         env:
