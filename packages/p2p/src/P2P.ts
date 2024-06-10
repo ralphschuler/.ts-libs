@@ -46,7 +46,7 @@ export class P2P extends EventEmitter {
         this.emit('disconnected', peerId);
       });
       
-      this.emit('connected', peer)
+      this.emit('connection', peer)
     });
 
     this.server.on('error', (err) => {
@@ -76,12 +76,12 @@ export class P2P extends EventEmitter {
             const [key, value] = txtRecord.data.split('=');
             acc[key] = value;
             return acc;
-          }, { [key: string]: string});
+          }, {});
 
           const publicKey = annotations['publicKey']
           delete annotations['publicKey']
           const peerInfo: PeerInfo = {
-            id: `${srvRecord.data.target}:${srvRecord.data.port}`
+            id: `${srvRecord.data.target}:${srvRecord.data.port}`,
             hostname: srvRecord.data.target,
             port: srvRecord.data.port,
             publicKey,
@@ -95,6 +95,20 @@ export class P2P extends EventEmitter {
         console.error('Error discovering peers:', error);
       }
     }, 10000);
+  }
+
+  public send(data: Buffer, peerId: string): void {
+    const peer = this.peers.get(peerId);
+    if (!peer) {
+      console.error(`Peer ${peerId} not found`);
+      return;
+    }
+
+    peer.send(data);
+  }
+
+  public broadcast(data: Buffer): void {
+    this.peers.forEach((peer) => peer.send(data));
   }
 
   public destroy(): void {

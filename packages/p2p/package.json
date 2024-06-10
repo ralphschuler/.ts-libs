@@ -9,6 +9,7 @@
     "url": "https://github.com/ralphschuler/ts-libs/issues"
   },
   "dependencies": {
+    "@ralphschuler/mdns": "workspace:^",
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {

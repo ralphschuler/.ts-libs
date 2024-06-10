@@ -1,4 +1,5 @@
 export type DNSTypeMap = {
+  ANY: { }
   A: { address: string };
   AAAA: { address: string };
   CNAME: { data: string };

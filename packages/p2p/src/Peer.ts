@@ -2,11 +2,13 @@ import * as net from "net";
 import { EventEmitter } from "events";
 import { KeyPairEncryption } from "./KeyPairEncryption.js";
 import { PeerInfo } from "./types/index.js";
+import { Duplex } from "stream";
 
 export class Peer extends EventEmitter {
   private socket: net.Socket | null = null;
   public info: PeerInfo;
   private keyPairEncryption: KeyPairEncryption;
+  public stream: Duplex;
 
   constructor(info: PeerInfo, keyPairEncryption: KeyPairEncryption) {
     super();

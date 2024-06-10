@@ -1,4 +1,4 @@
-import * as mdns from "multicast-dns";
+import mdns from "multicast-dns";
 import { DNSRecord, DNSType, DNSTypeMap } from "./types/index.js";
 
 export class MDNS {
@@ -7,7 +7,7 @@ export class MDNS {
   private recordResolvers: Map<string, Function> = new Map();
 
   constructor() {
-    this.dns.on("query", (query) => this.handleQuery(query));
+    this.dns.on("query", (query: { questions: DNSRecord[] }) => this.handleQuery(query));
     this.dns.on("response", (response) => this.handleResponse(response));
   }
 
@@ -48,13 +48,13 @@ export class MDNS {
     );
 
     if (answers.length) {
-      this.dns.respond({ answers }).catch(console.error);
+      this.dns.respond({ answers })
     }
   }
 
   private handleResponse(response: any): void {
     const queryId = response.additionals?.find(
-      (additional) => additional.type === "TXT",
+      (additional: any) => additional.type === "TXT",
     )?.data;
     if (!queryId || !this.recordResolvers.has(queryId)) return;
 
