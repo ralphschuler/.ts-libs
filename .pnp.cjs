@@ -206,6 +206,7 @@ const RAW_RUNTIME_STATE =
           ["@mxssfd/typedoc-theme", "virtual:a03704a81a5912593467f3de880f2dfaa9b02e5f59aa3f76bd53205b8969ffe9691d04f5fa0dd8e0b25ed2d3bf09ab51a08abfd3d757d658885d98ad5e280f7f#npm:1.1.3"],\
           ["@types/is-ci", "npm:3.0.4"],\
           ["@types/license-checker", "npm:25.0.6"],\
+          ["eslint-plugin-workspaces", "npm:0.10.0"],\
           ["fixpack", "npm:4.0.0"],\
           ["husky", "npm:8.0.3"],\
           ["is-ci", "npm:3.0.1"],\
@@ -796,6 +797,15 @@ const RAW_RUNTIME_STATE =
         "linkType": "HARD"\
       }]\
     ]],\
+    ["@leichtgewicht/ip-codec", [\
+      ["npm:2.0.4", {\
+        "packageLocation": "./.yarn/cache/@leichtgewicht-ip-codec-npm-2.0.4-dd4d657af8-3c7ffb0afb.zip/node_modules/@leichtgewicht/ip-codec/",\
+        "packageDependencies": [\
+          ["@leichtgewicht/ip-codec", "npm:2.0.4"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
     ["@mongodb-js/saslprep", [\
       ["npm:1.1.5", {\
         "packageLocation": "./.yarn/cache/@mongodb-js-saslprep-npm-1.1.5-d099d251b1-675ab9d0f4.zip/node_modules/@mongodb-js/saslprep/",\
@@ -1150,12 +1160,14 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "./packages/mdns/",\
         "packageDependencies": [\
           ["@ralphschuler/mdns", "workspace:packages/mdns"],\
+          ["@types/multicast-dns", "npm:7.2.4"],\
           ["@types/node", "npm:20.11.30"],\
           ["@typescript-eslint/eslint-plugin", "virtual:d9216fc763030fb43dbe815f1c5a97e29b30151e2f574cdf357d8c0bf27adb0817f11569d38762c5c19247ed7a8412b70301d17c6fd83694c9b297273febecb7#npm:6.21.0"],\
           ["@typescript-eslint/parser", "virtual:d9216fc763030fb43dbe815f1c5a97e29b30151e2f574cdf357d8c0bf27adb0817f11569d38762c5c19247ed7a8412b70301d17c6fd83694c9b297273febecb7#npm:6.21.0"],\
           ["eslint", "npm:8.57.0"],\
           ["eslint-config-prettier", "virtual:d9216fc763030fb43dbe815f1c5a97e29b30151e2f574cdf357d8c0bf27adb0817f11569d38762c5c19247ed7a8412b70301d17c6fd83694c9b297273febecb7#npm:9.1.0"],\
           ["eslint-plugin-prettier", "virtual:d9216fc763030fb43dbe815f1c5a97e29b30151e2f574cdf357d8c0bf27adb0817f11569d38762c5c19247ed7a8412b70301d17c6fd83694c9b297273febecb7#npm:5.1.3"],\
+          ["multicast-dns", "npm:7.2.5"],\
           ["prettier", "npm:3.2.5"],\
           ["reflect-metadata", "npm:0.1.14"],\
           ["rimraf", "npm:5.0.5"],\
@@ -1210,6 +1222,7 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "./packages/p2p/",\
         "packageDependencies": [\
           ["@ralphschuler/p2p", "workspace:packages/p2p"],\
+          ["@ralphschuler/mdns", "workspace:packages/mdns"],\
           ["@types/node", "npm:20.11.30"],\
           ["@typescript-eslint/eslint-plugin", "virtual:d9216fc763030fb43dbe815f1c5a97e29b30151e2f574cdf357d8c0bf27adb0817f11569d38762c5c19247ed7a8412b70301d17c6fd83694c9b297273febecb7#npm:6.21.0"],\
           ["@typescript-eslint/parser", "virtual:d9216fc763030fb43dbe815f1c5a97e29b30151e2f574cdf357d8c0bf27adb0817f11569d38762c5c19247ed7a8412b70301d17c6fd83694c9b297273febecb7#npm:6.21.0"],\
@@ -1568,6 +1581,7 @@ const RAW_RUNTIME_STATE =
           ["@mxssfd/typedoc-theme", "virtual:a03704a81a5912593467f3de880f2dfaa9b02e5f59aa3f76bd53205b8969ffe9691d04f5fa0dd8e0b25ed2d3bf09ab51a08abfd3d757d658885d98ad5e280f7f#npm:1.1.3"],\
           ["@types/is-ci", "npm:3.0.4"],\
           ["@types/license-checker", "npm:25.0.6"],\
+          ["eslint-plugin-workspaces", "npm:0.10.0"],\
           ["fixpack", "npm:4.0.0"],\
           ["husky", "npm:8.0.3"],\
           ["is-ci", "npm:3.0.1"],\
@@ -1768,6 +1782,16 @@ const RAW_RUNTIME_STATE =
         "linkType": "HARD"\
       }]\
     ]],\
+    ["@types/dns-packet", [\
+      ["npm:5.6.5", {\
+        "packageLocation": "./.yarn/cache/@types-dns-packet-npm-5.6.5-40d34c42a7-ebca421560.zip/node_modules/@types/dns-packet/",\
+        "packageDependencies": [\
+          ["@types/dns-packet", "npm:5.6.5"],\
+          ["@types/node", "npm:20.11.30"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
     ["@types/is-ci", [\
       ["npm:3.0.4", {\
         "packageLocation": "./.yarn/cache/@types-is-ci-npm-3.0.4-d9f7893cdd-5cb58dd3b6.zip/node_modules/@types/is-ci/",\
@@ -1811,6 +1835,17 @@ const RAW_RUNTIME_STATE =
         "packageDependencies": [\
           ["@types/mongodb", "npm:4.0.7"],\
           ["mongodb", "virtual:143cb37ea32662ebfb240307415905dbcdcd555f1c505de0dab16d35aaf251aab27e5518932e28a42c2eed7cfbce1f138ceab7498b5f2cb2b53fb620dc732eb1#npm:6.5.0"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["@types/multicast-dns", [\
+      ["npm:7.2.4", {\
+        "packageLocation": "./.yarn/cache/@types-multicast-dns-npm-7.2.4-e1b753ea96-815cc12b6e.zip/node_modules/@types/multicast-dns/",\
+        "packageDependencies": [\
+          ["@types/multicast-dns", "npm:7.2.4"],\
+          ["@types/dns-packet", "npm:5.6.5"],\
+          ["@types/node", "npm:20.11.30"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -2911,6 +2946,16 @@ const RAW_RUNTIME_STATE =
         "linkType": "HARD"\
       }]\
     ]],\
+    ["dns-packet", [\
+      ["npm:5.6.1", {\
+        "packageLocation": "./.yarn/cache/dns-packet-npm-5.6.1-9543a780b5-ef5496dd5a.zip/node_modules/dns-packet/",\
+        "packageDependencies": [\
+          ["dns-packet", "npm:5.6.1"],\
+          ["@leichtgewicht/ip-codec", "npm:2.0.4"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
     ["doctrine", [\
       ["npm:3.0.0", {\
         "packageLocation": "./.yarn/cache/doctrine-npm-3.0.0-c6f1615f04-b4b28f1df5.zip/node_modules/doctrine/",\
@@ -3162,6 +3207,16 @@ const RAW_RUNTIME_STATE =
         "linkType": "HARD"\
       }]\
     ]],\
+    ["eslint-plugin-workspaces", [\
+      ["npm:0.10.0", {\
+        "packageLocation": "./.yarn/cache/eslint-plugin-workspaces-npm-0.10.0-74d71723af-efb6b8535b.zip/node_modules/eslint-plugin-workspaces/",\
+        "packageDependencies": [\
+          ["eslint-plugin-workspaces", "npm:0.10.0"],\
+          ["find-workspaces", "npm:0.3.1"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
     ["eslint-scope", [\
       ["npm:7.2.2", {\
         "packageLocation": "./.yarn/cache/eslint-scope-npm-7.2.2-53cb0df8e8-5c660fb905.zip/node_modules/eslint-scope/",\
@@ -3408,6 +3463,18 @@ const RAW_RUNTIME_STATE =
           ["find-up", "npm:6.3.0"],\
           ["locate-path", "npm:7.2.0"],\
           ["path-exists", "npm:5.0.0"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["find-workspaces", [\
+      ["npm:0.3.1", {\
+        "packageLocation": "./.yarn/cache/find-workspaces-npm-0.3.1-ab688aa01d-8803ca7431.zip/node_modules/find-workspaces/",\
+        "packageDependencies": [\
+          ["find-workspaces", "npm:0.3.1"],\
+          ["fast-glob", "npm:3.3.2"],\
+          ["pkg-types", "npm:1.0.3"],\
+          ["yaml", "npm:2.4.1"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -4709,6 +4776,19 @@ const RAW_RUNTIME_STATE =
         "linkType": "HARD"\
       }]\
     ]],\
+    ["mlly", [\
+      ["npm:1.6.1", {\
+        "packageLocation": "./.yarn/cache/mlly-npm-1.6.1-947df259c8-00b4c35523.zip/node_modules/mlly/",\
+        "packageDependencies": [\
+          ["mlly", "npm:1.6.1"],\
+          ["acorn", "npm:8.11.3"],\
+          ["pathe", "npm:1.1.2"],\
+          ["pkg-types", "npm:1.0.3"],\
+          ["ufo", "npm:1.5.3"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
     ["mongodb", [\
       ["npm:6.5.0", {\
         "packageLocation": "./.yarn/cache/mongodb-npm-6.5.0-bf3d9eebca-537fcb5903.zip/node_modules/mongodb/",\
@@ -4781,6 +4861,17 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "./.yarn/cache/ms-npm-2.1.3-81ff3cfac1-aa92de6080.zip/node_modules/ms/",\
         "packageDependencies": [\
           ["ms", "npm:2.1.3"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["multicast-dns", [\
+      ["npm:7.2.5", {\
+        "packageLocation": "./.yarn/cache/multicast-dns-npm-7.2.5-e1c9c3ec64-e9add8035f.zip/node_modules/multicast-dns/",\
+        "packageDependencies": [\
+          ["multicast-dns", "npm:7.2.5"],\
+          ["dns-packet", "npm:5.6.1"],\
+          ["thunky", "npm:1.1.0"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -5187,6 +5278,15 @@ const RAW_RUNTIME_STATE =
         "linkType": "HARD"\
       }]\
     ]],\
+    ["pathe", [\
+      ["npm:1.1.2", {\
+        "packageLocation": "./.yarn/cache/pathe-npm-1.1.2-b80d94db55-f201d79635.zip/node_modules/pathe/",\
+        "packageDependencies": [\
+          ["pathe", "npm:1.1.2"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
     ["picocolors", [\
       ["npm:1.0.0", {\
         "packageLocation": "./.yarn/cache/picocolors-npm-1.0.0-d81e0b1927-a2e8092dd8.zip/node_modules/picocolors/",\
@@ -5213,6 +5313,18 @@ const RAW_RUNTIME_STATE =
           ["ejs", "npm:3.1.9"],\
           ["meow", "npm:12.1.1"],\
           ["read-pkg-up", "npm:10.1.0"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["pkg-types", [\
+      ["npm:1.0.3", {\
+        "packageLocation": "./.yarn/cache/pkg-types-npm-1.0.3-dce22a705c-e17e1819ce.zip/node_modules/pkg-types/",\
+        "packageDependencies": [\
+          ["pkg-types", "npm:1.0.3"],\
+          ["jsonc-parser", "npm:3.2.1"],\
+          ["mlly", "npm:1.6.1"],\
+          ["pathe", "npm:1.1.2"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -6016,6 +6128,15 @@ const RAW_RUNTIME_STATE =
         "linkType": "HARD"\
       }]\
     ]],\
+    ["thunky", [\
+      ["npm:1.1.0", {\
+        "packageLocation": "./.yarn/cache/thunky-npm-1.1.0-2d25531f44-825e3bd07a.zip/node_modules/thunky/",\
+        "packageDependencies": [\
+          ["thunky", "npm:1.1.0"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
     ["to-regex-range", [\
       ["npm:5.0.1", {\
         "packageLocation": "./.yarn/cache/to-regex-range-npm-5.0.1-f1e8263b00-10dda13571.zip/node_modules/to-regex-range/",\
@@ -6322,6 +6443,15 @@ const RAW_RUNTIME_STATE =
         "linkType": "HARD"\
       }]\
     ]],\
+    ["ufo", [\
+      ["npm:1.5.3", {\
+        "packageLocation": "./.yarn/cache/ufo-npm-1.5.3-8c9d710312-2b30dddd87.zip/node_modules/ufo/",\
+        "packageDependencies": [\
+          ["ufo", "npm:1.5.3"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
     ["uglify-js", [\
       ["npm:3.17.4", {\
         "packageLocation": "./.yarn/cache/uglify-js-npm-3.17.4-58d4ab56aa-4c0b800e0f.zip/node_modules/uglify-js/",\
@@ -6541,6 +6671,15 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "./.yarn/cache/yallist-npm-4.0.0-b493d9e907-4cb02b42b8.zip/node_modules/yallist/",\
         "packageDependencies": [\
           ["yallist", "npm:4.0.0"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["yaml", [\
+      ["npm:2.4.1", {\
+        "packageLocation": "./.yarn/cache/yaml-npm-2.4.1-2717faf9eb-2c54fd69ef.zip/node_modules/yaml/",\
+        "packageDependencies": [\
+          ["yaml", "npm:2.4.1"]\
         ],\
         "linkType": "HARD"\
       }]\

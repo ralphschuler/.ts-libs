@@ -1,5 +1,5 @@
-import { DNSType } from "./dnsType.type.ts";
-import { DNSTypeMap } from "./dnsTypeMap.type.ts";
+import { DNSType } from "./dnsType.type.js";
+import { DNSTypeMap } from "./dnsTypeMap.type.js";
 
 export interface DNSRecord {
   name: string;
