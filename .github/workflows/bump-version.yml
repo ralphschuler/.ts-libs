@@ -3,11 +3,19 @@ name: Bump Version
 on:
   push:
     branches: [master, main]
+    paths-ignore:
+      - "documentation/**"
+      - ".github/scripts/build-documentation.mjs"
+      - ".github/scripts/validate-documentation.mjs"
+      - ".github/workflows/build-docs.yml"
+      - ".github/workflows/bump-version.yml"
+      - ".github/workflows/license-check.yml"
+      - ".github/workflows/pull-request.yml"
+      - ".gitignore"
+      - "README.md"
 
 permissions:
   contents: write
-  issues: write
-  pull-requests: write
 
 jobs:
   bump-version:

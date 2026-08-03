@@ -2,6 +2,13 @@
 
 A collection of useful TypeScript libraries
 
+## Concept documentation
+
+The [ts-libs concept documentation](https://ralphschuler.github.io/.ts-libs/)
+explains how every module works and how to build a small independent version
+yourself. It is intentionally a systems handbook rather than an installation or
+generated API reference.
+
 ## Install
 
 Install with [npm](https://www.npmjs.com/):
@@ -14,7 +21,7 @@ Install with [npm](https://www.npmjs.com/):
 
 ## Changelog
 
-See [Releases page](https://ralphschuler.github.io/ts-libs//releases).
+See the [releases page](https://github.com/ralphschuler/.ts-libs/releases).
 
 ## Running tests
 
@@ -25,7 +32,7 @@ Install devDependencies and Run `npm test`:
 ## Contributing
 
 Pull requests and stars are always welcome.
-For bugs and feature requests, [please create an issue](https://github.com/ralphschuler/ts-libs/issues).
+For bugs and feature requests, [please create an issue](https://github.com/ralphschuler/.ts-libs/issues).
 
 1. Fork it!
 2. Create your feature branch: `git checkout -b my-new-feature`

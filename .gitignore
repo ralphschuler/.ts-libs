@@ -220,3 +220,4 @@ dist
 
 eslint_report.json
 docs/
+.pages/
