@@ -1,30 +1,19 @@
+import { Command, IContext } from "../index.js";
 export class HelloWorldCommand extends Command {
-  public static name = "hello-world";
-  public static description = "A simple hello world command";
-
-  public static arguments: IArgument<any>[] = [
-    {
-      name: "name",
-      description: "Your name",
-      type: "string",
-      required: true,
-    },
-  ];
-
-  public static flags: IFlag<any>[] = [
+  name = "hello-world";
+  description = "A simple hello world command";
+  args = [{ name: "name", type: "string" as const, required: true }];
+  flags = [
     {
       name: "times",
-      description: "Number of times to say hello",
-      type: "number",
+      type: "number" as const,
       default: 1,
+      validator: (value: unknown) =>
+        Number.isInteger(value) && Number(value) >= 0 && Number(value) <= 100,
     },
   ];
-
-  public async run(context: IContext) {
-    const { args, flags } = context;
-
-    for (let i = 0; i < flags.times; i++) {
-      console.log(`Hello ${args.name}!`);
-    }
+  run(context: IContext): void {
+    for (let i = 0; i < context.flags.times; i++)
+      console.log("Hello " + context.args.name + "!");
   }
 }

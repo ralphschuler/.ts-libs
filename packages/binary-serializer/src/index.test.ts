@@ -1,49 +1,32 @@
-import "reflect-metadata";
-import { expect, test, describe } from "bun:test";
-import {
-  Serializable,
-  AsNumber,
-  AsBoolean,
-  AsString,
-  AsArray,
-} from "./index.js";
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+import { BinarySerializer } from "./index.js";
 
-describe("Serialization Tests", () => {
-  @Serializable
-  class TestClass {
-    @AsNumber
-    age: number;
+describe("BinarySerializer", () => {
+  it("round-trips fixed-size primitive fields and arrays", () => {
+    const schema = {
+      age: "number" as const,
+      isActive: "boolean" as const,
+      name: { type: "string" as const, length: 10 },
+      scores: {
+        type: "array" as const,
+        itemType: "number" as const,
+        itemCount: 3,
+      },
+    };
+    const input = {
+      age: 30,
+      isActive: true,
+      name: "John",
+      scores: [95, 88, 75],
+    };
+    const bytes = new BinarySerializer(schema)
+      .serialize(input, schema)
+      .getBuffer();
+    const output = new BinarySerializer(schema)
+      .setBuffer(bytes)
+      .deserialize(schema);
 
-    @AsBoolean
-    isActive: boolean;
-
-    @AsString(10)
-    name: string;
-
-    @AsArray(Number, 3)
-    scores: number[];
-  }
-
-  test("should serialize and deserialize correctly", () => {
-    const instance = new TestClass();
-    instance.age = 30;
-    instance.isActive = true;
-    instance.name = "John";
-    instance.scores = [95, 88, 75];
-
-    // @ts-expect-error
-    const serializedData = instance.serialize();
-    const deserializedInstance = new TestClass();
-    // @ts-expect-error
-    deserializedInstance.deserialize(serializedData);
-
-    expect(deserializedInstance.age).toEqual(instance.age);
-
-    strictEqual(deserializedInstance.age, instance.age);
-    strictEqual(deserializedInstance.isActive, instance.isActive);
-    strictEqual(deserializedInstance.name, instance.name);
-    strictEqual(deserializedInstance.scores, instance.scores);
+    assert.deepEqual(output, input);
   });
 });
-
-// Add more test cases and describe blocks as needed

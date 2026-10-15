@@ -1,39 +1,34 @@
-type NumericEnum = Record<string, number>;
-
-class BitwiseFeatureFlags<T extends NumericEnum> {
-  private flags: number;
-  private validFlags: Set<number>;
-
+export type NumericEnum = Record<string, string | number>;
+/** Supports positive, single-bit flags within JavaScript's signed 32-bit bitwise range. */
+export class BitwiseFeatureFlags<T extends NumericEnum> {
+  private flags = 0;
+  private readonly validFlags: Set<number>;
   constructor(validFlags: T) {
-    this.flags = 0;
-    this.validFlags = new Set(Object.values(validFlags));
+    this.validFlags = new Set(
+      Object.values(validFlags).filter(
+        (value): value is number =>
+          typeof value === "number" &&
+          Number.isInteger(value) &&
+          value > 0 &&
+          value <= 0x40000000 &&
+          (value & (value - 1)) === 0,
+      ),
+    );
   }
-
-  private isValidFlag(flag: number): boolean {
-    return this.validFlags.has(flag);
+  private validate(flag: unknown): asserts flag is number {
+    if (typeof flag !== "number" || !this.validFlags.has(flag))
+      throw new RangeError("Expected a declared single-bit flag");
   }
-
   enableFlag(flag: T[keyof T]): void {
-    if (!this.isValidFlag(flag)) {
-      console.error("Invalid flag:", flag);
-      return;
-    }
+    this.validate(flag);
     this.flags |= flag;
   }
-
   disableFlag(flag: T[keyof T]): void {
-    if (!this.isValidFlag(flag)) {
-      console.error("Invalid flag:", flag);
-      return;
-    }
+    this.validate(flag);
     this.flags &= ~flag;
   }
-
   isFlagEnabled(flag: T[keyof T]): boolean {
-    if (!this.isValidFlag(flag)) {
-      console.error("Invalid flag:", flag);
-      return false;
-    }
+    this.validate(flag);
     return (this.flags & flag) === flag;
   }
 }

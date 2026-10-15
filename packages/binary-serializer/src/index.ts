@@ -9,7 +9,7 @@ export type DataType =
   | { type: "Serialized"; class: Function };
 
 function addSchema(target: any, propertyKey: string, typeData: DataType) {
-  const schema = Reflect.getMetadata("schema", target) || {};
+  const schema = { ...(Reflect.getMetadata("schema", target) || {}) };
   schema[propertyKey] = typeData;
   Reflect.defineMetadata("schema", schema, target);
 }
@@ -56,6 +56,19 @@ export function AsString(length: number) {
 export function AsArray(itemType: DataType | Function, itemCount: number) {
   return function (target: any, propertyKey: string) {
     if (typeof itemType === "function") {
+      const primitiveTypes = new Map<Function, BasicDataType>([
+        [Number, "number"],
+        [Boolean, "boolean"],
+      ]);
+      const primitiveType = primitiveTypes.get(itemType);
+      if (primitiveType) {
+        addSchema(target, propertyKey, {
+          type: "array",
+          itemType: primitiveType,
+          itemCount,
+        });
+        return;
+      }
       if (!Reflect.getMetadata("Serializable", itemType)) {
         throw new Error("Array type must be Serializable");
       }
@@ -89,17 +102,20 @@ export class BinarySerializer {
       } else if (type === "boolean") {
         size += 1;
       } else if (typeof type === "object" && type.type === "string") {
-        size += 4 + type.length;
+        if (!Number.isInteger(type.length) || type.length < 0)
+          throw new RangeError("Invalid string width");
+        size += type.length;
       } else if (typeof type === "object" && type.type === "array") {
+        if (!Number.isInteger(type.itemCount) || type.itemCount < 0)
+          throw new RangeError("Invalid array length");
         size +=
-          4 +
           this.calculateBufferSize({ item: type.itemType }) * type.itemCount;
       } else {
-        size += type.class.prototype.calculateBufferSize(
-          type.class.prototype.getSchema(),
-        );
+        size += this.calculateBufferSize(type.class.prototype.getSchema());
       }
     }
+    if (!Number.isSafeInteger(size) || size < 0 || size > 16 * 1024 * 1024)
+      throw new RangeError("Invalid or oversized binary schema");
     return size;
   }
 
@@ -108,24 +124,46 @@ export class BinarySerializer {
       this.buffer.writeUInt32LE(value, this.offset);
       this.offset += 4;
     } else if (type === "boolean") {
+      if (typeof value !== "boolean") throw new TypeError("Expected a boolean");
       this.buffer.writeUInt8(value ? 1 : 0, this.offset);
       this.offset++;
     } else if (typeof type === "object" && type.type === "string") {
-      const str = value.padEnd(type.length, "\0"); // Pad string to fixed length
-      this.buffer.write(str, this.offset);
+      if (
+        typeof value !== "string" ||
+        value.includes("\0") ||
+        Buffer.byteLength(value) > type.length
+      )
+        throw new RangeError(
+          "String exceeds fixed UTF-8 width or contains NUL",
+        );
+      this.buffer.fill(0, this.offset, this.offset + type.length);
+      this.buffer.write(value, this.offset, type.length, "utf8");
       this.offset += type.length;
     } else if (typeof type === "object" && type.type === "array") {
       const len = type.itemCount;
+      if (!Array.isArray(value) || value.length !== len)
+        throw new RangeError("Expected exact array length");
       for (let i = 0; i < len; i++) {
         this.serializeValue(value[i], type.itemType);
       }
     } else {
-      this.serialize(value, type.class.prototype.getSchema());
+      this.serializeObject(value, type.class.prototype.getSchema());
     }
   }
 
   serialize(data: any, schema: { [key: string]: DataType }): this {
-    for (const [key, type] of Object.entries(schema)) {
+    this.offset = 0;
+    this.buffer = Buffer.alloc(this.calculateBufferSize(schema));
+    return this.serializeObject(data, schema);
+  }
+
+  private serializeObject(
+    data: any,
+    schema: { [key: string]: DataType },
+  ): this {
+    for (const [key, type] of Object.entries(schema).sort(([left], [right]) =>
+      left < right ? -1 : left > right ? 1 : 0,
+    )) {
       this.serializeValue(data[key], type);
     }
     return this;
@@ -143,7 +181,7 @@ export class BinarySerializer {
     } else if (typeof type === "object" && type.type === "string") {
       const value = this.buffer
         .toString("utf-8", this.offset, this.offset + type.length)
-        .replace(/\0/g, "");
+        .replace(/\0+$/, "");
       this.offset += type.length;
       return value;
     } else if (typeof type === "object" && type.type === "array") {
@@ -159,15 +197,19 @@ export class BinarySerializer {
   }
 
   deserialize(schema: { [key: string]: DataType }): any {
+    if (this.offset + this.calculateBufferSize(schema) > this.buffer.length)
+      throw new RangeError("Truncated binary buffer");
     const result: { [key: string]: any } = {};
-    for (const [key, type] of Object.entries(schema)) {
+    for (const [key, type] of Object.entries(schema).sort(([left], [right]) =>
+      left < right ? -1 : left > right ? 1 : 0,
+    )) {
       result[key] = this.deserializeValue(type);
     }
     return result;
   }
 
   getBuffer(): Buffer {
-    return this.buffer.slice(0, this.offset);
+    return Buffer.from(this.buffer.subarray(0, this.offset));
   }
 
   setBuffer(buffer: Buffer): this {

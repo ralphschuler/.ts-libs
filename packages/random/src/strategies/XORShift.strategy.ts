@@ -32,7 +32,7 @@ export class XORShift extends PseudoRandomNumberGenerator {
       newSeedBuffer.writeUInt32LE(this.state, 0);
       this.seed = new Seed(newSeedBuffer);
 
-      return (this.state >>> 0) / 0xffffffff;
+      return (this.state >>> 0) / 4294967296;
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error(

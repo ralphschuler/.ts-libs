@@ -1,9 +1,9 @@
-import { describe, it } from 'node:test'
-import assert from 'node:assert/strict'
-import { SimpleSubscription } from './SimpleSubscription'
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
+import { SimpleSubscription } from "./SimpleSubscription.js";
 
-describe('SimpleSubscription', () => {
-  it('should call unsubscribe callback when unsubscribed', () => {
+describe("SimpleSubscription", () => {
+  it("should call unsubscribe callback when unsubscribed", () => {
     let unsubscribeCalled = false;
     const subscription = new SimpleSubscription(() => {
       unsubscribeCalled = true;
@@ -13,7 +13,7 @@ describe('SimpleSubscription', () => {
     assert.strictEqual(unsubscribeCalled, true);
   });
 
-  it('should prevent multiple calls to unsubscribe callback', () => {
+  it("should prevent multiple calls to unsubscribe callback", () => {
     let unsubscribeCallCount = 0;
     const subscription = new SimpleSubscription(() => {
       unsubscribeCallCount++;
@@ -24,7 +24,7 @@ describe('SimpleSubscription', () => {
     assert.strictEqual(unsubscribeCallCount, 1);
   });
 
-  it('should handle multiple subscriptions with different callbacks', () => {
+  it("should handle multiple subscriptions with different callbacks", () => {
     let unsubscribeCallCount = 0;
     const subscription1 = new SimpleSubscription(() => {
       unsubscribeCallCount++;
@@ -38,7 +38,7 @@ describe('SimpleSubscription', () => {
     assert.strictEqual(unsubscribeCallCount, 2);
   });
 
-  it('should handle multiple subscriptions with the same callback', () => {
+  it("should handle multiple subscriptions with the same callback", () => {
     let unsubscribeCallCount = 0;
     const unsubscribeCallback = () => {
       unsubscribeCallCount++;
@@ -51,7 +51,7 @@ describe('SimpleSubscription', () => {
     assert.strictEqual(unsubscribeCallCount, 2);
   });
 
-  it('should handle multiple unsubscribe calls from different sources', () => {
+  it("should handle multiple unsubscribe calls from different sources", () => {
     let unsubscribeCallCount = 0;
     const subscription = new SimpleSubscription(() => {
       unsubscribeCallCount++;
@@ -62,7 +62,7 @@ describe('SimpleSubscription', () => {
     assert.strictEqual(unsubscribeCallCount, 1);
   });
 
-  it('should handle different types of callback functions', () => {
+  it("should handle different types of callback functions", () => {
     let unsubscribeCallCount = 0;
 
     const unsubscribe1 = () => {

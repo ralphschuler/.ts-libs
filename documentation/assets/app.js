@@ -1,5 +1,6 @@
 (() => {
   const root = document.documentElement;
+  const messages = document.body.dataset;
   const storageKey = "ts-libs-docs-theme";
 
   const getStoredTheme = () => {
@@ -13,7 +14,7 @@
   const setTheme = (theme) => {
     root.dataset.theme = theme;
     document.querySelectorAll("[data-theme-label]").forEach((label) => {
-      label.textContent = theme === "light" ? "Dark" : "Light";
+      label.textContent = theme === "light" ? messages.dark : messages.light;
     });
     try {
       localStorage.setItem(storageKey, theme);
@@ -34,8 +35,10 @@
   const navClose = document.querySelector("[data-nav-close]");
   const overlay = document.querySelector("[data-overlay]");
   const closeNav = () => {
+    const wasOpen = shell?.classList.contains("nav-open");
     shell?.classList.remove("nav-open");
     navToggle?.setAttribute("aria-expanded", "false");
+    if (wasOpen) navToggle?.focus();
   };
   const openNav = () => {
     shell?.classList.add("nav-open");
@@ -47,18 +50,39 @@
   overlay?.addEventListener("click", closeNav);
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") closeNav();
+    if (event.key === "Tab" && shell?.classList.contains("nav-open")) {
+      const focusable = [
+        ...document.querySelectorAll(".sidebar a, .sidebar button"),
+      ];
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    }
   });
 
   const searchItems = Array.isArray(window.__TS_LIBS_SEARCH__)
     ? window.__TS_LIBS_SEARCH__
     : [];
   const normalize = (value) =>
-    value.toLocaleLowerCase("de").normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
+    value
+      .toLocaleLowerCase(root.lang)
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "");
 
   document.querySelectorAll("[data-search-wrap]").forEach((wrap) => {
     const input = wrap.querySelector("[data-search]");
     const results = wrap.querySelector("[data-search-results]");
-    if (!(input instanceof HTMLInputElement) || !(results instanceof HTMLElement)) return;
+    if (
+      !(input instanceof HTMLInputElement) ||
+      !(results instanceof HTMLElement)
+    )
+      return;
 
     const hide = () => {
       results.hidden = true;
@@ -80,7 +104,7 @@
       if (matches.length === 0) {
         const empty = document.createElement("p");
         empty.className = "search-empty";
-        empty.textContent = "Kein Modul gefunden.";
+        empty.textContent = messages.empty;
         results.append(empty);
       } else {
         matches.forEach((item) => {
@@ -117,7 +141,9 @@
 
   const moduleSearch = document.querySelector("[data-module-filter]");
   const cards = [...document.querySelectorAll("[data-module-card]")];
-  const filterButtons = [...document.querySelectorAll("[data-category-filter]")];
+  const filterButtons = [
+    ...document.querySelectorAll("[data-category-filter]"),
+  ];
   let activeCategory = "all";
 
   const filterCards = () => {
@@ -126,13 +152,14 @@
     cards.forEach((card) => {
       const matchesCategory =
         activeCategory === "all" || card.dataset.category === activeCategory;
-      const matchesQuery = !query || normalize(card.dataset.search || "").includes(query);
+      const matchesQuery =
+        !query || normalize(card.dataset.search || "").includes(query);
       const show = matchesCategory && matchesQuery;
       card.hidden = !show;
       if (show) visible += 1;
     });
     const count = document.querySelector("[data-result-count]");
-    if (count) count.textContent = `${visible} Module`;
+    if (count) count.textContent = `${visible} ${messages.modules}`;
   };
 
   moduleSearch?.addEventListener("input", filterCards);
@@ -150,17 +177,19 @@
 
   document.querySelectorAll("[data-copy]").forEach((button) => {
     button.addEventListener("click", async () => {
-      const code = button.closest(".code-block")?.querySelector("code")?.textContent;
+      const code = button
+        .closest(".code-block")
+        ?.querySelector("code")?.textContent;
       if (!code) return;
       try {
         await navigator.clipboard.writeText(code);
         const original = button.textContent;
-        button.textContent = "Kopiert";
+        button.textContent = messages.copied;
         window.setTimeout(() => {
           button.textContent = original;
         }, 1400);
       } catch {
-        button.textContent = "Nicht verfügbar";
+        button.textContent = messages.unavailable;
       }
     });
   });

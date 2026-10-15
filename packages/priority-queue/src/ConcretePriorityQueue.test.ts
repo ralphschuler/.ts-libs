@@ -65,16 +65,16 @@ describe("ConcretePriorityQueue", async () => {
     await priorityQueue.enqueue(3);
     await priorityQueue.enqueue(5);
     await priorityQueue.enqueue(1);
-    assert.strictEqual(await priorityQueue.getEntry(0), 1);
+    assert.strictEqual(await priorityQueue["getEntry"](0), 1);
   });
 
   it("should correctly bubble down elements", async () => {
     await priorityQueue.enqueue(3);
     await priorityQueue.enqueue(1);
     await priorityQueue.enqueue(4);
-    await priorityQueue.setEntry(0, 5);
+    await priorityQueue["setEntry"](0, 5);
     await priorityQueue["bubbleDown"](0);
-    assert.strictEqual(await priorityQueue.getEntry(0), 1);
-    assert.strictEqual(await priorityQueue.getEntry(1), 5);
+    assert.strictEqual(await priorityQueue["getEntry"](0), 3);
+    assert.strictEqual(await priorityQueue["getEntry"](1), 5);
   });
 });

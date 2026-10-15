@@ -1,122 +1,61 @@
-import { MemoryPriorityQueue } from "@ralphschuler/priority-queue";
-import { WorkerPool } from "@ralphschuler/worker-pool";
 import { ITaskManager } from "./interfaces/ITaskManager.js";
 import { Task } from "./types/Task.js";
-import { Logger } from "@ralphschuler/logger";
 
-const logger = Logger.getInstance();
-
-/**
- * Represents a task manager that manages and executes tasks concurrently.
- */
+/** A bounded, in-process priority scheduler for asynchronous work. */
 export class TaskManager implements ITaskManager {
-  private isRunning = false;
-  private maxConcurrentTasks: number;
-  private priorityQueue: MemoryPriorityQueue<Task<any, any>>;
-  private workerPool: WorkerPool;
+  private readonly waiting: Array<Task<unknown, unknown>> = [];
+  private active = 0;
+  private stopped = false;
 
   public get size(): number {
-    return this.priorityQueue.length;
+    return this.waiting.length;
   }
 
-  /**
-   * Creates an instance of TaskManager.
-   * @param maxConcurrentTasks The maximum number of tasks that can run concurrently.
-   */
-  constructor(maxConcurrentTasks = 4) {
-    this.maxConcurrentTasks = maxConcurrentTasks;
-    this.priorityQueue = new MemoryPriorityQueue<Task<any, any>>({
-      comparatorFunction: (taskA: Task<any, any>, taskB: Task<any, any>) =>
-        Promise.resolve(taskA.priority - taskB.priority),
+  public constructor(private readonly maxConcurrentTasks = 4) {
+    if (!Number.isInteger(maxConcurrentTasks) || maxConcurrentTasks < 1) {
+      throw new RangeError("maxConcurrentTasks must be a positive integer");
+    }
+  }
+
+  public addTask<Payload, Response>(
+    method: (payload: Payload) => Response | Promise<Response>,
+    priority = 0,
+    args: Payload = undefined as Payload,
+  ): Promise<Response> {
+    if (this.stopped)
+      return Promise.reject(new Error("TaskManager is stopped"));
+    return new Promise<Response>((resolve, reject) => {
+      this.waiting.push({ method, args, priority, resolve, reject } as Task<
+        unknown,
+        unknown
+      >);
+      this.waiting.sort((left, right) => right.priority - left.priority);
+      this.pump();
     });
-    this.workerPool = new WorkerPool(this.maxConcurrentTasks);
-
-    this.isRunning = true;
-    this.processTasks();
   }
 
-  /**
-   * Adds a task to the task manager.
-   * @param method The method to be executed as a task.
-   * @param args The arguments for the method.
-   * @param priority The priority of the task.
-   * @returns The created task.
-   */
-  public async addTask<Payload extends {}, Response extends {}>(
-    method: (payload: Payload) => Promise<Response>,
-    priority?: number,
-    args?: Payload
-  ): Promise<Task<Payload, Response>> {
-    try {
-      let resolveFn: (value: Response) => void = () => {};
-      let rejectFn: (error: Error) => void = () => {};
-      const promise: Promise<Response> = new Promise((resolve, reject) => {
-        resolveFn = resolve;
-        rejectFn = reject;
-      });
-      const task: Task<Payload, Response> = {
-        priority: priority || 0,
-        args: args || ({} as Payload),
-        method,
-        resolve: resolveFn,
-        reject: rejectFn,
-      };
-
-      await this.priorityQueue.enqueue(task);
-      await logger.profile(promise, "addTask");
-      return task;
-    } catch (error) {
-      logger.error("Error adding task: " + error);
-      throw error;
-    }
-  }
-
-  /**
-   * Executes the next tasks in the queue using the worker pool.
-   * @returns A promise that resolves when all tasks are completed.
-   */
-  public async processTasks(): Promise<void> {
-    if (!this.isRunning) {
-      return;
-    }
-
-    try {
-      const promises = [];
-
-      for (let i = 0; i < this.maxConcurrentTasks; i++) {
-        const task = await this.priorityQueue.dequeue();
-
-        if (!task) {
-          logger.info("No more tasks to execute.");
-          break;
-        }
-
-        promises.push(
-          this.workerPool
-            .executeMethod(task.method, task.args)
-            .then(task.resolve)
-            .catch(task.reject),
-        );
-      }
-
-      await logger.profile(Promise.all(promises), "processTasks");
-
-      setTimeout(this.processTasks.bind(this), 1000);
-    } catch (error) {
-      logger.error("Error processing tasks: " + error);
-    }
-  }
-
-  /**
-   * Destroys the task manager.
-   */
   public destroy(): void {
-    try {
-      this.isRunning = false;
-      this.workerPool.destroy();
-      this.priorityQueue.clear();
-    } catch (error) {
-      logger.error("Error destroying task manager: " + error);
+    this.stopped = true;
+    while (this.waiting.length)
+      this.waiting.shift()?.reject(new Error("TaskManager is stopped"));
+  }
+
+  private pump(): void {
+    while (
+      !this.stopped &&
+      this.active < this.maxConcurrentTasks &&
+      this.waiting.length
+    ) {
+      const task = this.waiting.shift();
+      if (!task) return;
+      this.active += 1;
+      Promise.resolve()
+        .then(() => task.method(task.args))
+        .then(task.resolve, task.reject)
+        .finally(() => {
+          this.active -= 1;
+          this.pump();
+        });
     }
   }
 }

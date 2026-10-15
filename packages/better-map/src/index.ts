@@ -11,9 +11,10 @@ export class BetterMap<k, v> extends Map<k, v> {
    * @param updater - The function to update the value with.
    * @param notset - The default value to set if the key does not exist.
    */
-  update(key: k, updater: (v: v, k: k) => v, notset?: v) {
+  update(key: k, updater: (v: v | undefined, k: k) => v, notset?: v) {
     if (this.has(key)) this.set(key, updater(this.get(key)!, key));
-    else this.set(key, notset ?? updater(this.get(key)!, key));
+    else
+      this.set(key, arguments.length >= 3 ? notset! : updater(undefined, key));
   }
 
   /**

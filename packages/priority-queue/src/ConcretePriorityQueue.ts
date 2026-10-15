@@ -1,7 +1,3 @@
-import { Logger } from "@ralphschuler/logger";
-import { ComparatorFunction } from "./types/ComparatorFunction.js";
-import { Optional } from "./types/Optional.js";
-import { PriorityQueueOptions } from "./types/PriorityQueueOptions.js";
 import { AbstractPriorityQueue } from "./AbstractPriorityQueue.js";
 
 export class ConcretePriorityQueue<T> extends AbstractPriorityQueue<T> {
@@ -16,7 +12,8 @@ export class ConcretePriorityQueue<T> extends AbstractPriorityQueue<T> {
   }
 
   protected async setEntry(index: number, value: T | null): Promise<void> {
-    this.storage[index] = value;
+    if (value === null) this.storage.splice(index, 1);
+    else this.storage[index] = value;
   }
 
   public async clear(): Promise<void> {

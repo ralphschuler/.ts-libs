@@ -1,42 +1,24 @@
-type DiffResult<T> = { [key: string]: [T | undefined, T | undefined] };
-
-declare global {
-  interface Array<T> {
-    difference(otherArray: Array<T>): Array<T>;
-  }
-
-  interface ObjectConstructor {
-    difference<T>(
-      obj1: { [key: string]: T },
-      obj2: { [key: string]: T },
-    ): DiffResult<T>;
-  }
+export type DiffResult<T> = Record<string, [T | undefined, T | undefined]>;
+export function arrayDifference<T>(
+  left: readonly T[],
+  right: readonly T[],
+): T[] {
+  const excluded = new Set(right);
+  return left.filter((value) => !excluded.has(value));
 }
-
-// Implement the extension for Array
-Array.prototype.difference = function <T>(this: T[], otherArray: T[]): T[] {
-  return this.filter((x) => !otherArray.includes(x));
-};
-
-// Implement the extension for Object
-Object.difference = function <T>(
-  obj1: { [key: string]: T },
-  obj2: { [key: string]: T },
+export function objectDifference<T>(
+  left: Record<string, T>,
+  right: Record<string, T>,
 ): DiffResult<T> {
-  const diff: DiffResult<T> = {};
-  for (const key in obj1) {
-    if (obj1.hasOwnProperty(key) && obj2.hasOwnProperty(key)) {
-      if (obj1[key] !== obj2[key]) {
-        diff[key] = [obj1[key], obj2[key]];
-      }
-    } else if (obj1.hasOwnProperty(key)) {
-      diff[key] = [obj1[key], undefined];
-    }
+  const result: DiffResult<T> = Object.create(null);
+  for (const key of new Set([...Object.keys(left), ...Object.keys(right)])) {
+    const hasLeft = Object.hasOwn(left, key);
+    const hasRight = Object.hasOwn(right, key);
+    if (hasLeft !== hasRight || !Object.is(left[key], right[key]))
+      result[key] = [
+        hasLeft ? left[key] : undefined,
+        hasRight ? right[key] : undefined,
+      ];
   }
-  for (const key in obj2) {
-    if (obj2.hasOwnProperty(key) && !obj1.hasOwnProperty(key)) {
-      diff[key] = [undefined, obj2[key]];
-    }
-  }
-  return diff;
-};
+  return result;
+}

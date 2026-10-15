@@ -1,21 +1,23 @@
+import { applyEvidence } from "./experiments.mjs";
+
 export const site = {
-  title: "ts-libs — Build it yourself",
+  title: "ts-libs — Systeme selbst verstehen und bauen",
   description:
-    "Deutschsprachige Konzeptdokumentation zu 35 TypeScript-Modulen: Funktionsweise, Datenfluss, Grenzen und eine eigene Minimalimplementierung.",
+    "Ein Konzept-Handbuch für 35 TypeScript-Module: Wie sie funktionieren, wie Daten fließen, wo sie scheitern und wie du einen brauchbaren Kern selbst baust.",
   repository: "https://github.com/ralphschuler/.ts-libs",
-  productionUrl: "https://ralphschuler.github.io/.ts-libs/",
+  productionUrl: "https://nyphon.de/.ts-libs/",
 };
 
 export const categories = [
   {
     slug: "foundations",
-    title: "Fundamente & Daten",
+    title: "Grundlagen & Daten",
     short: "Typen, Collections, Fehler und Serialisierung",
   },
   {
     slug: "state",
-    title: "State & Orchestrierung",
-    short: "Zustände, Events, Queues und Worker",
+    title: "Zustand & Orchestrierung",
+    short: "States, Events, Queues und Worker",
   },
   {
     slug: "network",
@@ -24,19 +26,19 @@ export const categories = [
   },
   {
     slug: "observability",
-    title: "Parsing & Observability",
-    short: "Parser, Metriken, Logging und CLI",
+    title: "Parsing & Beobachtbarkeit",
+    short: "Parser, Metriken, Logging und CLI-Werkzeuge",
   },
   {
     slug: "simulation",
     title: "Simulation & Generierung",
-    short: "Zufall, Grammatiken, Netze und WebGL",
+    short: "Zufall, Grammatiken, Netzwerke und WebGL",
   },
 ];
 
 // The catalog is intentionally hand-curated from the repository source. It is
 // not API reference data and must remain understandable without the packages.
-export const modules = [
+export const sourceModules = [
   {
     slug: "ai-function-caller",
     title: "AI Function Caller",
@@ -45,10 +47,14 @@ export const modules = [
     maturity: "prototype",
     featured: false,
     tags: ["tool calling", "conversation", "OpenAI"],
-    summary: "Orchestriert Modellantworten, Gesprächsverlauf und lokal registrierte Funktionen – der vorhandene Stand führt die Tool-Schleife jedoch noch nicht aus.",
-    problem: "Ein Sprachmodell kann eine Funktion nur beschreiben und anfordern; Anwendungscode muss den Namen sicher auflösen, Argumente validieren, den Handler ausführen und das Ergebnis wieder in den Dialog einspeisen.",
-    mentalModel: "Behandle das Modell als untrusted planner in einer begrenzten Schleife. Tool-Schema und ausführbarer Handler sind getrennte Verträge, verbunden über einen kontrollierten Registry-Lookup.",
-    repositoryImplementation: "AIFunctionCaller sendet Nachrichten und Funktionsbeschreibungen an Chat Completions. Die private Ausführungsroutine ist nicht mit query verbunden, Nachrichtentypen passen nicht zum SDK und das Package kompiliert derzeit nicht.",
+    summary:
+      "Führt eine begrenzte Funktionsschleife mit Argumentprüfung und austauschbarem Provider aus.",
+    problem:
+      "Ein Sprachmodell kann eine Funktion nur beschreiben und anfordern; Anwendungscode muss den Namen sicher auflösen, Argumente validieren, den Handler ausführen und das Ergebnis wieder in den Dialog einspeisen.",
+    mentalModel:
+      "Behandle das Modell als untrusted planner in einer begrenzten Schleife. Tool-Schema und ausführbarer Handler sind getrennte Verträge, verbunden über einen kontrollierten Registry-Lookup.",
+    repositoryImplementation:
+      "Führt eine begrenzte Funktionsschleife mit Argumentprüfung und austauschbarem Provider aus. CI verwendet einen Test-Provider und flache Schemas. Echte Provider-Kompatibilität und fachliche Berechtigungen bleiben Integrationsaufgaben.",
     flow: [
       "User-Nachricht an einen unveränderlich nachvollziehbaren Verlauf anhängen.",
       "Modell mit Nachrichten und ausschließlich öffentlichen Tool-Schemas aufrufen.",
@@ -57,12 +63,25 @@ export const modules = [
       "Bei normaler Antwort oder nach einem harten Schrittlimit beenden.",
     ],
     api: [
-      { name: "AIFunctionCaller.query(message)", description: "Startet im Repository genau einen Modellaufruf und gibt die Antwortnachricht zurück." },
-      { name: "AIFunction", description: "Verbindet Funktionsbeschreibung, Parameter und lokalen Handler; diese Rollen sollten im Nachbau getrennt werden." },
-      { name: "Message / MessageRole", description: "Eigene Verlaufstypen, die aktuell nicht deckungsgleich mit den SDK-Nachrichten sind." },
+      {
+        name: "AIFunctionCaller.query(message)",
+        description:
+          "Startet im Repository genau einen Modellaufruf und gibt die Antwortnachricht zurück.",
+      },
+      {
+        name: "AIFunction",
+        description:
+          "Verbindet Funktionsbeschreibung, Parameter und lokalen Handler; diese Rollen sollten im Nachbau getrennt werden.",
+      },
+      {
+        name: "Message / MessageRole",
+        description:
+          "Eigene Verlaufstypen, die aktuell nicht deckungsgleich mit den SDK-Nachrichten sind.",
+      },
     ],
     build: {
-      intro: "Baue zuerst eine modellunabhängige Tool-Schleife und injiziere anschließend einen Adapter zum gewünschten Provider.",
+      intro:
+        "Baue zuerst eine modellunabhängige Tool-Schleife und injiziere anschließend einen Adapter zum gewünschten Provider.",
       steps: [
         "Definiere Tool-Definition und Handler getrennt und registriere beide unter einem eindeutigen Namen.",
         "Validiere jedes vom Modell gelieferte Argumentobjekt, bevor Anwendungscode es sieht.",
@@ -97,7 +116,7 @@ async function runAgent(input: string, signal: AbortSignal) {
       "Gesprächsverläufe wachsen; Kontextfenster und sensible Daten benötigen eine eigene Strategie.",
       "Provider-SDKs ändern Nachrichtentypen und Tool-Protokolle – der Adapter sollte klein bleiben.",
     ],
-    note: "API-Schlüssel gehören ausschließlich in eine Serverumgebung. Eine statische Browser-App darf diesen Ablauf nicht direkt mit einem geheimen Provider-Key ausführen.",
+    note: "CI verwendet einen Test-Provider und flache Schemas. Echte Provider-Kompatibilität und fachliche Berechtigungen bleiben Integrationsaufgaben.",
     source: "packages/ai-function-caller/src",
     related: ["parser-combinator", "ts-error"],
   },
@@ -109,10 +128,14 @@ async function runAgent(input: string, signal: AbortSignal) {
     maturity: "partial",
     featured: true,
     tags: ["type narrowing", "invariants", "errors"],
-    summary: "Kleine Assertion-Funktionen machen Laufzeitbedingungen und TypeScript-Narrowing zu einem gemeinsamen Vertrag.",
-    problem: "Statische Typen schützen nicht vor Daten aus JSON, Netzwerk oder falsch aufgerufenen APIs. Kritische Invarianten müssen an der Systemgrenze zur Laufzeit erzwungen werden.",
-    mentalModel: "Eine Assertion ist ein Gate: Hinter ihr darf der Rest des Programms von einer nachweislich erfüllten Bedingung ausgehen, andernfalls endet der Pfad mit einem klaren Fehler.",
-    repositoryImplementation: "Spezialisierte Prüfer delegieren an assert und werfen AssertionError. Die vorhandene throws-Funktion schluckt ihren eigenen Fehler; isDefined und isNotNull versprechen typseitig mehr als sie prüfen.",
+    summary:
+      "Prüft Laufzeitbedingungen mit dazu passendem TypeScript-Narrowing.",
+    problem:
+      "Statische Typen schützen nicht vor Daten aus JSON, Netzwerk oder falsch aufgerufenen APIs. Kritische Invarianten müssen an der Systemgrenze zur Laufzeit erzwungen werden.",
+    mentalModel:
+      "Eine Assertion ist ein Gate: Hinter ihr darf der Rest des Programms von einer nachweislich erfüllten Bedingung ausgehen, andernfalls endet der Pfad mit einem klaren Fehler.",
+    repositoryImplementation:
+      "Prüft Laufzeitbedingungen mit dazu passendem TypeScript-Narrowing. Assertions werfen synchron; verschachtelte Schemas und asynchrone Reject-Prüfungen sind eigene Erweiterungen.",
     flow: [
       "Unbekannten Wert an einer klaren Eingangsgrenze empfangen.",
       "Genau eine überprüfbare Bedingung auswerten.",
@@ -120,13 +143,28 @@ async function runAgent(input: string, signal: AbortSignal) {
       "Bei Erfolg den Typ für nachfolgenden Code verengen.",
     ],
     api: [
-      { name: "assert(condition, message)", description: "Basiskontrolle, auf der alle spezialisierten Assertions aufbauen." },
-      { name: "isString / isNumber / isDefined", description: "Laufzeitprüfungen mit TypeScript-Assertion-Signaturen." },
-      { name: "throws(action)", description: "Soll erwartetes Werfen prüfen, besteht im Repository aber auch dann, wenn action nichts wirft." },
-      { name: "AssertionError", description: "Unterscheidbarer Fehlertyp für verletzte Vorbedingungen." },
+      {
+        name: "assert(condition, message)",
+        description:
+          "Basiskontrolle, auf der alle spezialisierten Assertions aufbauen.",
+      },
+      {
+        name: "isString / isNumber / isDefined",
+        description: "Laufzeitprüfungen mit TypeScript-Assertion-Signaturen.",
+      },
+      {
+        name: "throws(action)",
+        description:
+          "Soll erwartetes Werfen prüfen, besteht im Repository aber auch dann, wenn action nichts wirft.",
+      },
+      {
+        name: "AssertionError",
+        description: "Unterscheidbarer Fehlertyp für verletzte Vorbedingungen.",
+      },
     ],
     build: {
-      intro: "Beginne mit einem korrekten Basistor und ergänze nur Assertions, deren Runtime-Prüfung exakt zur Type-Narrowing-Aussage passt.",
+      intro:
+        "Beginne mit einem korrekten Basistor und ergänze nur Assertions, deren Runtime-Prüfung exakt zur Type-Narrowing-Aussage passt.",
       steps: [
         "Implementiere assert mit einer asserts-condition-Signatur.",
         "Gib jeder spezialisierten Prüfung eine präzise Fehlermeldung und einen passenden Narrowing-Typ.",
@@ -158,7 +196,7 @@ function throws(action: () => unknown) {
       "Zu allgemeine Assertions verschleiern den eigentlichen Eingabevertrag.",
       "Strukturelle Objektvalidierung benötigt Pfadkontext und meist ein Schema statt vieler Einzelprüfungen.",
     ],
-    note: "Eine Assertion-Signatur ist ein Versprechen an den TypeScript-Compiler. Prüft die Runtime weniger, entsteht hinter dem Gate falsche Typsicherheit.",
+    note: "Assertions werfen synchron; verschachtelte Schemas und asynchrone Reject-Prüfungen sind eigene Erweiterungen.",
     source: "packages/assert/src",
     related: ["ts-error", "functional"],
   },
@@ -170,10 +208,14 @@ function throws(action: () => unknown) {
     maturity: "partial",
     featured: false,
     tags: ["Map", "collections", "merge"],
-    summary: "Erweitert Map um Update-, Filter- und Merge-Operationen und macht dabei Mutationssemantik sichtbar.",
-    problem: "Beim Arbeiten mit Maps wiederholen sich Muster wie get-transform-set, selektives Kopieren und Konfliktauflösung beim Zusammenführen.",
-    mentalModel: "Map bleibt die Datenstruktur; Helfer sollten lediglich atomare Collection-Operationen ausdrücken und klar sagen, ob sie die Instanz mutieren oder eine neue erzeugen.",
-    repositoryImplementation: "BetterMap erbt von Map. update und merge mutieren, filter erzeugt eine neue BetterMap; ein fehlender Schlüssel kann trotz Typ V als undefined beim Updater ankommen.",
+    summary:
+      "Aktualisiert, filtert und vereinigt Map-Einträge mit explizitem Verhalten für fehlende Werte.",
+    problem:
+      "Beim Arbeiten mit Maps wiederholen sich Muster wie get-transform-set, selektives Kopieren und Konfliktauflösung beim Zusammenführen.",
+    mentalModel:
+      "Map bleibt die Datenstruktur; Helfer sollten lediglich atomare Collection-Operationen ausdrücken und klar sagen, ob sie die Instanz mutieren oder eine neue erzeugen.",
+    repositoryImplementation:
+      "Aktualisiert, filtert und vereinigt Map-Einträge mit explizitem Verhalten für fehlende Werte. Werte behalten ihre Referenzidentität; Callbacks sind synchron und können werfen.",
     flow: [
       "Mit has zwischen fehlendem Schlüssel und vorhandenem undefined unterscheiden.",
       "Vorhandenen Wert aktualisieren oder einen expliziten Initialwert erzeugen.",
@@ -181,12 +223,23 @@ function throws(action: () => unknown) {
       "Bei Merge-Konflikten eine dokumentierte Resolver-Funktion anwenden.",
     ],
     api: [
-      { name: "update(key, updater, notset?)", description: "Transformiert einen Wert am Schlüssel oder legt ihn an." },
-      { name: "filter(predicate)", description: "Erzeugt eine neue BetterMap aus passenden Einträgen." },
-      { name: "merge(map, resolve?)", description: "Führt Einträge mutierend zusammen und löst Konflikte optional per Callback." },
+      {
+        name: "update(key, updater, notset?)",
+        description: "Transformiert einen Wert am Schlüssel oder legt ihn an.",
+      },
+      {
+        name: "filter(predicate)",
+        description: "Erzeugt eine neue BetterMap aus passenden Einträgen.",
+      },
+      {
+        name: "merge(map, resolve?)",
+        description:
+          "Führt Einträge mutierend zusammen und löst Konflikte optional per Callback.",
+      },
     ],
     build: {
-      intro: "Der wichtigste Entwurfspunkt ist nicht die Vererbung, sondern eine eindeutige Abwesenheits- und Mutationssemantik.",
+      intro:
+        "Der wichtigste Entwurfspunkt ist nicht die Vererbung, sondern eine eindeutige Abwesenheits- und Mutationssemantik.",
       steps: [
         "Prüfe Existenz immer mit has statt über den gelesenen Wert.",
         "Trenne create und update, damit undefined nicht als versteckter Initialwert dient.",
@@ -217,7 +270,7 @@ function throws(action: () => unknown) {
       "Unterklassen nativer Collections können bei Serialisierung und Cross-Realm-Nutzung überraschen.",
       "Mutierende und immutable Operationen in derselben API brauchen besonders klare Namen.",
     ],
-    note: "Ein optionaler notset-Wert mit Nullish-Coalescing kann absichtlich gesetztes null oder undefined nicht ausdrücken.",
+    note: "Werte behalten ihre Referenzidentität; Callbacks sind synchron und können werfen.",
     source: "packages/better-map/src",
     related: ["better-set", "safe-array"],
   },
@@ -229,10 +282,14 @@ function throws(action: () => unknown) {
     maturity: "partial",
     featured: false,
     tags: ["Set", "set algebra", "collections"],
-    summary: "Bringt Vereinigung, Schnittmenge und Differenz als benannte Operationen auf native Sets.",
-    problem: "Set-Algebra wird in Anwendungscode oft mit wiederholten Schleifen und leicht verwechselter Differenzrichtung nachgebaut.",
-    mentalModel: "Ein Set beschreibt Mitgliedschaft. Union, Intersection und Difference sollten als reine Operationen mit eindeutiger Links-rechts-Richtung lesbar sein.",
-    repositoryImplementation: "BetterSet bietet filter, merge, except und both. merge mutiert; except berechnet entgegen der üblichen Erwartung other minus this und Rückgaben verlieren teils den BetterSet-Typ.",
+    summary:
+      "Demonstriert Vereinigung, Schnittmenge und den bestehenden gerichteten Differenzvertrag.",
+    problem:
+      "Set-Algebra wird in Anwendungscode oft mit wiederholten Schleifen und leicht verwechselter Differenzrichtung nachgebaut.",
+    mentalModel:
+      "Ein Set beschreibt Mitgliedschaft. Union, Intersection und Difference sollten als reine Operationen mit eindeutiger Links-rechts-Richtung lesbar sein.",
+    repositoryImplementation:
+      "Demonstriert Vereinigung, Schnittmenge und den bestehenden gerichteten Differenzvertrag. except berechnet Argument minus Empfänger. Die Richtung bleibt erhalten und ist durch Tests festgehalten.",
     flow: [
       "Zwei Iterables als linke und rechte Menge auffassen.",
       "Für jede Operation die Richtung ausdrücklich festlegen.",
@@ -240,13 +297,24 @@ function throws(action: () => unknown) {
       "Ein neues Set zurückgeben, sofern Mutation nicht Teil des Namens ist.",
     ],
     api: [
-      { name: "merge(other)", description: "Mutierende Vereinigung im vorhandenen Paket." },
+      {
+        name: "merge(other)",
+        description: "Mutierende Vereinigung im vorhandenen Paket.",
+      },
       { name: "both(other)", description: "Schnittmenge der beiden Sets." },
-      { name: "except(other)", description: "Berechnet aktuell other minus this statt this minus other." },
-      { name: "filter(predicate)", description: "Erzeugt ein BetterSet mit passenden Werten." },
+      {
+        name: "except(other)",
+        description:
+          "Berechnet aktuell other minus this statt this minus other.",
+      },
+      {
+        name: "filter(predicate)",
+        description: "Erzeugt ein BetterSet mit passenden Werten.",
+      },
     ],
     build: {
-      intro: "Implementiere mathematische Operationen zunächst als pure Funktionen; mutierende Kurzformen können später bewusst ergänzt werden.",
+      intro:
+        "Implementiere mathematische Operationen zunächst als pure Funktionen; mutierende Kurzformen können später bewusst ergänzt werden.",
       steps: [
         "Akzeptiere Iterable für Union und ReadonlySet für schnelle Mitgliedschaftstests.",
         "Definiere difference(left, right) immer als Werte aus left, die nicht in right liegen.",
@@ -275,7 +343,7 @@ function throws(action: () => unknown) {
       "Native Set-Gleichheit ist SameValueZero, keine strukturelle Objektgleichheit.",
       "Immutable Ergebnisse benötigen zusätzliche Allokationen, sind aber leichter zu komponieren.",
     ],
-    note: "Eine Differenz ohne sichtbare Richtung ist eine klassische Fehlerquelle. Nutze Beispiele mit A und B in der Dokumentation und in Tests.",
+    note: "except berechnet Argument minus Empfänger. Die Richtung bleibt erhalten und ist durch Tests festgehalten.",
     source: "packages/better-set/src",
     related: ["better-map", "complex-compare"],
   },
@@ -287,10 +355,14 @@ function throws(action: () => unknown) {
     maturity: "prototype",
     featured: false,
     tags: ["binary", "codec", "schema"],
-    summary: "Übersetzt strukturierte Werte anhand eines Schemas in ein reproduzierbares Byteformat und wieder zurück.",
-    problem: "Binärformate sparen Platz und geben ein exaktes Wire-Layout vor, verlangen dafür aber konsistente Feldreihenfolge, Größenberechnung, Bounds-Prüfung und Versionierung.",
-    mentalModel: "Jeder Datentyp ist ein Codec mit drei Operationen: Größe berechnen, ab Offset schreiben und ab Offset lesen. Strukturen komponieren diese kleinen Codecs in expliziter Reihenfolge.",
-    repositoryImplementation: "Decorators speichern ein Schema in reflect-metadata und BinarySerializer schreibt Buffer-Felder. Aktuelle Decorator-Konfiguration, Größenberechnung und verschachtelte Objekte sind inkonsistent; der Test kompiliert nicht.",
+    summary:
+      "Serialisiert feste Layouts aus vorzeichenlosen Ganzzahlen, Booleans, UTF-8-Strings und Arrays.",
+    problem:
+      "Binärformate sparen Platz und geben ein exaktes Wire-Layout vor, verlangen dafür aber konsistente Feldreihenfolge, Größenberechnung, Bounds-Prüfung und Versionierung.",
+    mentalModel:
+      "Jeder Datentyp ist ein Codec mit drei Operationen: Größe berechnen, ab Offset schreiben und ab Offset lesen. Strukturen komponieren diese kleinen Codecs in expliziter Reihenfolge.",
+    repositoryImplementation:
+      "Serialisiert feste Layouts aus vorzeichenlosen Ganzzahlen, Booleans, UTF-8-Strings und Arrays. Dies ist ein festes Layout ohne Versionskennung. Schema-Reihenfolge und Migration müssen beide Seiten vereinbaren; Decorators folgen dem Legacy-TypeScript-Vertrag.",
     flow: [
       "Schema mit fester Feldreihenfolge und eindeutigem Typ pro Feld definieren.",
       "Exakte Bytezahl vor der Allokation rekursiv berechnen.",
@@ -299,12 +371,22 @@ function throws(action: () => unknown) {
       "Formatkennung und Version vor Nutzdaten setzen.",
     ],
     api: [
-      { name: "@Serializable / @Serialized", description: "Legacy-Decorators für Klassen- und Feldschema." },
-      { name: "@AsNumber / @AsBoolean / @AsString / @AsArray", description: "Deklarieren konkrete Binärrepräsentationen." },
-      { name: "BinarySerializer.serialize / deserialize", description: "Schreibt oder liest anhand des gespeicherten Schemas." },
+      {
+        name: "@Serializable / @Serialized",
+        description: "Legacy-Decorators für Klassen- und Feldschema.",
+      },
+      {
+        name: "@AsNumber / @AsBoolean / @AsString / @AsArray",
+        description: "Deklarieren konkrete Binärrepräsentationen.",
+      },
+      {
+        name: "BinarySerializer.serialize / deserialize",
+        description: "Schreibt oder liest anhand des gespeicherten Schemas.",
+      },
     ],
     build: {
-      intro: "Ein explizites Codec-Objekt ist leichter zu testen und zu versionieren als implizite Decorator-Metadaten.",
+      intro:
+        "Ein explizites Codec-Objekt ist leichter zu testen und zu versionieren als implizite Decorator-Metadaten.",
       steps: [
         "Definiere einen Codec-Vertrag, der Wert und Offset gemeinsam weiterreicht.",
         "Baue Primitive wie u32 und bool mit strikten Bereichsprüfungen.",
@@ -334,7 +416,7 @@ const u32: Codec<number> = {
       "UTF-8-Längen zählen Bytes, nicht JavaScript-Zeichen.",
       "Schemaänderungen ohne Versionsstrategie machen gespeicherte Daten unlesbar.",
     ],
-    note: "Wire-Layouts dürfen niemals von Property- oder Decorator-Einfügereihenfolge abhängen. Reihenfolge und Endianness gehören in den expliziten Vertrag.",
+    note: "Dies ist ein festes Layout ohne Versionskennung. Schema-Reihenfolge und Migration müssen beide Seiten vereinbaren; Decorators folgen dem Legacy-TypeScript-Vertrag.",
     source: "packages/binary-serializer/src",
     related: ["parser-combinator", "signature"],
   },
@@ -346,10 +428,14 @@ const u32: Codec<number> = {
     maturity: "stub",
     featured: false,
     tags: ["flags", "bitwise", "compact state"],
-    summary: "Packt mehrere unabhängige boolesche Features in eine Zahl und prüft sie über Bitoperationen.",
-    problem: "Viele kleine Ja/Nein-Zustände können kompakt gespeichert und sehr schnell kombiniert werden, wenn jeder Zustand genau ein Bit besitzt.",
-    mentalModel: "Jede erlaubte Flag ist eine Zweierpotenz. OR setzt Bits, AND mit invertierter Maske löscht Bits und AND prüft eine einzelne oder kombinierte Maske.",
-    repositoryImplementation: "BitwiseFeatureFlags implementiert enable, disable und isEnabled intern, exportiert aber nichts. Erlaubte Enum-Werte werden nicht auf Zweierpotenzen geprüft und JavaScript begrenzt Number-Bitoperationen auf 32 Bit.",
+    summary:
+      "Verwaltet validierte unabhängige Feature-Bits über eine öffentliche API.",
+    problem:
+      "Viele kleine Ja/Nein-Zustände können kompakt gespeichert und sehr schnell kombiniert werden, wenn jeder Zustand genau ein Bit besitzt.",
+    mentalModel:
+      "Jede erlaubte Flag ist eine Zweierpotenz. OR setzt Bits, AND mit invertierter Maske löscht Bits und AND prüft eine einzelne oder kombinierte Maske.",
+    repositoryImplementation:
+      "Verwaltet validierte unabhängige Feature-Bits über eine öffentliche API. Number-Bitoperationen unterstützen positive Einzelbits bis Bit 30. Breitere Masken benötigen BigInt.",
     flow: [
       "Jeder Feature-ID genau eine Zweierpotenz zuweisen.",
       "Angeforderte Flags gegen eine erlaubte Menge validieren.",
@@ -357,12 +443,23 @@ const u32: Codec<number> = {
       "Bei Abfrage alle angeforderten Bits vergleichen.",
     ],
     api: [
-      { name: "BitwiseFeatureFlags (intern)", description: "Nicht exportierte Klasse mit einer numerischen Gesamtmaske." },
-      { name: "enableFlag / disableFlag", description: "Setzen oder löschen Bits nach einer Validierung." },
-      { name: "isFlagEnabled", description: "Prüft, ob alle Bits einer Flagmaske gesetzt sind." },
+      {
+        name: "BitwiseFeatureFlags (intern)",
+        description:
+          "Nicht exportierte Klasse mit einer numerischen Gesamtmaske.",
+      },
+      {
+        name: "enableFlag / disableFlag",
+        description: "Setzen oder löschen Bits nach einer Validierung.",
+      },
+      {
+        name: "isFlagEnabled",
+        description: "Prüft, ob alle Bits einer Flagmaske gesetzt sind.",
+      },
     ],
     build: {
-      intro: "Validiere das Datenmodell beim Erzeugen; ungültige Flags sollten später nicht nur geloggt werden.",
+      intro:
+        "Validiere das Datenmodell beim Erzeugen; ungültige Flags sollten später nicht nur geloggt werden.",
       steps: [
         "Akzeptiere nur positive einzelne Zweierpotenzen als Basisflags.",
         "Wirf bei unbekannten Flags einen definierten Fehler.",
@@ -390,7 +487,7 @@ const u32: Codec<number> = {
       "Number-Bitoperatoren arbeiten als signed 32-bit Integer.",
       "Bitmasken sind kompakt, aber ohne Symboltabelle schlecht lesbar und migrationsanfällig.",
     ],
-    note: "Numerische TypeScript-Enums besitzen Reverse-Mappings. Object.values enthält daher nicht automatisch nur gültige Zahlenflags.",
+    note: "Number-Bitoperationen unterstützen positive Einzelbits bis Bit 30. Breitere Masken benötigen BigInt.",
     source: "packages/bit-mask/src",
     related: ["state-store", "binary-serializer"],
   },
@@ -402,10 +499,14 @@ const u32: Codec<number> = {
     maturity: "stub",
     featured: false,
     tags: ["argv", "commands", "middleware"],
-    summary: "Zerlegt Kommandozeilen-Tokens in Command, Arguments und Flags und führt sie durch eine Middleware-Kette.",
-    problem: "Eine CLI braucht einen deterministischen Parser, typisierte Wertkonvertierung, verständliche Fehler, Help-Ausgabe und einen klaren Übergang zum Command-Handler.",
-    mentalModel: "Registry wählt den Command, Parser erzeugt einen validierten Context, Middleware umschließt den Handler und ein Renderer übersetzt Fehler in Exit-Code und Hilfe.",
-    repositoryImplementation: "Cli ist leer; mehrere benötigte Interfaces und Basisklassen fehlen, HelloWorld widerspricht den vorgesehenen Typen und es existiert weder Export noch bin-Einstieg. Das Package kompiliert nicht.",
+    summary:
+      "Verarbeitet validierte argv-Befehle mit abgewarteter Middleware.",
+    problem:
+      "Eine CLI braucht einen deterministischen Parser, typisierte Wertkonvertierung, verständliche Fehler, Help-Ausgabe und einen klaren Übergang zum Command-Handler.",
+    mentalModel:
+      "Registry wählt den Command, Parser erzeugt einen validierten Context, Middleware umschließt den Handler und ein Renderer übersetzt Fehler in Exit-Code und Hilfe.",
+    repositoryImplementation:
+      "Verarbeitet validierte argv-Befehle mit abgewarteter Middleware. argv-Arrays erhalten Shell-Quoting. Interaktive Eingabe und Shell-Completion sind separate Adapter.",
     flow: [
       "Erstes Token gegen eine Command-Registry auflösen.",
       "Restliche Tokens quote-aware in Positionals und Flags zerlegen.",
@@ -414,12 +515,25 @@ const u32: Codec<number> = {
       "Fehler in stabile Exit-Codes und gezielte Hilfe übersetzen.",
     ],
     api: [
-      { name: "Cli (leer)", description: "Die vorhandene exportlose Klasse enthält noch keine Implementierung." },
-      { name: "CommandSpec (beabsichtigt)", description: "Soll Name, Arguments, Flags, Validatoren und run-Handler verbinden." },
-      { name: "HelloWorldCommand (unvollständig)", description: "Skizziert eine Command-Definition, kann mit den fehlenden Basistypen aber nicht bauen." },
+      {
+        name: "Cli (leer)",
+        description:
+          "Die vorhandene exportlose Klasse enthält noch keine Implementierung.",
+      },
+      {
+        name: "CommandSpec (beabsichtigt)",
+        description:
+          "Soll Name, Arguments, Flags, Validatoren und run-Handler verbinden.",
+      },
+      {
+        name: "HelloWorldCommand (unvollständig)",
+        description:
+          "Skizziert eine Command-Definition, kann mit den fehlenden Basistypen aber nicht bauen.",
+      },
     ],
     build: {
-      intro: "Halte Tokenisierung, Schemaauswertung und Ausführung getrennt – so lässt sich jede Schicht ohne Prozessstart testen.",
+      intro:
+        "Halte Tokenisierung, Schemaauswertung und Ausführung getrennt – so lässt sich jede Schicht ohne Prozessstart testen.",
       steps: [
         "Definiere Commands als Datenobjekte mit Parsern für jeden Wert.",
         "Parse argv ohne Seiteneffekte in einen Context oder einen typisierten Fehler.",
@@ -448,7 +562,7 @@ async function runCli(argv: string[], commands: Map<string, Command>) {
       "Shell-Quoting ist meist bereits vom Betriebssystem verarbeitet; ein eigener Stringparser braucht andere Regeln.",
       "Automatische Typmagie erschwert Fehlermeldungen – explizite Value-Parser sind besser testbar.",
     ],
-    note: "Der aktuelle Repository-Code ist eine Entwurfsskizze, keine nutzbare CLI-Library.",
+    note: "argv-Arrays erhalten Shell-Quoting. Interaktive Eingabe und Shell-Completion sind separate Adapter.",
     source: "packages/cli/src",
     related: ["logger", "assert"],
   },
@@ -460,10 +574,14 @@ async function runCli(argv: string[], commands: Map<string, Command>) {
     maturity: "prototype",
     featured: false,
     tags: ["diff", "objects", "pure functions"],
-    summary: "Berechnet flache Unterschiede zwischen Arrays oder Objektfeldern – idealerweise ohne globale Prototypen zu verändern.",
-    problem: "Konfigurationen und Snapshots müssen häufig zeigen, welche Schlüssel hinzugefügt, entfernt oder verändert wurden.",
-    mentalModel: "Ein Diff ist eine Menge adressierbarer Änderungen mit before und after. Die Vergleichstiefe und Gleichheitssemantik müssen Teil des Vertrags sein.",
-    repositoryImplementation: "Das Modul hängt difference enumerable an Array.prototype und Object an, exportiert jedoch nichts. Der Vergleich ist flach und Array-Differenz arbeitet O(n·m).",
+    summary:
+      "Berechnet gerichtete Array-Differenzen und flache Änderungen eigener Objektschlüssel ohne globale Mutation.",
+    problem:
+      "Konfigurationen und Snapshots müssen häufig zeigen, welche Schlüssel hinzugefügt, entfernt oder verändert wurden.",
+    mentalModel:
+      "Ein Diff ist eine Menge adressierbarer Änderungen mit before und after. Die Vergleichstiefe und Gleichheitssemantik müssen Teil des Vertrags sein.",
+    repositoryImplementation:
+      "Berechnet gerichtete Array-Differenzen und flache Änderungen eigener Objektschlüssel ohne globale Mutation. Objektwerte werden per Identität verglichen; tiefer Strukturvergleich liegt außerhalb des Kerns.",
     flow: [
       "Vereinigung aller eigenen Schlüssel beider Objekte bilden.",
       "Werte mit einer festgelegten Gleichheitsfunktion vergleichen.",
@@ -471,12 +589,24 @@ async function runCli(argv: string[], commands: Map<string, Command>) {
       "Array-Differenz über ein Set der ausgeschlossenen Werte berechnen.",
     ],
     api: [
-      { name: "Array.prototype.difference (global)", description: "Filtert Werte des linken Arrays, die rechts nicht enthalten sind." },
-      { name: "Object.difference (global)", description: "Erzeugt einen flachen Record aus Tupeln alter und neuer Werte." },
-      { name: "DiffResult (intern)", description: "Typ für Änderungen, der nicht exportiert wird." },
+      {
+        name: "Array.prototype.difference (global)",
+        description:
+          "Filtert Werte des linken Arrays, die rechts nicht enthalten sind.",
+      },
+      {
+        name: "Object.difference (global)",
+        description:
+          "Erzeugt einen flachen Record aus Tupeln alter und neuer Werte.",
+      },
+      {
+        name: "DiffResult (intern)",
+        description: "Typ für Änderungen, der nicht exportiert wird.",
+      },
     ],
     build: {
-      intro: "Pure Funktionen vermeiden Namenskollisionen, enumerable Prototype-Properties und überraschende Seiteneffekte beim Import.",
+      intro:
+        "Pure Funktionen vermeiden Namenskollisionen, enumerable Prototype-Properties und überraschende Seiteneffekte beim Import.",
       steps: [
         "Nimm beide Werte explizit als Parameter statt native Prototypen zu patchen.",
         "Benutze Object.keys und Object.is für ein klares flaches Diff.",
@@ -505,7 +635,7 @@ async function runCli(argv: string[], commands: Map<string, Command>) {
       "Ein flaches Diff ist schnell, erkennt aber Änderungen innerhalb verschachtelter Objekte nicht.",
       "Deep-Diffs benötigen Zyklenerkennung und eine definierte Behandlung von Map, Set und Klasseninstanzen.",
     ],
-    note: "Globale Prototype-Erweiterungen sind besonders für Libraries riskant: Ein Import kann fremde Schleifen und andere Polyfills verändern.",
+    note: "Objektwerte werden per Identität verglichen; tiefer Strukturvergleich liegt außerhalb des Kerns.",
     source: "packages/complex-compare/src",
     related: ["better-set", "state-store"],
   },
@@ -517,10 +647,14 @@ async function runCli(argv: string[], commands: Map<string, Command>) {
     maturity: "prototype",
     featured: false,
     tags: ["Option", "Result", "discriminated unions"],
-    summary: "Modelliert Abwesenheit und Fehler als explizite Werte, damit Kontrollfluss typisiert und exhaustiv bleibt.",
-    problem: "null, undefined und Exceptions verstecken alternative Pfade. Option und Result machen diese Pfade zu sichtbaren Varianten im Typ.",
-    mentalModel: "Jeder Wert trägt einen eindeutigen Tag. Consumer müssen vor dem Zugriff die Variante prüfen oder alle Varianten durch einen Matcher behandeln.",
-    repositoryImplementation: "Option, Result, Konstruktoren, Guards und match sind vollständig intern und werden nicht exportiert. Übliche Kombinatoren fehlen; der Matcher mischt Option- und Result-Zweige.",
+    summary:
+      "Exportiert markierte Option- und Result-Werte, Guards und Pattern Matching.",
+    problem:
+      "null, undefined und Exceptions verstecken alternative Pfade. Option und Result machen diese Pfade zu sichtbaren Varianten im Typ.",
+    mentalModel:
+      "Jeder Wert trägt einen eindeutigen Tag. Consumer müssen vor dem Zugriff die Variante prüfen oder alle Varianten durch einen Matcher behandeln.",
+    repositoryImplementation:
+      "Exportiert markierte Option- und Result-Werte, Guards und Pattern Matching. Hüllen sind flach eingefroren; Fehlerfang und höhere Kombinatoren bleiben explizite Erweiterungen.",
     flow: [
       "Erfolg, Fehler oder Abwesenheit als unveränderliche getaggte Variante erzeugen.",
       "Mit dem Tag verengen statt Felder oder Truthiness zu erraten.",
@@ -528,12 +662,23 @@ async function runCli(argv: string[], commands: Map<string, Command>) {
       "Am Systemrand exhaustiv in Ausgabe, HTTP-Status oder Exception übersetzen.",
     ],
     api: [
-      { name: "Option = Some | None (intern)", description: "Explizite Anwesenheit eines Werts." },
-      { name: "Result = Ok | Err (intern)", description: "Expliziter Erfolg oder fachlicher Fehler." },
-      { name: "isSome / isOk / match (intern)", description: "Type Guards und Pattern-Matching-Helfer ohne Package-Export." },
+      {
+        name: "Option = Some | None (intern)",
+        description: "Explizite Anwesenheit eines Werts.",
+      },
+      {
+        name: "Result = Ok | Err (intern)",
+        description: "Expliziter Erfolg oder fachlicher Fehler.",
+      },
+      {
+        name: "isSome / isOk / match (intern)",
+        description:
+          "Type Guards und Pattern-Matching-Helfer ohne Package-Export.",
+      },
     ],
     build: {
-      intro: "Discriminated Unions benötigen kaum Runtime-Code; die Qualität entsteht aus präzisen Kombinatoren und exhaustiven Switches.",
+      intro:
+        "Discriminated Unions benötigen kaum Runtime-Code; die Qualität entsteht aus präzisen Kombinatoren und exhaustiven Switches.",
       steps: [
         "Definiere separate Tags und Payload-Felder für jede Variante.",
         "Baue kleine Konstruktoren sowie map und flatMap für Erfolgspfade.",
@@ -559,7 +704,7 @@ function map<A, B, E>(result: Result<A, E>, fn: (value: A) => B): Result<B, E> {
       "Result-Werte müssen konsequent behandelt werden; gemischte Exception- und Result-Semantik wird schnell unübersichtlich.",
       "Zu viele generische Kombinatoren können TypeScript-Inferenz und Fehlermeldungen verschlechtern.",
     ],
-    note: "Das vorhandene Modul zeigt die Kernidee, besitzt aber derzeit keine öffentliche API.",
+    note: "Hüllen sind flach eingefroren; Fehlerfang und höhere Kombinatoren bleiben explizite Erweiterungen.",
     source: "packages/functional/src",
     related: ["ts-error", "assert"],
   },
@@ -571,10 +716,14 @@ function map<A, B, E>(result: Result<A, E>, fn: (value: A) => B): Result<B, E> {
     maturity: "stub",
     featured: false,
     tags: ["localization", "interpolation", "Intl"],
-    summary: "Wählt Übersetzungstexte nach Locale aus und ersetzt benannte Variablen in Templates.",
-    problem: "UI-Texte sollen unabhängig von Komponenten organisiert, sicher umgeschaltet und mit Laufzeitwerten ergänzt werden.",
-    mentalModel: "Ein Katalog ist Locale → Key → Template. Eine kleine zustandsbehaftete Fassade wählt das aktive Locale; Formatierung bleibt eine separate Aufgabe.",
-    repositoryImplementation: "TranslationManager und Translator sind auf en/fr sowie zwei Keys fest verdrahtet, nicht exportiert und führen beim Import Demo-Logs aus. Der Paketname weicht vom üblichen i18n ab.",
+    summary:
+      "Löst Sprachkataloge auf und ersetzt Platzhalter durch literale Werte.",
+    problem:
+      "UI-Texte sollen unabhängig von Komponenten organisiert, sicher umgeschaltet und mit Laufzeitwerten ergänzt werden.",
+    mentalModel:
+      "Ein Katalog ist Locale → Key → Template. Eine kleine zustandsbehaftete Fassade wählt das aktive Locale; Formatierung bleibt eine separate Aufgabe.",
+    repositoryImplementation:
+      "Löst Sprachkataloge auf und ersetzt Platzhalter durch literale Werte. Eine Pluralnachrichtensyntax ist nicht implementiert. Für Datum, Zahlen und Pluralauswahl eignet sich Intl.",
     flow: [
       "Aktives und Fallback-Locale gegen den Katalog prüfen.",
       "Template erst im aktiven, dann im Fallback-Katalog suchen.",
@@ -582,12 +731,23 @@ function map<A, B, E>(result: Result<A, E>, fn: (value: A) => B): Result<B, E> {
       "Fehlende Keys sichtbar melden statt still leere Strings zu liefern.",
     ],
     api: [
-      { name: "TranslationManager (intern)", description: "Hält Katalog und aktuelles Locale." },
-      { name: "Translator.translate (intern)", description: "Löst einen Key auf und interpoliert Variablen." },
-      { name: "Intl.*", description: "Native Erweiterung für Plural-, Zahlen- und Datumsformatierung." },
+      {
+        name: "TranslationManager (intern)",
+        description: "Hält Katalog und aktuelles Locale.",
+      },
+      {
+        name: "Translator.translate (intern)",
+        description: "Löst einen Key auf und interpoliert Variablen.",
+      },
+      {
+        name: "Intl.*",
+        description:
+          "Native Erweiterung für Plural-, Zahlen- und Datumsformatierung.",
+      },
     ],
     build: {
-      intro: "Leite Locale- und Keytypen direkt aus einem const-Katalog ab und verwende für Platzhalter einen festen Ausdruck ohne dynamische RegExp.",
+      intro:
+        "Leite Locale- und Keytypen direkt aus einem const-Katalog ab und verwende für Platzhalter einen festen Ausdruck ohne dynamische RegExp.",
       steps: [
         "Validiere initiales und neues Locale gegen vorhandene Kataloge.",
         "Implementiere eine klare Fallback-Kette für fehlende Keys.",
@@ -617,7 +777,7 @@ function map<A, B, E>(result: Result<A, E>, fn: (value: A) => B): Result<B, E> {
       "Template-Interpolation ersetzt kein ICU-MessageFormat für komplexe Grammatik.",
       "Große Kataloge sollten pro Locale geladen werden, was eine Async-Schnittstelle erfordert.",
     ],
-    note: "Der vorhandene Code ist eine nicht exportierte Demo und sollte nicht beim Import auf die Konsole schreiben.",
+    note: "Eine Pluralnachrichtensyntax ist nicht implementiert. Für Datum, Zahlen und Pluralauswahl eignet sich Intl.",
     source: "packages/i811n/src",
     related: ["cli", "state-store"],
   },
@@ -629,10 +789,14 @@ function map<A, B, E>(result: Result<A, E>, fn: (value: A) => B): Result<B, E> {
     maturity: "partial",
     featured: false,
     tags: ["structured logs", "terminal", "levels"],
-    summary: "Formatiert Level, Kontext und Terminalausgabe und trennt idealerweise Logging von animierten TTY-Zeilen.",
-    problem: "Diagnose braucht konsistente Level, strukturierte Metadaten und austauschbare Ausgaben, ohne Geschäftslogik an process.stdout oder process.exit zu koppeln.",
-    mentalModel: "Ein LogRecord ist Daten. Ein Formatter übersetzt ihn, ein Sink schreibt ihn; TTY-Animationen sind ein optionaler Renderer oberhalb dieses Kerns.",
-    repositoryImplementation: "Logger ist ein beim Import initialisiertes Singleton mit Farben, Breadcrumbs, Profiling und Animationen. Levelauswertung und Filterrichtung sind fehlerhaft, Konfiguration kommt zu spät und der Puffer wächst unbegrenzt.",
+    summary:
+      "Formatiert Meldungen mit korrigiertem Level-Filter, begrenzter Historie und expliziter Ausgabe.",
+    problem:
+      "Diagnose braucht konsistente Level, strukturierte Metadaten und austauschbare Ausgaben, ohne Geschäftslogik an process.stdout oder process.exit zu koppeln.",
+    mentalModel:
+      "Ein LogRecord ist Daten. Ein Formatter übersetzt ihn, ein Sink schreibt ihn; TTY-Animationen sind ein optionaler Renderer oberhalb dieses Kerns.",
+    repositoryImplementation:
+      "Formatiert Meldungen mit korrigiertem Level-Filter, begrenzter Historie und expliziter Ausgabe. Das Singleton bleibt kompatibel; direkte Konstruktion erlaubt isolierte Tests. Fatal-Logs beenden den Prozess nicht.",
     flow: [
       "Level, Nachricht, Timestamp und Metadaten zu einem Record formen.",
       "Record vor Formatierung gegen eine klar geordnete Schwelle prüfen.",
@@ -640,13 +804,28 @@ function map<A, B, E>(result: Result<A, E>, fn: (value: A) => B): Result<B, E> {
       "Ein injizierter Sink schreibt; Terminaleffekte laufen nur bei isTTY.",
     ],
     api: [
-      { name: "Logger.getInstance", description: "Liefert das globale Singleton und soll Format, Level und Stream konfigurieren." },
-      { name: "trace / debug / info / warn / error / fatal", description: "Level-spezifische Schreibmethoden." },
-      { name: "profile / profileSync", description: "Misst Laufzeit und verbindet sie mit einer Terminalanimation." },
-      { name: "addBreadcrumb / showBreadcrumbs", description: "Speichert und zeigt vorherige Meldungen." },
+      {
+        name: "Logger.getInstance",
+        description:
+          "Liefert das globale Singleton und soll Format, Level und Stream konfigurieren.",
+      },
+      {
+        name: "trace / debug / info / warn / error / fatal",
+        description: "Level-spezifische Schreibmethoden.",
+      },
+      {
+        name: "profile / profileSync",
+        description:
+          "Misst Laufzeit und verbindet sie mit einer Terminalanimation.",
+      },
+      {
+        name: "addBreadcrumb / showBreadcrumbs",
+        description: "Speichert und zeigt vorherige Meldungen.",
+      },
     ],
     build: {
-      intro: "Baue einen kleinen Logger ohne Globals; JSON, hübsche Konsole und Animationen können danach als getrennte Adapter folgen.",
+      intro:
+        "Baue einen kleinen Logger ohne Globals; JSON, hübsche Konsole und Animationen können danach als getrennte Adapter folgen.",
       steps: [
         "Definiere eine monotone Levelreihenfolge und teste die Schwelle als reine Funktion.",
         "Injiziere Sink, Uhr und Formatter über den Konstruktor.",
@@ -678,7 +857,7 @@ class Logger {
       "Unbegrenzte Breadcrumbs und Metadaten können Speicher und sensible Daten akkumulieren.",
       "Terminalsteuerung ist plattform- und TTY-abhängig.",
     ],
-    note: "Logging-Level und fatal-Verhalten sind Betriebsverträge. Invertierte Filter oder ein verstecktes process.exit können Fehler genau dann unsichtbar machen, wenn sie am wichtigsten sind.",
+    note: "Das Singleton bleibt kompatibel; direkte Konstruktion erlaubt isolierte Tests. Fatal-Logs beenden den Prozess nicht.",
     source: "packages/logger/src",
     related: ["stats-tracker", "prom-metrics-decorator"],
   },
@@ -690,10 +869,14 @@ class Logger {
     maturity: "partial",
     featured: false,
     tags: ["grammar", "procedural", "stochastic"],
-    summary: "Erzeugt komplexe Strukturen durch wiederholtes paralleles Ersetzen von Symbolen nach gewichteten Regeln.",
-    problem: "Pflanzen, Fraktale und prozedurale Formen lassen sich kompakt als Axiom plus lokale Umschreibregeln beschreiben.",
-    mentalModel: "Jede Generation liest ausschließlich die vorherige Symbolfolge und baut eine neue. Stochastische Regeln wählen pro Symbol eine Transformation aus einer validierten Gewichtsverteilung.",
-    repositoryImplementation: "LSystem filtert Regeln pro Zeichen und wählt mit Math.random. Arrays von Transform-Symbolen werden per String-Coercion mit Kommas angehängt; Gewichte und exponentielles Wachstum sind unbegrenzt.",
+    summary:
+      "Schreibt Symbolfolgen mit normalisierten Gewichten und austauschbarer Zufallsquelle um.",
+    problem:
+      "Pflanzen, Fraktale und prozedurale Formen lassen sich kompakt als Axiom plus lokale Umschreibregeln beschreiben.",
+    mentalModel:
+      "Jede Generation liest ausschließlich die vorherige Symbolfolge und baut eine neue. Stochastische Regeln wählen pro Symbol eine Transformation aus einer validierten Gewichtsverteilung.",
+    repositoryImplementation:
+      "Schreibt Symbolfolgen mit normalisierten Gewichten und austauschbarer Zufallsquelle um. Ausgabe kann exponentiell wachsen. Rendering und anwendungsspezifische Ausgabelimits sind von der Grammatik getrennt.",
     flow: [
       "Regeln einmal nach Ursprungssymbol gruppieren und Gewichte validieren.",
       "Für jede Iteration eine frische Ausgabefolge erzeugen.",
@@ -701,12 +884,23 @@ class Logger {
       "Transformationssymbole einzeln anhängen und vor einem Größenlimit stoppen.",
     ],
     api: [
-      { name: "LSystem(axiom, rules)", description: "Speichert Startfolge und stochastische Umschreibregeln." },
-      { name: "generate(iterations)", description: "Wendet Regeln generationenweise auf jedes Symbol an." },
-      { name: "Rule / SymbolType", description: "Beschreibt Ursprung, Transformation und Wahrscheinlichkeit." },
+      {
+        name: "LSystem(axiom, rules)",
+        description: "Speichert Startfolge und stochastische Umschreibregeln.",
+      },
+      {
+        name: "generate(iterations)",
+        description: "Wendet Regeln generationenweise auf jedes Symbol an.",
+      },
+      {
+        name: "Rule / SymbolType",
+        description:
+          "Beschreibt Ursprung, Transformation und Wahrscheinlichkeit.",
+      },
     ],
     build: {
-      intro: "Nutze Symbolarrays statt impliziter String-Coercion und injiziere Zufall für reproduzierbare Generationen.",
+      intro:
+        "Nutze Symbolarrays statt impliziter String-Coercion und injiziere Zufall für reproduzierbare Generationen.",
       steps: [
         "Indiziere Regeln pro Symbol und normalisiere positive Gewichte.",
         "Erzeuge jede Generation aus einem unveränderten Snapshot der vorherigen.",
@@ -736,7 +930,7 @@ function expand<S>(
       "Materialisierte Folgen können exponentiell wachsen; Streaming erschwert spätere Generationen.",
       "Stochastische Ergebnisse sind ohne Seed nicht reproduzierbar.",
     ],
-    note: "Die Transformationsfolge ist eine Sequenz, kein String-Zufallsprodukt. Datenrepräsentation und spätere Turtle-Interpretation sollten getrennt bleiben.",
+    note: "Ausgabe kann exponentiell wachsen. Rendering und anwendungsspezifische Ausgabelimits sind von der Grammatik getrennt.",
     source: "packages/lsystem/src",
     related: ["random", "webgl-sand-engine"],
   },
@@ -748,10 +942,14 @@ function expand<S>(
     maturity: "prototype",
     featured: false,
     tags: ["multicast", "DNS-SD", "LAN discovery"],
-    summary: "Entdeckt Dienste im lokalen Netz über Multicast-DNS und sammelt Antworten nach Name und Record-Typ.",
-    problem: "Geräte im selben LAN sollen Dienste finden, ohne einen zentralen DNS-Server oder fest konfigurierte IP-Adressen zu benötigen.",
-    mentalModel: "mDNS ist eine gemeinschaftliche Multicast-Zone. Queries werden nicht wie RPCs korreliert, sondern Antworten für Name und Typ innerhalb eines kurzen Fensters gesammelt.",
-    repositoryImplementation: "MDNS registriert lokale Records und versucht Queries über eine erfundene TXT-Query-ID zuzuordnen. Die Antwort echo't diese ID nicht; Abhängigkeit und NodeNext-Imports sind fehlerhaft, sodass das Package nicht baut.",
+    summary:
+      "Bietet ein deterministisches lokales Discovery-Modell und einen explizit gestarteten Multicast-Adapter.",
+    problem:
+      "Geräte im selben LAN sollen Dienste finden, ohne einen zentralen DNS-Server oder fest konfigurierte IP-Adressen zu benötigen.",
+    mentalModel:
+      "mDNS ist eine gemeinschaftliche Multicast-Zone. Queries werden nicht wie RPCs korreliert, sondern Antworten für Name und Typ innerhalb eines kurzen Fensters gesammelt.",
+    repositoryImplementation:
+      "Bietet ein deterministisches lokales Discovery-Modell und einen explizit gestarteten Multicast-Adapter. MDNS prüft TTL und Cleanup lokal; NetworkMDNS sammelt verzögerte Netzwerkantworten über multicast-dns. CI injiziert den Transport; Interface-Auswahl und geräteübergreifende Zuverlässigkeit bleiben Integrationsarbeit.",
     flow: [
       "UDP-Multicast-Socket für Port 5353 öffnen und Response-Listener zuerst registrieren.",
       "Standardkonforme Frage mit Name und Typ senden.",
@@ -760,13 +958,29 @@ function expand<S>(
       "Beim Shutdown alle ausstehenden Queries abbrechen und Socket schließen.",
     ],
     api: [
-      { name: "MDNS.query(name, type)", description: "Soll einen passenden DNSRecord als Promise auflösen." },
-      { name: "MDNS.announce(name, type, ttl, data)", description: "Registriert im Repository einen Record, sendet aber keine proaktive Announcement-Response." },
-      { name: "destroy()", description: "Entfernt Listener und zerstört die multicast-dns-Instanz." },
-      { name: "DNSRecord / DNSType", description: "Typen für A, AAAA, PTR, TXT und SRV ohne vollständig gekoppelte Payloads." },
+      {
+        name: "MDNS.query(name, type)",
+        description: "Soll einen passenden DNSRecord als Promise auflösen.",
+      },
+      {
+        name: "MDNS.announce(name, type, ttl, data)",
+        description:
+          "Registriert im Repository einen Record, sendet aber keine proaktive Announcement-Response.",
+      },
+      {
+        name: "destroy()",
+        description:
+          "Entfernt Listener und zerstört die multicast-dns-Instanz.",
+      },
+      {
+        name: "DNSRecord / DNSType",
+        description:
+          "Typen für A, AAAA, PTR, TXT und SRV ohne vollständig gekoppelte Payloads.",
+      },
     ],
     build: {
-      intro: "Verwende das normale DNS-Protokoll und korreliere über Name, Typ und Zeitfenster statt über proprietäre Request-IDs.",
+      intro:
+        "Verwende das normale DNS-Protokoll und korreliere über Name, Typ und Zeitfenster statt über proprietäre Request-IDs.",
       steps: [
         "Modelliere Record-Typ und Payload als diskriminierte Union.",
         "Registriere Listener vor dem Senden und sammle mehrere Antworten bis zum Timeout.",
@@ -797,7 +1011,7 @@ function expand<S>(
       "Antworten sind untrusted; Service-Metadaten beweisen keine Identität.",
       "Betriebssysteme und Netzwerke können Multicast filtern oder bündeln.",
     ],
-    note: "Ein mDNS-Query ist keine 1:1-RPC-Anfrage. Mehrere Geräte dürfen gleichzeitig und verzögert antworten.",
+    note: "MDNS prüft TTL und Cleanup lokal; NetworkMDNS sammelt verzögerte Netzwerkantworten über multicast-dns. CI injiziert den Transport; Interface-Auswahl und geräteübergreifende Zuverlässigkeit bleiben Integrationsarbeit.",
     source: "packages/mdns/src",
     related: ["p2p", "swarm"],
   },
@@ -809,10 +1023,14 @@ function expand<S>(
     maturity: "prototype",
     featured: false,
     tags: ["composition", "decorators", "config"],
-    summary: "Komponiert Fähigkeiten mehrerer Klassen, ohne eine tiefe Einzelvererbungshierarchie aufzubauen.",
-    problem: "Mehrere orthogonale Fähigkeiten sollen in einer Klasse zusammenkommen, obwohl TypeScript nur eine Basisklasse erlaubt.",
-    mentalModel: "Ein Mixin ist eine Transformation von Basisklasse zu erweiterter Basisklasse. Config-Schemas werden zusammengeführt, Konflikte vor der Instanziierung entschieden.",
-    repositoryImplementation: "Decorators speichern Config- und Interface-Metadaten; createClass kopiert nur enumerable Own-Properties der Mixin-Instanzen. Prototype-Methoden, Defaults und InterfaceMethod-Metadaten werden nicht übernommen.",
+    summary:
+      "Kombiniert Instanzfelder und Prototypmethoden mit validierten Konfigurationsdefaults.",
+    problem:
+      "Mehrere orthogonale Fähigkeiten sollen in einer Klasse zusammenkommen, obwohl TypeScript nur eine Basisklasse erlaubt.",
+    mentalModel:
+      "Ein Mixin ist eine Transformation von Basisklasse zu erweiterter Basisklasse. Config-Schemas werden zusammengeführt, Konflikte vor der Instanziierung entschieden.",
+    repositoryImplementation:
+      "Kombiniert Instanzfelder und Prototypmethoden mit validierten Konfigurationsdefaults. Namenskollisionen werden abgelehnt. Native private Felder lassen sich nicht in eine fremde Instanz verpflanzen.",
     flow: [
       "Mixin-Verträge und Config-Schemas einsammeln.",
       "Namens- und Typkonflikte vor der Klassenerzeugung erkennen.",
@@ -820,12 +1038,24 @@ function expand<S>(
       "Prototype-Descriptors oder standardmäßige Class-Mixin-Ketten anwenden.",
     ],
     api: [
-      { name: "ConfigProperty(type, defaultValue)", description: "Legacy-Decorator für erwartete Configfelder; Default wird aktuell nicht angewendet." },
-      { name: "InterfaceMethod()", description: "Sammelt Methodennamen, die createClass nicht auswertet." },
-      { name: "createClass(...mixins)", description: "Erzeugt asynchron einen Konstruktor und kopiert nur Instanzfelder." },
+      {
+        name: "ConfigProperty(type, defaultValue)",
+        description:
+          "Legacy-Decorator für erwartete Configfelder; Default wird aktuell nicht angewendet.",
+      },
+      {
+        name: "InterfaceMethod()",
+        description: "Sammelt Methodennamen, die createClass nicht auswertet.",
+      },
+      {
+        name: "createClass(...mixins)",
+        description:
+          "Erzeugt asynchron einen Konstruktor und kopiert nur Instanzfelder.",
+      },
     ],
     build: {
-      intro: "Bevorzuge TypeScript-Class-Mixins; sie erhalten Methoden und Typinformation ohne Runtime-Reflection.",
+      intro:
+        "Bevorzuge TypeScript-Class-Mixins; sie erhalten Methoden und Typinformation ohne Runtime-Reflection.",
       steps: [
         "Definiere ein gemeinsames Constructor-Generic.",
         "Jedes Mixin gibt eine Unterklasse der erhaltenen Basis zurück.",
@@ -853,7 +1083,7 @@ class Service extends WithLogging(WithId(Empty)) {}`,
       "Mixin-Ketten können komplexe Constructor- und Generic-Typen erzeugen.",
       "Runtime-Komposition braucht Property-Descriptors und verliert oft instanceof-Semantik.",
     ],
-    note: "Object.assign einer Instanz kopiert keine normalen Klassenmethoden, weil diese auf dem Prototype liegen und nicht enumerable sind.",
+    note: "Namenskollisionen werden abgelehnt. Native private Felder lassen sich nicht in eine fremde Instanz verpflanzen.",
     source: "packages/mixin-class-factory/src",
     related: ["functional", "state-store"],
   },
@@ -865,10 +1095,14 @@ class Service extends WithLogging(WithId(Empty)) {}`,
     maturity: "prototype",
     featured: false,
     tags: ["neural network", "backpropagation", "matrix"],
-    summary: "Skizziert Layer, Neuronen und Verbindungen; ein lernfähiges Netz braucht jedoch echte Aktivierungen, Gradienten und Gewichtsupdates.",
-    problem: "Ein dichtes neuronales Netz approximiert eine Funktion, indem es gewichtete Summen durch nichtlineare Aktivierungen schickt und Fehler rückwärts verteilt.",
-    mentalModel: "Layer sind Matrizen statt rekursiver Objektgraphen. Forward erzeugt Aktivierungen; Backprop berechnet Deltas; ein Optimizer aktualisiert Gewichte und Biases.",
-    repositoryImplementation: "Neuron, Layer und Network bilden einen rekursiven Graphen. Bias und propagate verändern nichts, train kann nicht lernen, Shapes sind ungeprüft und Serialisierung läuft in Zyklen.",
+    summary:
+      "Führt numerische Vorwärtsberechnung und gradientenbasiertes Lernen mit Formprüfungen aus.",
+    problem:
+      "Ein dichtes neuronales Netz approximiert eine Funktion, indem es gewichtete Summen durch nichtlineare Aktivierungen schickt und Fehler rückwärts verteilt.",
+    mentalModel:
+      "Layer sind Matrizen statt rekursiver Objektgraphen. Forward erzeugt Aktivierungen; Backprop berechnet Deltas; ein Optimizer aktualisiert Gewichte und Biases.",
+    repositoryImplementation:
+      "Führt numerische Vorwärtsberechnung und gradientenbasiertes Lernen mit Formprüfungen aus. Das didaktische Sigmoid-Netz nutzt Gradienten des quadratischen Fehlers. Es ist kein Tensor- oder GPU-Framework.",
     flow: [
       "Eingabevektor auf erwartete Layerbreite prüfen.",
       "Pro Layer Matrix-Vektor-Produkt plus Bias berechnen und aktivieren.",
@@ -877,13 +1111,29 @@ class Service extends WithLogging(WithId(Empty)) {}`,
       "Gewichte und Biases um Learning-Rate mal Gradient aktualisieren.",
     ],
     api: [
-      { name: "Neuron<T>", description: "Speichert Verbindungen und Bias, nutzt den Bias im Repository aber nicht." },
-      { name: "Layer<T>", description: "Erzeugt mehrere Neuronen und vollständige Verbindungen." },
-      { name: "Network<T>.activate / train", description: "Soll Forward und Training ausführen; propagate aktualisiert gegenwärtig keine Parameter." },
-      { name: "toObject", description: "Versucht den zyklischen Verbindungsgraph rekursiv zu serialisieren." },
+      {
+        name: "Neuron<T>",
+        description:
+          "Speichert Verbindungen und Bias, nutzt den Bias im Repository aber nicht.",
+      },
+      {
+        name: "Layer<T>",
+        description: "Erzeugt mehrere Neuronen und vollständige Verbindungen.",
+      },
+      {
+        name: "Network<T>.activate / train",
+        description:
+          "Soll Forward und Training ausführen; propagate aktualisiert gegenwärtig keine Parameter.",
+      },
+      {
+        name: "toObject",
+        description:
+          "Versucht den zyklischen Verbindungsgraph rekursiv zu serialisieren.",
+      },
     ],
     build: {
-      intro: "Implementiere ein kleines numerisches Dense-Netz und beweise Lernen zunächst an XOR, bevor du Generics oder Graphen ergänzt.",
+      intro:
+        "Implementiere ein kleines numerisches Dense-Netz und beweise Lernen zunächst an XOR, bevor du Generics oder Graphen ergänzt.",
       steps: [
         "Speichere Gewichte als number[][] und Biases als number[] mit validierten Shapes.",
         "Implementiere Forward inklusive Aktivierung und bewahre Zwischenwerte für Backprop auf.",
@@ -914,7 +1164,7 @@ function forward(input: number[], layers: Layer[]) {
       "Math.random ohne Seed verhindert reproduzierbare Trainingsfehler.",
       "Ein Lernbeispiel ist keine produktive ML-Bibliothek; numerische Stabilität und Batching fehlen.",
     ],
-    note: "Der vorhandene train-Aufruf verändert keine Gewichte. Das Modul ist eine Graphskizze, kein trainierbares Netz.",
+    note: "Das didaktische Sigmoid-Netz nutzt Gradienten des quadratischen Fehlers. Es ist kein Tensor- oder GPU-Framework.",
     source: "packages/neuronal-network/src",
     related: ["random", "state-machine"],
   },
@@ -926,10 +1176,14 @@ function forward(input: number[], layers: Layer[]) {
     maturity: "stub",
     featured: false,
     tags: ["peer-to-peer", "framing", "discovery"],
-    summary: "Verbindet lokale Peer-Discovery, einen gerahmten Transport und authentifizierte Sessions zu einem Peer-to-Peer-System.",
-    problem: "Peers müssen sich finden, eine stabile Identität aushandeln, Nachrichten begrenzen und Vertraulichkeit sowie Authentizität über eine Session sicherstellen.",
-    mentalModel: "Discovery verrät nur eine Adresse. Ein Handshake bestätigt Identität und Fähigkeiten; danach transportieren längengerahmte, sequenzierte Nachrichten über eine etablierte sichere Session.",
-    repositoryImplementation: "P2P soll mDNS, TCP und RSA verbinden, kompiliert aber nicht. Signaturen werden nicht übertragen, Framing fehlt, Peer-IDs sind inkonsistent und das selbstgebaute Kryptoprotokoll ist unvollständig.",
+    summary:
+      "Startet TCP-Peers explizit und überträgt größenbegrenzte Frames mit Längenpräfix.",
+    problem:
+      "Peers müssen sich finden, eine stabile Identität aushandeln, Nachrichten begrenzen und Vertraulichkeit sowie Authentizität über eine Session sicherstellen.",
+    mentalModel:
+      "Discovery verrät nur eine Adresse. Ein Handshake bestätigt Identität und Fähigkeiten; danach transportieren längengerahmte, sequenzierte Nachrichten über eine etablierte sichere Session.",
+    repositoryImplementation:
+      "Startet TCP-Peers explizit und überträgt größenbegrenzte Frames mit Längenpräfix. Lokale Discovery ist der Standard; NetworkMDNS lässt sich mit einem veröffentlichten Netzwerk-Hostnamen injizieren. TCP-Daten sind unverschlüsselt; Vertrauensaufbau, Authentifizierung und Replay-Schutz benötigen ein vollständiges Protokoll.",
     flow: [
       "Per mDNS nur nodeId, Host, Port und öffentlichen Fingerprint ankündigen.",
       "Transport verbinden und Peer über TLS oder ein geprüftes Handshake-Protokoll authentifizieren.",
@@ -938,13 +1192,29 @@ function forward(input: number[], layers: Layer[]) {
       "Backpressure, Heartbeat, Reconnect und vollständigen Shutdown implementieren.",
     ],
     api: [
-      { name: "P2P", description: "Beabsichtigter Coordinator für Server, mDNS-Discovery und Peer-Lifecycle." },
-      { name: "Peer", description: "EventEmitter um einen TCP-Socket mit send und Datenverarbeitung." },
-      { name: "KeyPairEncryption", description: "Soll RSA signieren und verschlüsseln, ist aber unvollständig und nicht importfähig." },
-      { name: "PeerInfo", description: "Adress- und Identitätsdaten eines entdeckten Peers." },
+      {
+        name: "P2P",
+        description:
+          "Beabsichtigter Coordinator für Server, mDNS-Discovery und Peer-Lifecycle.",
+      },
+      {
+        name: "Peer",
+        description:
+          "EventEmitter um einen TCP-Socket mit send und Datenverarbeitung.",
+      },
+      {
+        name: "KeyPairEncryption",
+        description:
+          "Soll RSA signieren und verschlüsseln, ist aber unvollständig und nicht importfähig.",
+      },
+      {
+        name: "PeerInfo",
+        description: "Adress- und Identitätsdaten eines entdeckten Peers.",
+      },
     ],
     build: {
-      intro: "Baue kein eigenes Kryptoprotokoll. Beginne mit klarem Framing und verwende eine etablierte sichere Transportschicht.",
+      intro:
+        "Baue kein eigenes Kryptoprotokoll. Beginne mit klarem Framing und verwende eine etablierte sichere Transportschicht.",
       steps: [
         "Trenne Discovery, Transport, Session und Peer-Registry in eigene Ports.",
         "Nutze TLS oder Noise und binde den erwarteten Fingerprint an einen Trust Store.",
@@ -975,7 +1245,7 @@ function acceptSequence(last: number, next: number) {
       "Direct RSA encryption eignet sich nicht für beliebige Payloads; Sessions verwenden symmetrische AEAD-Keys.",
       "Discovery-Metadaten sind ohne nachfolgenden Trust-Check nicht vertrauenswürdig.",
     ],
-    note: "Kryptografie, Framing und Lifecycle sind Sicherheitsgrenzen. Der aktuelle Source ist eine unvollständige Idee und darf nicht als sicheres Protokoll eingesetzt werden.",
+    note: "Lokale Discovery ist der Standard; NetworkMDNS lässt sich mit einem veröffentlichten Netzwerk-Hostnamen injizieren. TCP-Daten sind unverschlüsselt; Vertrauensaufbau, Authentifizierung und Replay-Schutz benötigen ein vollständiges Protokoll.",
     source: "packages/p2p/src",
     related: ["mdns", "signature"],
   },
@@ -987,10 +1257,14 @@ function acceptSequence(last: number, next: number) {
     maturity: "partial",
     featured: true,
     tags: ["parsing", "backtracking", "binary"],
-    summary: "Baut komplexe String- und Binärparser aus kleinen zustandsbehafteten Parsern und kombinierbaren Erfolgs- oder Fehlerwerten.",
-    problem: "Protokolle und Grammatiken brauchen Sequenz, Alternativen, Wiederholung und gute Fehlerpositionen, ohne einen monolithischen handgeschriebenen Parser zu erzeugen.",
-    mentalModel: "Ein Parser ist eine pure Funktion von Inputzustand zu Erfolg plus neuem Offset oder Fehler plus Position. Kombinatoren verkabeln diese Zustandsübergänge.",
-    repositoryImplementation: "Das umfangreiche Modul arbeitet bytebasiert mit DataView, Backtracking, User-State und vielen Kombinatoren. Mehrere Typen sind falsch, Views verlieren Offset/Länge und Wiederholung kann bei Parsern ohne Fortschritt endlos laufen.",
+    summary:
+      "Kombiniert byteorientierte Parser mit korrekten Input-Ausschnitten und Fortschrittsprüfung bei Wiederholung.",
+    problem:
+      "Protokolle und Grammatiken brauchen Sequenz, Alternativen, Wiederholung und gute Fehlerpositionen, ohne einen monolithischen handgeschriebenen Parser zu erzeugen.",
+    mentalModel:
+      "Ein Parser ist eine pure Funktion von Inputzustand zu Erfolg plus neuem Offset oder Fehler plus Position. Kombinatoren verkabeln diese Zustandsübergänge.",
+    repositoryImplementation:
+      "Kombiniert byteorientierte Parser mit korrekten Input-Ausschnitten und Fortschrittsprüfung bei Wiederholung. Die Bibliothek besitzt viele Kombinatoren; Regressionstests konzentrieren sich auf Kombination, View-Grenzen und Terminierung.",
     flow: [
       "Input als unveränderliche Byteview plus aktuellen Offset modellieren.",
       "Primitive lesen genau einen Vertrag und liefern neuen Zustand oder erwartetes Token.",
@@ -999,13 +1273,28 @@ function acceptSequence(last: number, next: number) {
       "parseAll kombiniert den Zielparser mit einem expliziten End-of-input-Parser.",
     ],
     api: [
-      { name: "Parser.map / chain / ap", description: "Transformiert Resultate oder wählt den nächsten zustandsabhängigen Parser." },
-      { name: "sequenceOf / choice / many / exactly", description: "Kombiniert Reihenfolge, Alternativen und Wiederholung." },
-      { name: "char / str / regex / digit / letter", description: "Stringprimitive auf einem UTF-8-Byteinput." },
-      { name: "lookAhead / possibly / recursiveParser", description: "Kontrolliert Konsum, Optionalität und rekursive Grammatiken." },
+      {
+        name: "Parser.map / chain / ap",
+        description:
+          "Transformiert Resultate oder wählt den nächsten zustandsabhängigen Parser.",
+      },
+      {
+        name: "sequenceOf / choice / many / exactly",
+        description: "Kombiniert Reihenfolge, Alternativen und Wiederholung.",
+      },
+      {
+        name: "char / str / regex / digit / letter",
+        description: "Stringprimitive auf einem UTF-8-Byteinput.",
+      },
+      {
+        name: "lookAhead / possibly / recursiveParser",
+        description:
+          "Kontrolliert Konsum, Optionalität und rekursive Grammatiken.",
+      },
     ],
     build: {
-      intro: "Beginne mit einem minimalen Result-Typ und map/flatMap/orElse. Wiederholung und Komfortsyntax kommen erst nach korrekter Fortschritts- und Fehlersemantik.",
+      intro:
+        "Beginne mit einem minimalen Result-Typ und map/flatMap/orElse. Wiederholung und Komfortsyntax kommen erst nach korrekter Fortschritts- und Fehlersemantik.",
       steps: [
         "Definiere State, Success und Failure mit explizitem Offset.",
         "Implementiere map, flatMap und orElse ohne den Eingabestate zu mutieren.",
@@ -1036,7 +1325,7 @@ class Parser<T> {
       "Bytepositionen sind für Binärdaten korrekt, für Nutzerfehler in Unicode-Texten aber erklärungsbedürftig.",
       "Ein gemeinsamer Parser für Text und Binärdaten erhöht Flexibilität und Typkomplexität zugleich.",
     ],
-    note: "Jeder Wiederholungskombinator braucht eine Fortschrittsinvariante: Erfolg ohne Inputverbrauch darf nicht erneut in derselben Schleife laufen.",
+    note: "Die Bibliothek besitzt viele Kombinatoren; Regressionstests konzentrieren sich auf Kombination, View-Grenzen und Terminierung.",
     source: "packages/parser-combinator/src",
     related: ["binary-serializer", "prom-metrics-parser"],
   },
@@ -1048,10 +1337,14 @@ class Parser<T> {
     maturity: "prototype",
     featured: true,
     tags: ["binary heap", "scheduling", "MongoDB"],
-    summary: "Entnimmt stets das höchstpriorisierte Element und bildet damit den Kern von Schedulern und Task-Systemen.",
-    problem: "Eine FIFO-Queue reicht nicht, wenn Dringlichkeit und stabile Reihenfolge bestimmen sollen, welcher Job als Nächstes läuft.",
-    mentalModel: "Ein binärer Heap hält am Root das beste Element. push repariert den Pfad nach oben, pop ersetzt den Root durch das letzte Element und repariert nach unten.",
-    repositoryImplementation: "Abstract-, Concrete-, Memory- und MongoDB-Backends teilen einen Async-Heapalgorithmus. Längen- und Löschlogik korrumpieren bereits die In-Memory-Queues; Mongo-Initialisierung und Mehrschritt-Swaps sind nicht atomar.",
+    summary:
+      "Entnimmt Werte aus Array- und injizierten MongoDB-Heaps in Comparator-Reihenfolge.",
+    problem:
+      "Eine FIFO-Queue reicht nicht, wenn Dringlichkeit und stabile Reihenfolge bestimmen sollen, welcher Job als Nächstes läuft.",
+    mentalModel:
+      "Ein binärer Heap hält am Root das beste Element. push repariert den Pfad nach oben, pop ersetzt den Root durch das letzte Element und repariert nach unten.",
+    repositoryImplementation:
+      "Entnimmt Werte aus Array- und injizierten MongoDB-Heaps in Comparator-Reihenfolge. Persistenz erfordert explizite Initialisierung und einen Writer. Atomare MongoDB-Transaktionen für mehrere Clients liegen außerhalb des Basiskerns.",
     flow: [
       "Element am echten Arrayende einfügen und gegen Eltern vergleichen.",
       "Solange es höher priorisiert ist, mit dem Elternknoten tauschen.",
@@ -1060,13 +1353,29 @@ class Parser<T> {
       "Gleiche Priorität über eine monotone Sequenz stabil ordnen.",
     ],
     api: [
-      { name: "ConcretePriorityQueue", description: "Array-Backend, das entfernte Slots aktuell auf null setzt statt die Länge zu verkürzen." },
-      { name: "MemoryPriorityQueue", description: "Eigenes Längenmodell, das Index, Kapazität und Elementanzahl verwechselt." },
-      { name: "MongoDBPriorityQueue", description: "Persistenter Heap mit nicht atomaren Swaps und nicht abgewarteter Initialisierung." },
-      { name: "enqueue / dequeue / peek / heapSort", description: "Gemeinsame abstrakte Queue-Operationen." },
+      {
+        name: "ConcretePriorityQueue",
+        description:
+          "Array-Backend, das entfernte Slots aktuell auf null setzt statt die Länge zu verkürzen.",
+      },
+      {
+        name: "MemoryPriorityQueue",
+        description:
+          "Eigenes Längenmodell, das Index, Kapazität und Elementanzahl verwechselt.",
+      },
+      {
+        name: "MongoDBPriorityQueue",
+        description:
+          "Persistenter Heap mit nicht atomaren Swaps und nicht abgewarteter Initialisierung.",
+      },
+      {
+        name: "enqueue / dequeue / peek / heapSort",
+        description: "Gemeinsame abstrakte Queue-Operationen.",
+      },
     ],
     build: {
-      intro: "Baue zuerst einen korrekten synchronen In-Memory-Heap. Persistenz ist ein anderes Datenmodell und sollte atomare Datenbankoperationen nutzen.",
+      intro:
+        "Baue zuerst einen korrekten synchronen In-Memory-Heap. Persistenz ist ein anderes Datenmodell und sollte atomare Datenbankoperationen nutzen.",
       steps: [
         "Nutze ausschließlich items.length als Elementanzahl.",
         "Implementiere bubble-up und bubble-down mit einem synchronen Comparator.",
@@ -1097,7 +1406,7 @@ class Parser<T> {
       "Async-Comparatoren machen jede Reparatur langsam und race-anfällig.",
       "Ein Heap über viele Mongo-Dokumente ist kein atomarer verteilter Heap; sortierte Job-Claims passen besser zur Datenbank.",
     ],
-    note: "Länge, letzter Index und Kapazität sind drei verschiedene Begriffe. Der vorhandene Code vermischt sie und verletzt dadurch die zentrale Heap-Invariante.",
+    note: "Persistenz erfordert explizite Initialisierung und einen Writer. Atomare MongoDB-Transaktionen für mehrere Clients liegen außerhalb des Basiskerns.",
     source: "packages/priority-queue/src",
     related: ["task-manager", "worker-pool"],
   },
@@ -1109,10 +1418,14 @@ class Parser<T> {
     maturity: "prototype",
     featured: false,
     tags: ["Prometheus", "decorators", "metrics"],
-    summary: "Instrumentiert Methoden und Properties automatisch mit Prometheus-Metriken – ein Wrappermuster mit wichtigen Registry- und Async-Fallen.",
-    problem: "Querschnittliche Telemetrie soll ergänzt werden, ohne in jede Geschäftsoperation denselben Messcode zu kopieren.",
-    mentalModel: "Ein Wrapper legt sich um die Originaloperation und aktualisiert eine einmalig registrierte Metrik; Typ, Labels und beobachteter Wert sind explizite Konfiguration.",
-    repositoryImplementation: "Vier Legacy-Decorators werden exportiert, erzeugen Metriken aber bei jedem Zugriff neu. Histogram und Summary werden nie observe't, Labelwerte fehlen und Property-State wird zwischen Instanzen geteilt.",
+    summary:
+      "Verwendet benannte Metriken wieder und erfasst Counter, Gauges, Histogramme und Summaries.",
+    problem:
+      "Querschnittliche Telemetrie soll ergänzt werden, ohne in jede Geschäftsoperation denselben Messcode zu kopieren.",
+    mentalModel:
+      "Ein Wrapper legt sich um die Originaloperation und aktualisiert eine einmalig registrierte Metrik; Typ, Labels und beobachteter Wert sind explizite Konfiguration.",
+    repositoryImplementation:
+      "Verwendet benannte Metriken wieder und erfasst Counter, Gauges, Histogramme und Summaries. Legacy-Decorators erfordern passende TypeScript-Einstellungen. Labels brauchen begrenzte Kardinalität; Klassendekoration stellt einen Metrik-Handle bereit.",
     flow: [
       "Metrikkonfiguration validieren und über einen stabilen Namen einmalig registrieren.",
       "Originalmethode unter Erhalt von this und Argumenten aufrufen.",
@@ -1120,13 +1433,29 @@ class Parser<T> {
       "Sync- und Async-Ergebnis unverändert an den Aufrufer zurückgeben.",
     ],
     api: [
-      { name: "PromCounter / PromGauge", description: "Legacy-Decorators für Zähler und veränderliche Messwerte." },
-      { name: "PromHistogram / PromSummary", description: "Exportiert, aber im vorhandenen trackMetric ohne observe-Pfad." },
-      { name: "TrackOption.Calls / Value", description: "Wählt Aufrufzählung oder Messung des Rückgabewerts." },
-      { name: "IMetricConfig", description: "Verbindet Metriktyp, Prometheus-Konfiguration und Track-Modus." },
+      {
+        name: "PromCounter / PromGauge",
+        description:
+          "Legacy-Decorators für Zähler und veränderliche Messwerte.",
+      },
+      {
+        name: "PromHistogram / PromSummary",
+        description:
+          "Exportiert, aber im vorhandenen trackMetric ohne observe-Pfad.",
+      },
+      {
+        name: "TrackOption.Calls / Value",
+        description: "Wählt Aufrufzählung oder Messung des Rückgabewerts.",
+      },
+      {
+        name: "IMetricConfig",
+        description:
+          "Verbindet Metriktyp, Prometheus-Konfiguration und Track-Modus.",
+      },
     ],
     build: {
-      intro: "Beginne mit einer normalen Wrapperfunktion; Decorator-Syntax kann später dieselbe getestete Instrumentierung aufrufen.",
+      intro:
+        "Beginne mit einer normalen Wrapperfunktion; Decorator-Syntax kann später dieselbe getestete Instrumentierung aufrufen.",
       steps: [
         "Definiere eine minimale Metrikschnittstelle und eine Registry pro Prozess.",
         "Cache Metriken anhand Name plus Typ statt sie pro Invocation zu erzeugen.",
@@ -1154,7 +1483,7 @@ function countCalls<A extends unknown[], R>(
       "Hohe Label-Kardinalität kann Prometheus-Speicher und Abfragen massiv belasten.",
       "Property-Decorators sind bei instanzlokalem State besonders fehleranfällig.",
     ],
-    note: "Metriken mit demselben Namen dürfen in prom-client nicht bei jedem Aufruf neu registriert werden. Histogram und Summary benötigen observe statt inc oder set.",
+    note: "Legacy-Decorators erfordern passende TypeScript-Einstellungen. Labels brauchen begrenzte Kardinalität; Klassendekoration stellt einen Metrik-Handle bereit.",
     source: "packages/prom-metrics-decorator/src",
     related: ["prom-metrics-parser", "stats-tracker"],
   },
@@ -1166,10 +1495,14 @@ function countCalls<A extends unknown[], R>(
     maturity: "prototype",
     featured: false,
     tags: ["Prometheus", "lexer", "text format"],
-    summary: "Zerlegt das Prometheus-Textformat in Familien, Metadaten, Labels und numerische Samples.",
-    problem: "Menschenlesbare Metrics-Exposition muss für Analyse oder Transformation strukturiert und ohne stille Teilakzeptanz geparst werden.",
-    mentalModel: "HELP und TYPE gehören zu einer benannten Familie; Sample-Zeilen besitzen eigenen Namen, quote-aware Labels, Wert und optional weitere Felder.",
-    repositoryImplementation: "Keine Funktion wird exportiert. parseLine trennt '# HELP' so, dass Direktiven nie erkannt werden; alle Samples landen in einer einzigen leeren Familie und das Modul loggt Demoausgabe beim Import.",
+    summary:
+      "Parst Metrikfamilien, Metadaten, escapte Labels und vollständige Zahlenwerte.",
+    problem:
+      "Menschenlesbare Metrics-Exposition muss für Analyse oder Transformation strukturiert und ohne stille Teilakzeptanz geparst werden.",
+    mentalModel:
+      "HELP und TYPE gehören zu einer benannten Familie; Sample-Zeilen besitzen eigenen Namen, quote-aware Labels, Wert und optional weitere Felder.",
+    repositoryImplementation:
+      "Parst Metrikfamilien, Metadaten, escapte Labels und vollständige Zahlenwerte. Der Parser unterstützt Prometheus-Text-Exposition, nicht sämtliche OpenMetrics-Erweiterungen.",
     flow: [
       "Eingabe zeilenweise lesen und Leerzeilen überspringen.",
       "HELP- und TYPE-Direktiven nach Familienname speichern.",
@@ -1177,12 +1510,23 @@ function countCalls<A extends unknown[], R>(
       "Sample seiner Familie zuordnen und vollständigen Zahlenwert validieren.",
     ],
     api: [
-      { name: "parsePrometheusMetrics (intern)", description: "Nicht exportierte Hauptfunktion über den gesamten Text." },
-      { name: "parseSample (intern)", description: "Liest Namen, einfachen Labelblock und Wert." },
-      { name: "parseLabels (intern)", description: "Teilt stumpf an Komma und Gleichheitszeichen; Escapes fehlen." },
+      {
+        name: "parsePrometheusMetrics (intern)",
+        description: "Nicht exportierte Hauptfunktion über den gesamten Text.",
+      },
+      {
+        name: "parseSample (intern)",
+        description: "Liest Namen, einfachen Labelblock und Wert.",
+      },
+      {
+        name: "parseLabels (intern)",
+        description:
+          "Teilt stumpf an Komma und Gleichheitszeichen; Escapes fehlen.",
+      },
     ],
     build: {
-      intro: "Unterstütze zunächst einen klar begrenzten Subset und lehne alles außerhalb davon sichtbar ab.",
+      intro:
+        "Unterstütze zunächst einen klar begrenzten Subset und lehne alles außerhalb davon sichtbar ab.",
       steps: [
         "Direktiven vor Samples erkennen und pro Familienname zwischenspeichern.",
         "Sample-Zeilen am Value-Feld trennen und den Kopf separat lexen.",
@@ -1213,7 +1557,7 @@ function parseSimpleSample(line: string): Sample {
       "Ein Lexer ist robuster, muss dafür präzise Zustände und Fehlerspannen pflegen.",
       "Vollständige OpenMetrics-Unterstützung ist wesentlich größer als ein einfacher Prometheus-Subset.",
     ],
-    note: "parseFloat akzeptiert auch teilweise numerische Strings. Ein Parser sollte die gesamte Value-Komponente validieren.",
+    note: "Der Parser unterstützt Prometheus-Text-Exposition, nicht sämtliche OpenMetrics-Erweiterungen.",
     source: "packages/prom-metrics-parser/src",
     related: ["parser-combinator", "prom-metrics-decorator"],
   },
@@ -1225,10 +1569,14 @@ function parseSimpleSample(line: string): Sample {
     maturity: "prototype",
     featured: false,
     tags: ["SHA-256", "nonce", "rate limiting"],
-    summary: "Sucht eine Nonce, deren SHA-256-Hash ein festgelegtes Präfix erfüllt, und macht teure Arbeit billig verifizierbar.",
-    problem: "Ein Client soll vor einer Anfrage nachweisbar Rechenarbeit leisten, deren Prüfung wesentlich günstiger als ihre Suche ist.",
-    mentalModel: "Der Miner variiert eine eindeutig codierte Nonce, bis der Hash unter dem Ziel liegt. Der Prüfer hasht genau einmal und kontrolliert dasselbe Ziel.",
-    repositoryImplementation: "ProofOfWork ist nicht exportiert, crypto-js fehlt im Manifest und eine Import-IIFE startet Mining. Die als async markierte Schleife enthält kein await und blockiert den Event Loop.",
+    summary:
+      "Erzeugt und prüft SHA-256-Präfixbeweise mit Event-Loop-Freigabe und Abbruch.",
+    problem:
+      "Ein Client soll vor einer Anfrage nachweisbar Rechenarbeit leisten, deren Prüfung wesentlich günstiger als ihre Suche ist.",
+    mentalModel:
+      "Der Miner variiert eine eindeutig codierte Nonce, bis der Hash unter dem Ziel liegt. Der Prüfer hasht genau einmal und kontrolliert dasselbe Ziel.",
+    repositoryImplementation:
+      "Erzeugt und prüft SHA-256-Präfixbeweise mit Event-Loop-Freigabe und Abbruch. Schwierigkeit zählt wiederholte Hex-Präfixe. Protokollkodierung und externe Rechenbudgets liegen beim Aufrufer.",
     flow: [
       "Difficulty als endliche ganze Zahl im Hashbereich validieren.",
       "Nutzdaten und Nonce kollisionsfrei in Bytes codieren.",
@@ -1237,11 +1585,18 @@ function parseSimpleSample(line: string): Sample {
       "Zur Verifikation Hash neu berechnen; mitgelieferten Hash nicht blind vertrauen.",
     ],
     api: [
-      { name: "ProofOfWork.mine (intern)", description: "Sucht synchron blockierend nach Nonce und Hash." },
-      { name: "ProofOfWork.validate (intern)", description: "Berechnet erneut und prüft Hash plus Präfix." },
+      {
+        name: "ProofOfWork.mine (intern)",
+        description: "Sucht synchron blockierend nach Nonce und Hash.",
+      },
+      {
+        name: "ProofOfWork.validate (intern)",
+        description: "Berechnet erneut und prüft Hash plus Präfix.",
+      },
     ],
     build: {
-      intro: "Nutze WebCrypto oder node:crypto und verschiebe hohe Difficulty in einen Worker.",
+      intro:
+        "Nutze WebCrypto oder node:crypto und verschiebe hohe Difficulty in einen Worker.",
       steps: [
         "Difficulty, Noncebereich und eindeutiges Encoding festlegen.",
         "Hashfunktion als austauschbaren, deterministischen Port implementieren.",
@@ -1271,7 +1626,7 @@ async function validate(data: string, nonce: number, difficulty: number) {
       "Event-Loop-Yields halten die UI reaktionsfähig, Worker bieten echte Parallelität.",
       "Proof of Work verhindert Missbrauch nicht allein und ist energieintensiv.",
     ],
-    note: "Eine führende Hex-Null entspricht vier Difficulty-Bits. Stringkonkatenation ohne Längen- oder Trennencoding kann mehrdeutig sein.",
+    note: "Schwierigkeit zählt wiederholte Hex-Präfixe. Protokollkodierung und externe Rechenbudgets liegen beim Aufrufer.",
     source: "packages/proof-of-work/src",
     related: ["signature", "worker-pool"],
   },
@@ -1283,10 +1638,14 @@ async function validate(data: string, nonce: number, difficulty: number) {
     maturity: "partial",
     featured: true,
     tags: ["PRNG", "seed", "weighted selection"],
-    summary: "Vergleicht mehrere deterministische Pseudozufallsstrategien und eine gewichtete Elementauswahl unter einem gemeinsamen API-Modell.",
-    problem: "Simulationen und Tests benötigen reproduzierbare Folgen statt des globalen und nicht seedbaren Math.random.",
-    mentalModel: "Ein Seed initialisiert einen endlichen Zustand. Jede Transition produziert einen Integer und den nächsten Zustand; Float- und Bereichsfunktionen sind sichere Abbildungen darauf.",
-    repositoryImplementation: "LCG, Lagged Fibonacci, MT, Wichmann-Hill und XORShift sind angelegt. Die Basisklasse ignoriert ihren Seed, Seed-Hexkonvertierung verliert Daten und die Fortuna-Ausgabe bleibt Math.random statt kryptografisch.",
+    summary:
+      "Bietet reproduzierbare Seed-Generatoren und normalisierte gewichtete Auswahl.",
+    problem:
+      "Simulationen und Tests benötigen reproduzierbare Folgen statt des globalen und nicht seedbaren Math.random.",
+    mentalModel:
+      "Ein Seed initialisiert einen endlichen Zustand. Jede Transition produziert einen Integer und den nächsten Zustand; Float- und Bereichsfunktionen sind sichere Abbildungen darauf.",
+    repositoryImplementation:
+      "Bietet reproduzierbare Seed-Generatoren und normalisierte gewichtete Auswahl. Fortuna ist ein Kompatibilitätsname für node:crypto, keine Fortuna-Implementierung. Seed-Strategien dienen Simulationen; die Redis-Skizze ist eine explizit nicht unterstützte Integration.",
     flow: [
       "Seed auf eine feste, gültige Zustandsbreite normalisieren.",
       "Pro Abruf exakt eine deterministische State-Transition ausführen.",
@@ -1294,13 +1653,29 @@ async function validate(data: string, nonce: number, difficulty: number) {
       "Gewichtete Auswahl über positive Rohgewichte und kumulative Intervalle ausführen.",
     ],
     api: [
-      { name: "Seed", description: "Bufferbasierter Seedcontainer mit fehleranfälliger Hexkonvertierung." },
-      { name: "PseudoRandomNumberGenerator", description: "Basisklasse für nextFloat und nextInt, nutzt aktuell Math.random." },
-      { name: "MersenneTwister / XORShift / weitere Strategien", description: "Konkrete Zustandsalgorithmen." },
-      { name: "PseudoRandomItemSelector", description: "Wählt Items anhand als Prozent interpretierten Gewichten." },
+      {
+        name: "Seed",
+        description:
+          "Bufferbasierter Seedcontainer mit fehleranfälliger Hexkonvertierung.",
+      },
+      {
+        name: "PseudoRandomNumberGenerator",
+        description:
+          "Basisklasse für nextFloat und nextInt, nutzt aktuell Math.random.",
+      },
+      {
+        name: "MersenneTwister / XORShift / weitere Strategien",
+        description: "Konkrete Zustandsalgorithmen.",
+      },
+      {
+        name: "PseudoRandomItemSelector",
+        description:
+          "Wählt Items anhand als Prozent interpretierten Gewichten.",
+      },
     ],
     build: {
-      intro: "Ein Xorshift32 genügt als kleiner reproduzierbarer Generator; Sicherheit ist ausdrücklich nicht sein Ziel.",
+      intro:
+        "Ein Xorshift32 genügt als kleiner reproduzierbarer Generator; Sicherheit ist ausdrücklich nicht sein Ziel.",
       steps: [
         "Seed als von null verschiedenen uint32 normalisieren.",
         "State ausschließlich über die definierte Bittransition verändern.",
@@ -1331,7 +1706,7 @@ async function validate(data: string, nonce: number, difficulty: number) {
       "Große Zustände verbessern Perioden, machen Snapshot und Restore teurer.",
       "Keiner dieser Algorithmen darf für Schlüssel, Tokens oder andere Sicherheitswerte verwendet werden.",
     ],
-    note: "Für Kryptografie ausschließlich crypto.getRandomValues oder node:crypto verwenden. Der Name Fortuna im Repository verspricht aktuell eine Sicherheit, die die Implementierung nicht liefert.",
+    note: "Fortuna ist ein Kompatibilitätsname für node:crypto, keine Fortuna-Implementierung. Seed-Strategien dienen Simulationen; die Redis-Skizze ist eine explizit nicht unterstützte Integration.",
     source: "packages/random/src",
     related: ["lsystem", "slot-mashine"],
   },
@@ -1343,10 +1718,14 @@ async function validate(data: string, nonce: number, difficulty: number) {
     maturity: "prototype",
     featured: false,
     tags: ["Observable", "subscription", "operators"],
-    summary: "Modelliert fortlaufende Werte, terminale Signale und komponierbare Transformationen als Observable-Subscriptions.",
-    problem: "Asynchrone oder mehrfache Werte sollen produziert, transformiert und unabhängig abbestellt werden können.",
-    mentalModel: "Jede Subscription besitzt ihren eigenen closed-Zustand und Teardown. Ein Operator erstellt lediglich ein neues Observable, das die Quelle abonniert.",
-    repositoryImplementation: "SimpleObservable, Subscription sowie map/filter existieren, aber ein Root-Export fehlt. isUnsubscribed liegt global auf dem Observable, sodass ein Unsubscribe alle gegenwärtigen und zukünftigen Subscriber blockiert.",
+    summary:
+      "Verwaltet Cold-Source-Subscriptions mit unabhängiger Terminierung und genau einmaligem Teardown.",
+    problem:
+      "Asynchrone oder mehrfache Werte sollen produziert, transformiert und unabhängig abbestellt werden können.",
+    mentalModel:
+      "Jede Subscription besitzt ihren eigenen closed-Zustand und Teardown. Ein Operator erstellt lediglich ein neues Observable, das die Quelle abonniert.",
+    repositoryImplementation:
+      "Verwaltet Cold-Source-Subscriptions mit unabhängiger Terminierung und genau einmaligem Teardown. Die Operatorauswahl ist bewusst klein. Hot-Multicasting, Backpressure und Scheduler benötigen zusätzliche Verträge.",
     flow: [
       "Producer erhält einen sicheren Observer pro Subscription.",
       "next liefert Werte nur solange diese Subscription offen ist.",
@@ -1355,13 +1734,27 @@ async function validate(data: string, nonce: number, difficulty: number) {
       "Operatoren leiten Werte und Fehler an ihre eigenen Subscriber weiter.",
     ],
     api: [
-      { name: "SimpleObservable", description: "Source-Klasse für subscribe und pipe ohne Package-Root-Export." },
-      { name: "SimpleSubscription", description: "Kapselt einen Teardown und einen Unsubscribe-Zustand." },
-      { name: "map / filter", description: "any-typisierte Operatoren auf einem Quellobservable." },
-      { name: "done", description: "Identitätsoperator ohne terminale Wirkung." },
+      {
+        name: "SimpleObservable",
+        description:
+          "Source-Klasse für subscribe und pipe ohne Package-Root-Export.",
+      },
+      {
+        name: "SimpleSubscription",
+        description: "Kapselt einen Teardown und einen Unsubscribe-Zustand.",
+      },
+      {
+        name: "map / filter",
+        description: "any-typisierte Operatoren auf einem Quellobservable.",
+      },
+      {
+        name: "done",
+        description: "Identitätsoperator ohne terminale Wirkung.",
+      },
     ],
     build: {
-      intro: "Implementiere zuerst Subscription-Lifecycle und sichere Observer, bevor Operatoren hinzukommen.",
+      intro:
+        "Implementiere zuerst Subscription-Lifecycle und sichere Observer, bevor Operatoren hinzukommen.",
       steps: [
         "Observer mit next, error und complete definieren.",
         "Pro subscribe einen lokalen closed-Schalter und idempotenten Teardown erzeugen.",
@@ -1393,7 +1786,7 @@ class Subscription {
       "Hot Multicasting teilt Arbeit und benötigt gemeinsamen Lifecycle sowie Backpressure-Regeln.",
       "Eine kleine API ist lehrreich, ersetzt nicht Scheduling und Operatorbreite von RxJS.",
     ],
-    note: "Die vorhandenen Tests liegen im Source, werden vom Package-Testscript aber nicht ausgeführt.",
+    note: "Die Operatorauswahl ist bewusst klein. Hot-Multicasting, Backpressure und Scheduler benötigen zusätzliche Verträge.",
     source: "packages/reactivity/src",
     related: ["state-store", "state-machine"],
   },
@@ -1405,10 +1798,14 @@ class Subscription {
     maturity: "prototype",
     featured: false,
     tags: ["iteration", "deferred mutation", "collection"],
-    summary: "Verzögert Adds und Removes, damit Mutationen eine laufende Iteration nicht unkontrolliert verschieben.",
-    problem: "Direktes Hinzufügen oder Entfernen während forEach kann Elemente überspringen, doppelt besuchen oder die Schleifenlogik schwer vorhersagbar machen.",
-    mentalModel: "Die Iteration sieht einen Snapshot. Mutation landet in Queues und wird nur an klaren Flush-Grenzen atomar übernommen.",
-    repositoryImplementation: "SafeArray exportiert add, remove, filter und forEach. addQueued leert die Add-Queue nie; dadurch werden alte Adds in jedem Durchlauf erneut angehängt und auch length/isEmpty falsch.",
+    summary:
+      "Verarbeitet gepufferte Mutationen ohne wiederholte Adds oder geteilte Konstruktor-Arrays.",
+    problem:
+      "Direktes Hinzufügen oder Entfernen während forEach kann Elemente überspringen, doppelt besuchen oder die Schleifenlogik schwer vorhersagbar machen.",
+    mentalModel:
+      "Die Iteration sieht einen Snapshot. Mutation landet in Queues und wird nur an klaren Flush-Grenzen atomar übernommen.",
+    repositoryImplementation:
+      "Verarbeitet gepufferte Mutationen ohne wiederholte Adds oder geteilte Konstruktor-Arrays. Entfernen erfolgt wertbasiert für alle Treffer. Nebenläufige Threads und Isolation verschachtelter Iterationen werden nicht zugesagt.",
     flow: [
       "Add und Remove in getrennten Pending-Strukturen sammeln.",
       "Vor Iteration einen Flush durchführen und beide Queues leeren.",
@@ -1416,13 +1813,27 @@ class Subscription {
       "Währenddessen gesammelte Änderungen erst nach der Schleife übernehmen.",
     ],
     api: [
-      { name: "SafeArray.add / remove", description: "Stellt Werte in Mutationsqueues." },
-      { name: "forEach", description: "Flusht, iteriert und verarbeitet Removals noch einmal." },
-      { name: "filter", description: "Baut ein neues Array über SafeArray.forEach." },
-      { name: "length / isEmpty", description: "Berechnet Werte aus Basisarray und Queues, gegenwärtig durch Add-Duplikate falsch." },
+      {
+        name: "SafeArray.add / remove",
+        description: "Stellt Werte in Mutationsqueues.",
+      },
+      {
+        name: "forEach",
+        description: "Flusht, iteriert und verarbeitet Removals noch einmal.",
+      },
+      {
+        name: "filter",
+        description: "Baut ein neues Array über SafeArray.forEach.",
+      },
+      {
+        name: "length / isEmpty",
+        description:
+          "Berechnet Werte aus Basisarray und Queues, gegenwärtig durch Add-Duplikate falsch.",
+      },
     ],
     build: {
-      intro: "Definiere zuerst, ob Änderungen aus Callback N noch im selben oder erst im nächsten Durchlauf sichtbar werden.",
+      intro:
+        "Definiere zuerst, ob Änderungen aus Callback N noch im selben oder erst im nächsten Durchlauf sichtbar werden.",
       steps: [
         "Konstruktorinput kopieren und Pending-Adds sowie Remove-Set anlegen.",
         "Flush übernimmt jede Queue genau einmal und leert sie sofort.",
@@ -1453,7 +1864,7 @@ class Subscription {
       "Referenzgleichheit genügt für Objekte nur bei stabiler Identität.",
       "Deferred Mutation schützt Iterationen, verzögert aber sichtbare Zustandsänderungen.",
     ],
-    note: "Das Konstruktorarray sollte kopiert werden, damit externe Mutation die internen Invarianten nicht umgeht.",
+    note: "Entfernen erfolgt wertbasiert für alle Treffer. Nebenläufige Threads und Isolation verschachtelter Iterationen werden nicht zugesagt.",
     source: "packages/safe-array/src",
     related: ["better-set", "reactivity"],
   },
@@ -1465,10 +1876,14 @@ class Subscription {
     maturity: "prototype",
     featured: false,
     tags: ["WebCrypto", "RSA-PSS", "key rotation"],
-    summary: "Signiert versionierte Payload-Bytes und verwaltet dafür Key-IDs, Rotation und passwortgeschützte private Schlüssel.",
-    problem: "Empfänger müssen Integrität und Herkunft einer Nachricht prüfen können, ohne Zugriff auf den privaten Schlüssel zu besitzen.",
-    mentalModel: "Header plus Payload werden kanonisch serialisiert und mit Private Key signiert; Key-ID wählt beim Prüfen den passenden Public Key.",
-    repositoryImplementation: "Signature, PayloadSigner und KeyPairEncryption werden exportiert, doch CryptoKey/KeyObject und Persistenztypen widersprechen sich. Der Konstruktor startet nicht awaitbare Keygenerierung und AES-CBC-Daten lassen sich nicht korrekt JSON-serialisieren.",
+    summary:
+      "Signiert JSON-Umschläge mit RSA-SHA256 und verschlüsselt Schlüsselexporte per AES-GCM.",
+    problem:
+      "Empfänger müssen Integrität und Herkunft einer Nachricht prüfen können, ohne Zugriff auf den privaten Schlüssel zu besitzen.",
+    mentalModel:
+      "Header plus Payload werden kanonisch serialisiert und mit Private Key signiert; Key-ID wählt beim Prüfen den passenden Public Key.",
+    repositoryImplementation:
+      "Signiert JSON-Umschläge mit RSA-SHA256 und verschlüsselt Schlüsselexporte per AES-GCM. Schlüssel gehören lokal zum Signer. Produktiver Vertrauensaufbau, kanonische Serialisierung und Rotation benötigen ein Anwendungsdesign.",
     flow: [
       "Keypair über eine explizite async Factory erzeugen oder laden.",
       "Versionierten Header und Payload kanonisch in Bytes wandeln.",
@@ -1477,13 +1892,29 @@ class Subscription {
       "Private Keys versioniert und authentifiziert verschlüsselt persistieren.",
     ],
     api: [
-      { name: "Signature<T>", description: "High-Level-Fassade mit drei rotierenden RSA-Keypairs." },
-      { name: "PayloadSigner<T>", description: "Erstellt Header und signiert/verifiziert serialisierte Daten." },
-      { name: "KeyPairEncryption", description: "Exportiert Keys und verschlüsselt Private-Key-Material per PBKDF2/AES-CBC." },
-      { name: "KeyPairManager (intern)", description: "Erzeugt, rotiert und findet Keys, wird aber nicht am Root exportiert." },
+      {
+        name: "Signature<T>",
+        description: "High-Level-Fassade mit drei rotierenden RSA-Keypairs.",
+      },
+      {
+        name: "PayloadSigner<T>",
+        description:
+          "Erstellt Header und signiert/verifiziert serialisierte Daten.",
+      },
+      {
+        name: "KeyPairEncryption",
+        description:
+          "Exportiert Keys und verschlüsselt Private-Key-Material per PBKDF2/AES-CBC.",
+      },
+      {
+        name: "KeyPairManager (intern)",
+        description:
+          "Erzeugt, rotiert und findet Keys, wird aber nicht am Root exportiert.",
+      },
     ],
     build: {
-      intro: "Beginne mit einer awaitbaren Factory und einem festen Signaturalgorithmus; Persistenz ist ein separater Schritt.",
+      intro:
+        "Beginne mit einer awaitbaren Factory und einem festen Signaturalgorithmus; Persistenz ist ein separater Schritt.",
       steps: [
         "Keypair vollständig erzeugen, bevor eine Signer-Instanz zurückgegeben wird.",
         "Header und Payload in ein kanonisches, versioniertes Byteformat bringen.",
@@ -1514,7 +1945,7 @@ async function verify(payload: unknown, value: BufferSource, publicKey: CryptoKe
       "Kanonische Serialisierung ist zusätzlicher Aufwand und unverzichtbar für reproduzierbare Bytes.",
       "Keyrotation begrenzt Schäden, erfordert aber Historie, Ablauf und Revocation.",
     ],
-    note: "RSA-OAEP ist ein Verschlüsselungs-, kein Signaturalgorithmus. Für persistierte Secrets authentifizierte Verschlüsselung wie AES-GCM verwenden.",
+    note: "Schlüssel gehören lokal zum Signer. Produktiver Vertrauensaufbau, kanonische Serialisierung und Rotation benötigen ein Anwendungsdesign.",
     source: "packages/signature/src",
     related: ["p2p", "proof-of-work"],
   },
@@ -1526,10 +1957,14 @@ async function verify(payload: unknown, value: BufferSource, publicKey: CryptoKe
     maturity: "prototype",
     featured: false,
     tags: ["weighted random", "paylines", "simulation"],
-    summary: "Trennt bei einer Slot-Simulation idealerweise Symbolgewichte, Rastererzeugung, Payline-Auswertung und Guthabenbuchung.",
-    problem: "Eine reproduzierbare Spielsimulation muss Zufallsverteilung und Auszahlung unabhängig modellieren und jede sichtbare Linie korrekt auswerten.",
-    mentalModel: "Reels erzeugen Spalten eines Rasters. Paylines sind explizite Koordinatenfolgen; ein reiner Evaluator berechnet daraus einen Gewinn.",
-    repositoryImplementation: "Das Modul exportiert nichts und startet beim Import eine readline-CLI. Alle Symbole erhalten effektiv dasselbe Gewicht, horizontale Linien werden entlang eines Reels statt quer geprüft und Einsatz-/Freispielgrenzen sind fehlerhaft.",
+    summary:
+      "Simuliert gewichtete Walzen, horizontale und diagonale Gewinne, Credits und Freispiele.",
+    problem:
+      "Eine reproduzierbare Spielsimulation muss Zufallsverteilung und Auszahlung unabhängig modellieren und jede sichtbare Linie korrekt auswerten.",
+    mentalModel:
+      "Reels erzeugen Spalten eines Rasters. Paylines sind explizite Koordinatenfolgen; ein reiner Evaluator berechnet daraus einen Gewinn.",
+    repositoryImplementation:
+      "Simuliert gewichtete Walzen, horizontale und diagonale Gewinne, Credits und Freispiele. Die Engine ist eine didaktische deterministische Simulation. UI, Echtgeldbuchhaltung und regulatorische Anforderungen liegen außerhalb ihres Vertrags.",
     flow: [
       "Symbole mit getrenntem weight und payout definieren.",
       "Pro Reel und sichtbarer Zeile über injizierten RNG ziehen.",
@@ -1538,12 +1973,23 @@ async function verify(payload: unknown, value: BufferSource, publicKey: CryptoKe
       "Engineergebnis separat rendern oder über eine CLI bedienen.",
     ],
     api: [
-      { name: "FruitSlotMachine (intern)", description: "Kombiniert Engine, Credits, Freispielzustand, Rendering und readline-Loop." },
-      { name: "Reel / FruitReel (intern)", description: "Zieht drei Symbole aus einer aufgebauten Symbolmenge." },
-      { name: "BaseSymbol / WildSymbol / ScatterSymbol (intern)", description: "Symbolklassen mit Multiplikator und Darstellung." },
+      {
+        name: "FruitSlotMachine (intern)",
+        description:
+          "Kombiniert Engine, Credits, Freispielzustand, Rendering und readline-Loop.",
+      },
+      {
+        name: "Reel / FruitReel (intern)",
+        description: "Zieht drei Symbole aus einer aufgebauten Symbolmenge.",
+      },
+      {
+        name: "BaseSymbol / WildSymbol / ScatterSymbol (intern)",
+        description: "Symbolklassen mit Multiplikator und Darstellung.",
+      },
     ],
     build: {
-      intro: "Die Kernengine sollte rein und deterministisch sein; Zufall und UI werden injiziert.",
+      intro:
+        "Die Kernengine sollte rein und deterministisch sein; Zufall und UI werden injiziert.",
       steps: [
         "Gewichte, Auszahlungen und Symbole als Daten statt Vererbung definieren.",
         "Raster mit einem seedbaren RNG erzeugen.",
@@ -1573,7 +2019,7 @@ const middleLine = [[0, 1], [1, 1], [2, 1]] as const;`,
       "Mehr Paylines erhöhen Variation und Auszahlungswahrscheinlichkeit.",
       "Geld als Integer-Cents verhindert Gleitkommafehler.",
     ],
-    note: "Der Repository-Name schreibt 'mashine'. Eine Korrektur wäre eine separate Breaking Change; die Doku spiegelt deshalb den tatsächlichen Slug.",
+    note: "Die Engine ist eine didaktische deterministische Simulation. UI, Echtgeldbuchhaltung und regulatorische Anforderungen liegen außerhalb ihres Vertrags.",
     source: "packages/slot-mashine/src",
     related: ["random", "stats-tracker"],
   },
@@ -1585,10 +2031,14 @@ const middleLine = [[0, 1], [1, 1], [2, 1]] as const;`,
     maturity: "partial",
     featured: true,
     tags: ["FSM", "guards", "transitions"],
-    summary: "Modelliert erlaubte Zustandswechsel explizit und hält Guards, Aktionen sowie Beobachter von der Fachlogik getrennt.",
-    problem: "Wenn Statuswechsel über viele if-Zweige verteilt sind, entstehen unmögliche Zustände, versteckte Seiteneffekte und schwer reproduzierbare Fehler.",
-    mentalModel: "Eine endliche Zustandsmaschine liest das Paar aus aktuellem Zustand und Ereignis, prüft optional einen Guard und wechselt genau einmal zum Zielzustand.",
-    repositoryImplementation: "StateMachine, Konfigurationen und Transitionstypen sind exportiert. Asynchrone Guards werden jedoch nicht korrekt abgewartet, Entry-Aktionen greifen teils auf den alten Zustand zu und Aktionsrückgaben werden als Folgeereignis interpretiert. Eine Ereigniswarteschlange und sauberes Abmelden fehlen.",
+    summary:
+      "Serialisiert Übergänge, wartet Guards ab und betritt den korrekten Zielzustand.",
+    problem:
+      "Wenn Statuswechsel über viele if-Zweige verteilt sind, entstehen unmögliche Zustände, versteckte Seiteneffekte und schwer reproduzierbare Fehler.",
+    mentalModel:
+      "Eine endliche Zustandsmaschine liest das Paar aus aktuellem Zustand und Ereignis, prüft optional einen Guard und wechselt genau einmal zum Zielzustand.",
+    repositoryImplementation:
+      "Serialisiert Übergänge, wartet Guards ab und betritt den korrekten Zielzustand. Aktionen können externe Effekte haben. Rekursiv ausgelöste Events innerhalb einer aktiven Aktion nicht abwarten; Folgeereignisse nach ihrem Ende einplanen.",
     flow: [
       "Aktuellen Zustand und Ereignis gegen die Transitionstabelle auflösen.",
       "Optionalen Guard vollständig abwarten und bei false ohne Änderung zurückkehren.",
@@ -1597,13 +2047,27 @@ const middleLine = [[0, 1], [1, 1], [2, 1]] as const;`,
       "Gleichzeitige Ereignisse über eine Queue serialisieren.",
     ],
     api: [
-      { name: "StateMachine", description: "Verwaltet Zustand, Transitionen und State-Change-Observer." },
-      { name: "addTransition", description: "Registriert Ereignis, Ziel, Guard und optionale Aktion." },
-      { name: "transition", description: "Versucht einen Zustandswechsel für ein Ereignis." },
-      { name: "subscribe", description: "Beobachtet erfolgreiche Zustandswechsel." },
+      {
+        name: "StateMachine",
+        description:
+          "Verwaltet Zustand, Transitionen und State-Change-Observer.",
+      },
+      {
+        name: "addTransition",
+        description: "Registriert Ereignis, Ziel, Guard und optionale Aktion.",
+      },
+      {
+        name: "transition",
+        description: "Versucht einen Zustandswechsel für ein Ereignis.",
+      },
+      {
+        name: "subscribe",
+        description: "Beobachtet erfolgreiche Zustandswechsel.",
+      },
     ],
     build: {
-      intro: "Für den Kern reichen eine typisierte Tabelle und eine einzige asynchrone send-Methode.",
+      intro:
+        "Für den Kern reichen eine typisierte Tabelle und eine einzige asynchrone send-Methode.",
       steps: [
         "Zustände und Ereignisse als String-Unions definieren.",
         "Transitionen je Zustand und Ereignis in einer Tabelle ablegen.",
@@ -1638,7 +2102,7 @@ class Machine<S extends string, E extends string, P> {
       "Asynchrone Aktionen sind praktisch, brauchen jedoch eine klare Queue- und Fehlerstrategie.",
       "Historie und Persistenz gehören als Adapter um den kleinen Kern, nicht in jede Transition.",
     ],
-    note: "Entry- und Exit-Aktionen sollten keine weiteren Ereignisse rekursiv auslösen; lege Folgeereignisse in eine Queue.",
+    note: "Aktionen können externe Effekte haben. Rekursiv ausgelöste Events innerhalb einer aktiven Aktion nicht abwarten; Folgeereignisse nach ihrem Ende einplanen.",
     source: "packages/state-machine/src",
     related: ["state-store", "reactivity"],
   },
@@ -1650,10 +2114,14 @@ class Machine<S extends string, E extends string, P> {
     maturity: "prototype",
     featured: false,
     tags: ["store", "proxy", "subscriptions"],
-    summary: "Kapselt veränderbaren Anwendungszustand hinter get, set und gezielten Subscriptions.",
-    problem: "Direkt geteilter Objektzustand verrät nicht, wer ihn wann verändert hat, und koppelt Leser, Schreiber sowie Seiteneffekte eng aneinander.",
-    mentalModel: "Ein Store besitzt den Zustand. Schreiboperationen erzeugen eine neue Version und informieren nur Abonnenten des geänderten Schlüssels.",
-    repositoryImplementation: "StateStore und createStateStore sind angelegt, der Root-Export ist aber leer. Der Proxy-get-Trap verdeckt eigene Methoden; Listener werden indirekt über das Setzen einer Funktion angelegt, während eine öffentliche, wieder abmeldbare Registrierung fehlt.",
+    summary:
+      "Besitzt eigene Zustandskopien mit expliziten Updates und abmeldbaren Subscriptions.",
+    problem:
+      "Direkt geteilter Objektzustand verrät nicht, wer ihn wann verändert hat, und koppelt Leser, Schreiber sowie Seiteneffekte eng aneinander.",
+    mentalModel:
+      "Ein Store besitzt den Zustand. Schreiboperationen erzeugen eine neue Version und informieren nur Abonnenten des geänderten Schlüssels.",
+    repositoryImplementation:
+      "Besitzt eigene Zustandskopien mit expliziten Updates und abmeldbaren Subscriptions. Werte müssen per structuredClone kopierbar sein. Verschachtelte Änderungen benötigen set; reservierte Proxy-Namen dürfen keine State-Schlüssel sein.",
     flow: [
       "Initialzustand defensiv kopieren und nur über eine kleine Store-API zugänglich machen.",
       "Bei set alten und neuen Wert vergleichen und den Zustand aktualisieren.",
@@ -1661,12 +2129,24 @@ class Machine<S extends string, E extends string, P> {
       "Eine unsubscribe-Funktion zurückgeben und Listener beim Aufräumen entfernen.",
     ],
     api: [
-      { name: "StateStore", description: "Experimentelle Store-Klasse mit Proxy-basierter Oberfläche." },
-      { name: "createStateStore", description: "Erzeugt einen Store aus typisiertem Initialzustand." },
-      { name: "Middleware / Interceptor", description: "Typen für Transformation und Beobachtung von Schreibzugriffen." },
+      {
+        name: "StateStore",
+        description:
+          "Experimentelle Store-Klasse mit Proxy-basierter Oberfläche.",
+      },
+      {
+        name: "createStateStore",
+        description: "Erzeugt einen Store aus typisiertem Initialzustand.",
+      },
+      {
+        name: "Middleware / Interceptor",
+        description:
+          "Typen für Transformation und Beobachtung von Schreibzugriffen.",
+      },
     ],
     build: {
-      intro: "Eine explizite API ist leichter zu verstehen und zu testen als magische Proxy-Semantik.",
+      intro:
+        "Eine explizite API ist leichter zu verstehen und zu testen als magische Proxy-Semantik.",
       steps: [
         "Zustand privat halten und Werte über get auslesen.",
         "Schreibzugriffe in set bündeln und unveränderte Werte überspringen.",
@@ -1697,7 +2177,7 @@ class Machine<S extends string, E extends string, P> {
       "Schlüsselbezogene Listener sparen Arbeit, vergrößern aber die API.",
       "Proxies wirken bequem, erschweren Debugging und kollidieren leicht mit Store-Methoden.",
     ],
-    note: "Veröffentliche niemals den intern mutierbaren Zustand; nutze Readonly-Sichten oder unveränderliche Snapshots.",
+    note: "Werte müssen per structuredClone kopierbar sein. Verschachtelte Änderungen benötigen set; reservierte Proxy-Namen dürfen keine State-Schlüssel sein.",
     source: "packages/state-store/src",
     related: ["reactivity", "state-machine"],
   },
@@ -1709,10 +2189,14 @@ class Machine<S extends string, E extends string, P> {
     maturity: "prototype",
     featured: false,
     tags: ["events", "sliding window", "metrics"],
-    summary: "Zählt Ereignisse in einem gleitenden Zeitfenster und macht kurzzeitige Aktivität messbar.",
-    problem: "Ein Gesamtzähler sagt nicht, ob Aktivität gerade stattfindet; für Raten und Bursts braucht man Werte in einem definierten Zeitfenster.",
-    mentalModel: "Jedes Ereignis erhält einen Zeitstempel. Beim Lesen werden abgelaufene Einträge entfernt und die verbleibenden Einträge gezählt.",
-    repositoryImplementation: "Das Modul besitzt eine feste interne EventPayloadMap und speichert Zeitstempel für ein 60-Sekunden-Fenster. Bereinigung geschieht nur beim Loggen und getCount ist semantisch uneindeutig; Root-API, konfigurierbare Uhr und belastbare Tests fehlen.",
+    summary:
+      "Misst Ereigniszahlen im gleitenden Fenster mit austauschbarer monotoner Uhr.",
+    problem:
+      "Ein Gesamtzähler sagt nicht, ob Aktivität gerade stattfindet; für Raten und Bursts braucht man Werte in einem definierten Zeitfenster.",
+    mentalModel:
+      "Jedes Ereignis erhält einen Zeitstempel. Beim Lesen werden abgelaufene Einträge entfernt und die verbleibenden Einträge gezählt.",
+    repositoryImplementation:
+      "Misst Ereigniszahlen im gleitenden Fenster mit austauschbarer monotoner Uhr. Zähler betreffen das konfigurierte Fenster, nicht die gesamte Historie. Speicherbedarf wächst mit den Ereignissen im Fenster.",
     flow: [
       "Ereignisname und aktuellen Zeitpunkt erfassen.",
       "Zeitstempel in den Bucket des Ereignisses einfügen.",
@@ -1720,12 +2204,22 @@ class Machine<S extends string, E extends string, P> {
       "Anzahl oder Rate aus dem verbleibenden Bucket ableiten.",
     ],
     api: [
-      { name: "log", description: "Erfasst ein Ereignis mit dem aktuellen Timestamp." },
-      { name: "getCount", description: "Liest den aktuellen Wert aus dem 60-Sekunden-Fenster." },
-      { name: "EventPayloadMap (intern)", description: "Bindet bekannte Eventnamen an Payloadtypen." },
+      {
+        name: "log",
+        description: "Erfasst ein Ereignis mit dem aktuellen Timestamp.",
+      },
+      {
+        name: "getCount",
+        description: "Liest den aktuellen Wert aus dem 60-Sekunden-Fenster.",
+      },
+      {
+        name: "EventPayloadMap (intern)",
+        description: "Bindet bekannte Eventnamen an Payloadtypen.",
+      },
     ],
     build: {
-      intro: "Mit injizierter Uhr bleibt ein gleitender Zähler klein und vollständig deterministisch testbar.",
+      intro:
+        "Mit injizierter Uhr bleibt ein gleitender Zähler klein und vollständig deterministisch testbar.",
       steps: [
         "Fensterlänge und now-Funktion beim Erzeugen entgegennehmen.",
         "Zeitstempel geordnet pro Ereignis speichern.",
@@ -1752,7 +2246,7 @@ class Machine<S extends string, E extends string, P> {
       "Zeit-Buckets sparen Speicher und liefern dafür nur angenäherte Grenzen.",
       "Lazy Cleanup vermeidet Timer, verlagert die Arbeit aber auf Lesezugriffe.",
     ],
-    note: "Für verteilte Systeme sind monotone Uhr, Aggregationsintervall und die Bedeutung von 'Rate' Teil des öffentlichen Vertrags.",
+    note: "Zähler betreffen das konfigurierte Fenster, nicht die gesamte Historie. Speicherbedarf wächst mit den Ereignissen im Fenster.",
     source: "packages/stats-tracker/src",
     related: ["prom-metrics-decorator", "prom-metrics-parser"],
   },
@@ -1764,10 +2258,14 @@ class Machine<S extends string, E extends string, P> {
     maturity: "stub",
     featured: false,
     tags: ["workers", "broadcast", "coordination"],
-    summary: "Skizziert einen Manager, der Nachrichten an mehrere Worker verteilt und deren Antworten koordiniert.",
-    problem: "Mehrere verteilte Worker benötigen Identität, Transport, Lebenszyklus und definierte Regeln für Broadcast, Fehler sowie Teilantworten.",
-    mentalModel: "Der Manager kennt aktive Knoten und delegiert Bytes über einen Transport. Ein Protokoll beschreibt Handshake, Anfrage-ID, Antwort und Timeout.",
-    repositoryImplementation: "ManagerParams ist leer, Manager hält lediglich eine Node-Liste und broadcast ist ohne Verhalten. Worker, Root-Index und das als handshacke benannte Protokoll sind leer; ein nutzbarer Vertrag existiert noch nicht.",
+    summary:
+      "Sendet an eine begrenzte Gruppe eindeutiger lokaler Worker und erhält Teilerfolge.",
+    problem:
+      "Mehrere verteilte Worker benötigen Identität, Transport, Lebenszyklus und definierte Regeln für Broadcast, Fehler sowie Teilantworten.",
+    mentalModel:
+      "Der Manager kennt aktive Knoten und delegiert Bytes über einen Transport. Ein Protokoll beschreibt Handshake, Anfrage-ID, Antwort und Timeout.",
+    repositoryImplementation:
+      "Sendet an eine begrenzte Gruppe eindeutiger lokaler Worker und erhält Teilerfolge. Der geprüfte Kern ist lokale Orchestrierung. Remote-Ausführung, Authentifizierung, Wiederholungen und Heartbeats benötigen einen Netzwerkadapter.",
     flow: [
       "Worker über einen Transport verbinden und per Handshake identifizieren.",
       "Nachrichten mit Version, Anfrage-ID und Deadline serialisieren.",
@@ -1775,12 +2273,22 @@ class Machine<S extends string, E extends string, P> {
       "Ergebnisse, Timeouts und Transportfehler pro Worker getrennt zurückgeben.",
     ],
     api: [
-      { name: "Manager", description: "Unvollständige Hülle für Worker-Liste und Broadcast." },
-      { name: "ManagerParams", description: "Noch leere Konfiguration des Managers." },
-      { name: "Worker / Handshake", description: "Platzhalter ohne implementiertes Protokoll." },
+      {
+        name: "Manager",
+        description: "Unvollständige Hülle für Worker-Liste und Broadcast.",
+      },
+      {
+        name: "ManagerParams",
+        description: "Noch leere Konfiguration des Managers.",
+      },
+      {
+        name: "Worker / Handshake",
+        description: "Platzhalter ohne implementiertes Protokoll.",
+      },
     ],
     build: {
-      intro: "Definiere zuerst einen transportneutralen Vertrag; Netzwerk- oder Worker-Adapter kommen danach.",
+      intro:
+        "Definiere zuerst einen transportneutralen Vertrag; Netzwerk- oder Worker-Adapter kommen danach.",
       steps: [
         "Knoten mit stabiler ID und send-Methode modellieren.",
         "Beim Broadcast die aktuelle Map kopieren, damit Verbindungen parallel wechseln dürfen.",
@@ -1809,7 +2317,7 @@ class Swarm {
       "Teilergebnisse erhöhen Verfügbarkeit, zwingen Aufrufer jedoch zu Fehlerpolitik.",
       "Transportneutralität erleichtert Tests und braucht dafür ein explizites Wire-Protokoll.",
     ],
-    note: "Authentifizierung, Backpressure, Heartbeats und Protokollversionierung sind Kernanforderungen, keine späteren Details.",
+    note: "Der geprüfte Kern ist lokale Orchestrierung. Remote-Ausführung, Authentifizierung, Wiederholungen und Heartbeats benötigen einen Netzwerkadapter.",
     source: "packages/swarm/src",
     related: ["worker-pool", "state-machine"],
   },
@@ -1821,10 +2329,14 @@ class Swarm {
     maturity: "prototype",
     featured: false,
     tags: ["queue", "concurrency", "scheduling"],
-    summary: "Ordnet asynchrone Aufgaben einer begrenzten Anzahl Ausführungsslots zu und hält Warteschlange sowie Lebenszyklus zusammen.",
-    problem: "Unbegrenztes paralleles Starten überlastet CPU, Netzwerk oder Fremdsysteme; eine Queue muss Fairness, Resultate, Abbruch und Shutdown definieren.",
-    mentalModel: "Aufgaben warten in einer Queue. Jeder freie Slot nimmt genau eine Aufgabe, gibt ihr Ergebnis zurück und startet danach den nächsten Eintrag.",
-    repositoryImplementation: "TaskManager liegt ohne Root-Export vor und hängt von den problematischen Modulen priority-queue und worker-pool ab. Es pollt stapelweise im Sekundentakt, addTask und Interface widersprechen sich, und destroy weist wartende Promises nicht zurück.",
+    summary:
+      "Plant priorisierte asynchrone Tasks innerhalb einer festen Parallelitätsgrenze.",
+    problem:
+      "Unbegrenztes paralleles Starten überlastet CPU, Netzwerk oder Fremdsysteme; eine Queue muss Fairness, Resultate, Abbruch und Shutdown definieren.",
+    mentalModel:
+      "Aufgaben warten in einer Queue. Jeder freie Slot nimmt genau eine Aufgabe, gibt ihr Ergebnis zurück und startet danach den nächsten Eintrag.",
+    repositoryImplementation:
+      "Plant priorisierte asynchrone Tasks innerhalb einer festen Parallelitätsgrenze. Shutdown weist wartende Arbeit zurück und lässt aktive Tasks enden. CPU-Isolation und persistente Queues sind separate Aufgaben.",
     flow: [
       "Aufgabe mit resolve/reject in die Warteschlange legen.",
       "Solange Slots frei sind, den nächsten Eintrag starten.",
@@ -1833,12 +2345,25 @@ class Swarm {
       "Beim Shutdown neue Aufgaben ablehnen und Wartende definiert beenden.",
     ],
     api: [
-      { name: "TaskManager", description: "Experimenteller Scheduler auf PriorityQueue und WorkerPool." },
-      { name: "addTask", description: "Soll eine Aufgabe einreihen und ihr Resultat zurückliefern." },
-      { name: "destroy", description: "Stoppt Verarbeitung, behandelt wartende Aufgaben derzeit aber unvollständig." },
+      {
+        name: "TaskManager",
+        description:
+          "Experimenteller Scheduler auf PriorityQueue und WorkerPool.",
+      },
+      {
+        name: "addTask",
+        description:
+          "Soll eine Aufgabe einreihen und ihr Resultat zurückliefern.",
+      },
+      {
+        name: "destroy",
+        description:
+          "Stoppt Verarbeitung, behandelt wartende Aufgaben derzeit aber unvollständig.",
+      },
     ],
     build: {
-      intro: "Ein begrenzter Promise-Scheduler zeigt das Prinzip ohne Polling und ohne echte Worker.",
+      intro:
+        "Ein begrenzter Promise-Scheduler zeigt das Prinzip ohne Polling und ohne echte Worker.",
       steps: [
         "Wartende Starts als Funktionen in einer FIFO-Queue speichern.",
         "Aktive Anzahl vor dem Start erhöhen und in finally verringern.",
@@ -1873,7 +2398,7 @@ class Swarm {
       "Promise-Concurrency begrenzt I/O, verschiebt CPU-Arbeit aber nicht in einen anderen Thread.",
       "Abbruch benötigt ein Signal, das sowohl Queue als auch laufende Aufgabe verstehen.",
     ],
-    note: "WorkerPool und TaskQueue lösen verschiedene Probleme: Parallelität über Threads versus Begrenzung asynchroner Arbeit.",
+    note: "Shutdown weist wartende Arbeit zurück und lässt aktive Tasks enden. CPU-Isolation und persistente Queues sind separate Aufgaben.",
     source: "packages/task-manager/src",
     related: ["worker-pool", "priority-queue"],
   },
@@ -1885,10 +2410,14 @@ class Swarm {
     maturity: "partial",
     featured: false,
     tags: ["errors", "result", "normalization"],
-    summary: "Normalisiert unbekannte Throw-Werte und bildet fehlschlagende Aufrufe als typisiertes Result ab.",
-    problem: "JavaScript darf beliebige Werte werfen; Grenzen zwischen Bibliotheken, Workern oder JSON verlieren dadurch Namen, Ursache und zuverlässige Typen.",
-    mentalModel: "Am Systemrand wird unknown einmal in eine serialisierbare Fehlerform überführt. Intern transportiert ein discriminated union Erfolg oder Fehler explizit.",
-    repositoryImplementation: "NormalizedError, NoThrowResult, isError, toNormalizedError, noThrow und aggregateErrors werden exportiert. Die Normalform verlangt stets einen Stack, noThrow erkennt nur native Promises und Umgebungslogik greift auf process.env zu; ein Error als legitimer Rückgabewert bleibt mehrdeutig.",
+    summary:
+      "Fängt Fehler und normalisiert problematische, zyklische oder asynchrone Fehlerwerte sicher.",
+    problem:
+      "JavaScript darf beliebige Werte werfen; Grenzen zwischen Bibliotheken, Workern oder JSON verlieren dadurch Namen, Ursache und zuverlässige Typen.",
+    mentalModel:
+      "Am Systemrand wird unknown einmal in eine serialisierbare Fehlerform überführt. Intern transportiert ein discriminated union Erfolg oder Fehler explizit.",
+    repositoryImplementation:
+      "Fängt Fehler und normalisiert problematische, zyklische oder asynchrone Fehlerwerte sicher. Das kompatible Ergebnisformat lässt Error als regulären Rückgabewert mehrdeutig. Ein markierter Result-Typ ist eine mögliche spätere Hauptversion.",
     flow: [
       "Synchronen Aufruf oder Promise in try/catch beziehungsweise await einschließen.",
       "Gefangenen unknown-Wert ohne weitere Throws in eine sichere Struktur umwandeln.",
@@ -1896,13 +2425,29 @@ class Swarm {
       "An Prozessgrenzen nur JSON-sichere Felder übertragen und Ursachen begrenzen.",
     ],
     api: [
-      { name: "NormalizedError", description: "Einheitliche Error-Unterklasse für unbekannte Fehlerwerte." },
-      { name: "noThrow", description: "Wandelt synchrones oder asynchrones Werfen in ein Result um." },
-      { name: "toNormalizedError / isError", description: "Normalisiert unknown und erkennt Error-artige Werte." },
-      { name: "aggregateErrors", description: "Fasst mehrere Fehler zu einer gemeinsamen Meldung zusammen." },
+      {
+        name: "NormalizedError",
+        description:
+          "Einheitliche Error-Unterklasse für unbekannte Fehlerwerte.",
+      },
+      {
+        name: "noThrow",
+        description:
+          "Wandelt synchrones oder asynchrones Werfen in ein Result um.",
+      },
+      {
+        name: "toNormalizedError / isError",
+        description: "Normalisiert unknown und erkennt Error-artige Werte.",
+      },
+      {
+        name: "aggregateErrors",
+        description:
+          "Fasst mehrere Fehler zu einer gemeinsamen Meldung zusammen.",
+      },
     ],
     build: {
-      intro: "Ein explizites Result vermeidet die Mehrdeutigkeit zwischen Rückgabewert und Fehler.",
+      intro:
+        "Ein explizites Result vermeidet die Mehrdeutigkeit zwischen Rückgabewert und Fehler.",
       steps: [
         "Result als Union mit ok: true oder ok: false definieren.",
         "unknown über instanceof und sichere String-Konvertierung normalisieren.",
@@ -1930,7 +2475,7 @@ async function capture<T>(run: () => T | PromiseLike<T>): Promise<Result<T>> {
       "Stacks helfen beim Debugging, können jedoch Pfade oder andere interne Daten verraten.",
       "Serialisierbare Fehler verlieren Prototyp und nicht standardisierte Eigenschaften.",
     ],
-    note: "Fehlernormalisierung darf selbst niemals werfen. Schütze deshalb auch String-Konvertierung und cause-Rekursion.",
+    note: "Das kompatible Ergebnisformat lässt Error als regulären Rückgabewert mehrdeutig. Ein markierter Result-Typ ist eine mögliche spätere Hauptversion.",
     source: "packages/ts-error/src",
     related: ["functional", "assert"],
   },
@@ -1942,10 +2487,14 @@ async function capture<T>(run: () => T | PromiseLike<T>): Promise<Result<T>> {
     maturity: "stub",
     featured: false,
     tags: ["cellular automata", "grid", "WebGL"],
-    summary: "Skizziert eine zellulare Partikelsimulation, in der Materialregeln auf einem diskreten Raster ausgeführt werden.",
-    problem: "Sand, Wasser und Hindernisse benötigen lokale Nachbarschaftsregeln, deterministische Updates und eine effiziente Darstellung vieler Rasterzellen.",
-    mentalModel: "Jede Zelle enthält einen Materialcode. Ein Simulationsschritt liest den alten Buffer und schreibt Entscheidungen in einen zweiten Buffer; Rendering ist davon getrennt.",
-    repositoryImplementation: "Das Paket enthält Interfaces, einen leeren NeighborProvider und Fragmente eines Pixel-Renderers beziehungsweise Shaders. Root-Exports, Engine, Materialregeln und vollständiger GPU-Lebenszyklus fehlen.",
+    summary:
+      "Führt eine deterministische CPU-Sandreferenz und begrenzte Nachbarschaftsabfragen aus.",
+    problem:
+      "Sand, Wasser und Hindernisse benötigen lokale Nachbarschaftsregeln, deterministische Updates und eine effiziente Darstellung vieler Rasterzellen.",
+    mentalModel:
+      "Jede Zelle enthält einen Materialcode. Ein Simulationsschritt liest den alten Buffer und schreibt Entscheidungen in einen zweiten Buffer; Rendering ist davon getrennt.",
+    repositoryImplementation:
+      "Führt eine deterministische CPU-Sandreferenz und begrenzte Nachbarschaftsabfragen aus. Der geprüfte Kern erhält Partikel und nutzt Snapshot-Updates. Vollständige WebGL-Simulation, Wasser und Chunk-Synchronisation bleiben spätere Integrationen.",
     flow: [
       "Raster als flachen typisierten Buffer mit Breite und Höhe anlegen.",
       "Für jede aktive Zelle gültige Nachbarn aus dem alten Zustand lesen.",
@@ -1953,12 +2502,24 @@ async function capture<T>(run: () => T | PromiseLike<T>): Promise<Result<T>> {
       "Buffer tauschen und den neuen Zustand separat rendern.",
     ],
     api: [
-      { name: "Pixel / Material Interfaces", description: "Unvollständige Datentypen für Zellen und Materialverhalten." },
-      { name: "NeighborProvider", description: "Platzhalter für Nachbarschaftsabfragen." },
-      { name: "pixel-renderer", description: "Teilweiser WebGL-Renderer ohne vollständige Engineintegration." },
+      {
+        name: "Pixel / Material Interfaces",
+        description:
+          "Unvollständige Datentypen für Zellen und Materialverhalten.",
+      },
+      {
+        name: "NeighborProvider",
+        description: "Platzhalter für Nachbarschaftsabfragen.",
+      },
+      {
+        name: "pixel-renderer",
+        description:
+          "Teilweiser WebGL-Renderer ohne vollständige Engineintegration.",
+      },
     ],
     build: {
-      intro: "Starte auf der CPU mit einer einzigen Sandregel; danach kann derselbe Zustandsvertrag auf die GPU wandern.",
+      intro:
+        "Starte auf der CPU mit einer einzigen Sandregel; danach kann derselbe Zustandsvertrag auf die GPU wandern.",
       steps: [
         "Leere Zelle und Sand als numerische Codes festlegen.",
         "Von unten nach oben arbeiten, damit ein Korn pro Tick höchstens einmal fällt.",
@@ -1986,7 +2547,7 @@ function stepSand(grid: Uint8Array, width: number, height: number) {
       "Double Buffering vermeidet Lese-/Schreibkonflikte und verdoppelt den Zustandsbedarf.",
       "Zufällige Diagonalwahl wirkt natürlich, erschwert ohne seedbaren RNG die Reproduktion.",
     ],
-    note: "GPU-Optimierung lohnt sich erst, wenn Update-Reihenfolge, Konfliktauflösung und Randregeln als Referenz auf der CPU feststehen.",
+    note: "Der geprüfte Kern erhält Partikel und nutzt Snapshot-Updates. Vollständige WebGL-Simulation, Wasser und Chunk-Synchronisation bleiben spätere Integrationen.",
     source: "packages/webgl-sand-engine/src",
     related: ["webgl-shader-factory", "random"],
   },
@@ -1998,10 +2559,14 @@ function stepSand(grid: Uint8Array, width: number, height: number) {
     maturity: "partial",
     featured: false,
     tags: ["WebGL", "GLSL", "resource lifecycle"],
-    summary: "Kompiliert GLSL-Quelltext, verknüpft ein Programm und löst dessen Uniform- sowie Attributpositionen auf.",
-    problem: "WebGL liefert Kompilier- und Linkfehler erst zur Laufzeit; Boilerplate und vergessene Ressourcenfreigabe machen Shader-Setup fehleranfällig.",
-    mentalModel: "Vertex- und Fragmentshader werden separat kompiliert, zu einem Programm gelinkt, validiert und mit explizitem dispose-Lebenszyklus zurückgegeben.",
-    repositoryImplementation: "Die Factory kompiliert, linkt, liest Uniforms/Attribute und aktiviert das Programm. Teilweise gefüllte Maps werden als vollständig gecastet, Fehlerpfade und eine dispose-Methode löschen Shader beziehungsweise Programme jedoch nicht zuverlässig.",
+    summary:
+      "Verwaltet Shader-Kompilierung, Linking, benötigte Locations und idempotente Freigabe.",
+    problem:
+      "WebGL liefert Kompilier- und Linkfehler erst zur Laufzeit; Boilerplate und vergessene Ressourcenfreigabe machen Shader-Setup fehleranfällig.",
+    mentalModel:
+      "Vertex- und Fragmentshader werden separat kompiliert, zu einem Programm gelinkt, validiert und mit explizitem dispose-Lebenszyklus zurückgegeben.",
+    repositoryImplementation:
+      "Verwaltet Shader-Kompilierung, Linking, benötigte Locations und idempotente Freigabe. Unit-Tests verwenden einen deterministischen WebGL-Mock. Browserspezifische Treiber und Context-Wiederherstellung benötigen Integrationstests.",
     flow: [
       "Shader je Stufe erzeugen, Source setzen, kompilieren und Status prüfen.",
       "Nur erfolgreiche Shader an ein Programm hängen und Linkstatus validieren.",
@@ -2009,12 +2574,23 @@ function stepSand(grid: Uint8Array, width: number, height: number) {
       "Shader nach dem Linken löschen und das Programm beim dispose freigeben.",
     ],
     api: [
-      { name: "createShader", description: "Kompiliert GLSL und liefert eine wiederverwendbare Programmhülle." },
-      { name: "uniforms / attributes", description: "Typisierte Maps der angeforderten WebGL-Locations." },
-      { name: "use", description: "Aktiviert das gelinkte Programm im aktuellen Context." },
+      {
+        name: "createShader",
+        description:
+          "Kompiliert GLSL und liefert eine wiederverwendbare Programmhülle.",
+      },
+      {
+        name: "uniforms / attributes",
+        description: "Typisierte Maps der angeforderten WebGL-Locations.",
+      },
+      {
+        name: "use",
+        description: "Aktiviert das gelinkte Programm im aktuellen Context.",
+      },
     ],
     build: {
-      intro: "Eine kleine Compile-Funktion braucht vor allem vollständige Fehlerpfade und Resource Cleanup.",
+      intro:
+        "Eine kleine Compile-Funktion braucht vor allem vollständige Fehlerpfade und Resource Cleanup.",
       steps: [
         "Shader erzeugen und bei fehlender Allokation sofort abbrechen.",
         "Compile-Status prüfen und Log vor dem Löschen sichern.",
@@ -2043,7 +2619,7 @@ function stepSand(grid: Uint8Array, width: number, height: number) {
       "Generische Typmaps bieten Komfort, garantieren ohne Laufzeitprüfung keine tatsächliche GLSL-Schnittstelle.",
       "Programmcaching spart Compilezeit und benötigt Context-Verlust- sowie Invalidierungslogik.",
     ],
-    note: "WebGL-Ressourcen gehören zum Context. Behandle contextlost und dispose als Teil der öffentlichen API.",
+    note: "Unit-Tests verwenden einen deterministischen WebGL-Mock. Browserspezifische Treiber und Context-Wiederherstellung benötigen Integrationstests.",
     source: "packages/webgl-shader-factory/src",
     related: ["webgl-sand-engine", "random"],
   },
@@ -2055,10 +2631,14 @@ function stepSand(grid: Uint8Array, width: number, height: number) {
     maturity: "prototype",
     featured: true,
     tags: ["worker_threads", "parallelism", "backpressure"],
-    summary: "Verteilt serialisierbare CPU-Aufgaben auf eine feste Zahl langlebiger Node.js-Worker.",
-    problem: "CPU-intensive Funktionen blockieren den Event Loop; pro Aufgabe einen neuen Thread zu starten ist jedoch teuer und braucht keine kontrollierte Warteschlange.",
-    mentalModel: "Der Main Thread sendet nur Daten plus Task-ID. Worker besitzen vorinstallierte Handler, führen einen Auftrag aus und antworten mit Resultat oder serialisiertem Fehler.",
-    repositoryImplementation: "WorkerPool nutzt worker_threads, initialisiert Worker doppelt und versucht Funktionen per postMessage zu klonen, was DataCloneError auslöst. Falsy Resultate lösen Promises nicht auf, Worker gelten gleichzeitig als frei und beschäftigt, und destroy beendet Wartende nicht vollständig.",
+    summary:
+      "Führt vertrauenswürdige eigenständige Funktionen auf begrenzten Workern mit Timeout-Erholung aus.",
+    problem:
+      "CPU-intensive Funktionen blockieren den Event Loop; pro Aufgabe einen neuen Thread zu starten ist jedoch teuer und braucht keine kontrollierte Warteschlange.",
+    mentalModel:
+      "Der Main Thread sendet nur Daten plus Task-ID. Worker besitzen vorinstallierte Handler, führen einen Auftrag aus und antworten mit Resultat oder serialisiertem Fehler.",
+    repositoryImplementation:
+      "Führt vertrauenswürdige eigenständige Funktionen auf begrenzten Workern mit Timeout-Erholung aus. Funktionsquellcode kann keine Closures übernehmen und darf nie unvertrauenswürdig sein. Vorinstallierte Handler-Registries und Transferables sind mögliche Erweiterungen.",
     flow: [
       "Worker einmal starten und auf ready warten.",
       "Task-ID, registrierten Handlernamen und klonbare Payload in eine FIFO-Queue legen.",
@@ -2067,12 +2647,24 @@ function stepSand(grid: Uint8Array, width: number, height: number) {
       "Bei Exit laufende Task ablehnen und Worker je nach Shutdown-Status ersetzen.",
     ],
     api: [
-      { name: "WorkerPool", description: "Experimenteller Pool auf Node.js worker_threads." },
-      { name: "runTask", description: "Soll Arbeit einreihen und das Workerresultat zurückliefern." },
-      { name: "destroy", description: "Beendet Worker; Queue- und Promise-Cleanup sind derzeit lückenhaft." },
+      {
+        name: "WorkerPool",
+        description: "Experimenteller Pool auf Node.js worker_threads.",
+      },
+      {
+        name: "runTask",
+        description:
+          "Soll Arbeit einreihen und das Workerresultat zurückliefern.",
+      },
+      {
+        name: "destroy",
+        description:
+          "Beendet Worker; Queue- und Promise-Cleanup sind derzeit lückenhaft.",
+      },
     ],
     build: {
-      intro: "Sende keine Funktionen. Der Worker lädt ein festes Registry-Modul und akzeptiert nur Taskname plus strukturklonbare Daten.",
+      intro:
+        "Sende keine Funktionen. Der Worker lädt ein festes Registry-Modul und akzeptiert nur Taskname plus strukturklonbare Daten.",
       steps: [
         "Gemeinsames Message-Protokoll mit id, task, payload, result und error definieren.",
         "Worker-seitig erlaubte Handler in einer Registry auflösen.",
@@ -2101,8 +2693,12 @@ parentPort?.on("message", async ({ id, task, payload }) => {
       "Eine Handler-Registry ist sicher und serialisierbar, aber weniger dynamisch als Funktionsübergabe.",
       "Große Payloads kosten Structured-Clone-Zeit; Transferables können Kopien vermeiden.",
     ],
-    note: "Ein Worker-Pool braucht Backpressure. Begrenze Queue-Länge oder dokumentiere klar, wann neue Aufgaben abgewiesen werden.",
+    note: "Funktionsquellcode kann keine Closures übernehmen und darf nie unvertrauenswürdig sein. Vorinstallierte Handler-Registries und Transferables sind mögliche Erweiterungen.",
     source: "packages/worker-pool/src",
     related: ["task-manager", "priority-queue"],
   },
 ];
+
+export const modules = sourceModules.map((module) =>
+  applyEvidence(module, "de"),
+);

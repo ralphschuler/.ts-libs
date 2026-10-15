@@ -1,57 +1,55 @@
-import * as net from "net";
-import { EventEmitter } from "events";
-import { KeyPairEncryption } from "./KeyPairEncryption.js";
-import { PeerInfo } from "./types/index.js";
+import { createConnection, Socket } from "node:net";
+import { EventEmitter } from "node:events";
+import type { KeyPairEncryption } from "./KeyPairEncryption.js";
+import type { PeerInfo } from "./types/index.js";
+import { encodeFrame, FrameDecoder } from "./framing.js";
 
+/** Plain framed TCP experiment. Encryption requires a separately designed trust protocol. */
 export class Peer extends EventEmitter {
-  private socket: net.Socket | null = null;
-  public info: PeerInfo;
-  private keyPairEncryption: KeyPairEncryption;
-
-  constructor(info: PeerInfo, keyPairEncryption: KeyPairEncryption) {
+  private socket: Socket | null = null;
+  constructor(
+    public readonly info: PeerInfo,
+    _keyPairEncryption?: KeyPairEncryption,
+  ) {
     super();
-    this.info = info;
-    this.keyPairEncryption = keyPairEncryption;
   }
-
-  public connect(): void {
-    if (this.socket) {
-      console.log("Already connected to peer.");
-      return;
-    }
-
-    this.socket = net.createConnection(
-      { host: this.info.hostname, port: this.info.port },
-      () => {
-        this.emit("connected");
-      },
-    );
-
-    this.socket.on("close", () => {
+  async connect(): Promise<void> {
+    if (this.socket) throw new Error("Peer is already connected");
+    const socket = createConnection({
+      host: this.info.hostname,
+      port: this.info.port,
+    });
+    this.socket = socket;
+    const decoder = new FrameDecoder();
+    socket.on("data", (chunk) => {
+      try {
+        for (const frame of decoder.read(chunk)) this.emit("data", frame);
+      } catch (error) {
+        this.emit("peerError", error);
+        socket.destroy();
+      }
+    });
+    socket.on("close", () => {
+      this.socket = null;
       this.emit("close");
     });
-
-    this.socket.on("error", (err) => {
-      this.emit("error", err);
+    socket.on("error", (error) => this.emit("peerError", error));
+    await new Promise<void>((resolve, reject) => {
+      socket.once("error", reject);
+      socket.once("connect", () => {
+        socket.off("error", reject);
+        this.emit("connected");
+        resolve();
+      });
     });
   }
-
-  public disconnect(): void {
-    this.socket?.end();
+  disconnect(): void {
+    this.socket?.destroy();
+    this.socket = null;
   }
-
-  public send(data: Buffer): void {
-    if (!this.socket) {
-      console.log("Cannot send data, not connected to peer.");
-      return;
-    }
-
-    const signedData = this.keyPairEncryption.sign(data);
-    const encryptedData = this.keyPairEncryption.encrypt(
-      data,
-      this.info.publicKey,
-    );
-
-    this.socket.write(encryptedData);
+  send(data: Buffer): boolean {
+    if (!this.socket || this.socket.connecting || this.socket.destroyed)
+      throw new Error("Peer is not connected");
+    return this.socket.write(encodeFrame(data));
   }
 }

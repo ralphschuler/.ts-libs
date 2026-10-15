@@ -1,13 +1,11 @@
 import "reflect-metadata";
 
-type PropertyTypeMap = Record<string, Record<string, string>>;
-type MethodTypeMap = Record<string, Record<string, Function>>;
-
 export function ConfigProperty(type: string, defaultValue: any) {
   return function (target: any, propertyKey: any): void {
     const constructor = target.constructor;
-    const properties =
-      Reflect.getMetadata("configProperties", constructor) || new Map();
+    const properties = new Map(
+      Reflect.getMetadata("configProperties", constructor) || [],
+    );
     properties.set(propertyKey, { type, defaultValue });
     Reflect.defineMetadata("configProperties", properties, constructor);
   };
@@ -16,8 +14,9 @@ export function ConfigProperty(type: string, defaultValue: any) {
 export function InterfaceMethod() {
   return function (target: any, propertyKey: any): void {
     const constructor = target.constructor;
-    const methods =
-      Reflect.getMetadata("interfaceMethods", constructor) || new Map();
+    const methods = new Map(
+      Reflect.getMetadata("interfaceMethods", constructor) || [],
+    );
     methods.set(propertyKey, target[propertyKey as keyof typeof target]);
     Reflect.defineMetadata("interfaceMethods", methods, constructor);
   };
@@ -27,7 +26,6 @@ function validateAndFreezeConfig(
   config: UnifiedConfig<any>,
   mixins: Function[],
 ) {
-  Object.freeze(config);
   mixins.forEach((Mixin) => {
     const className = Mixin.name;
     const expectedConfig: Map<string, any> =
@@ -59,10 +57,43 @@ export async function createClass<T extends Array<new (config: any) => any>>(
 ): Promise<new (config: UnifiedConfig<T>) => any> {
   return class {
     constructor(config: UnifiedConfig<T>) {
-      validateAndFreezeConfig(config, mixins);
+      const resolved = { ...config };
       for (const Mixin of mixins) {
-        const mixinInstance = new Mixin(config);
-        Object.assign(this, mixinInstance);
+        const properties: Map<string, any> =
+          Reflect.getMetadata("configProperties", Mixin) || new Map();
+        for (const [key, value] of properties)
+          if ((resolved as any)[key] === undefined)
+            (resolved as any)[key] = value.defaultValue;
+      }
+      validateAndFreezeConfig(resolved, mixins);
+      Object.freeze(resolved);
+      for (const Mixin of mixins) {
+        const mixinInstance = new Mixin(resolved);
+        for (const key of Reflect.ownKeys(mixinInstance)) {
+          if (Object.hasOwn(this, key))
+            throw new Error("Mixin member collision: " + String(key));
+          Object.defineProperty(
+            this,
+            key,
+            Object.getOwnPropertyDescriptor(mixinInstance, key)!,
+          );
+        }
+        for (
+          let prototype = Mixin.prototype;
+          prototype && prototype !== Object.prototype;
+          prototype = Object.getPrototypeOf(prototype)
+        ) {
+          for (const key of Reflect.ownKeys(prototype)) {
+            if (key === "constructor") continue;
+            if (Object.hasOwn(this, key))
+              throw new Error("Mixin member collision: " + String(key));
+            Object.defineProperty(
+              this,
+              key,
+              Object.getOwnPropertyDescriptor(prototype, key)!,
+            );
+          }
+        }
       }
     }
   };

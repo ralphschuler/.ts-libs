@@ -32,6 +32,7 @@ export class StateMachine<
     >
   >;
   private observers: StateChangedObserver<States, Payloads>[] = [];
+  private pending: Promise<unknown> = Promise.resolve();
   private subMachineInstances: Record<string, StateMachine<any, any, any>> = {};
 
   /**
@@ -125,6 +126,19 @@ export class StateMachine<
       | InferEventsFromSubMachine<IStateMachine<any, any, any>>,
     payload?: Payloads[keyof States],
   ): Promise<IStateMachine<States, Events, Payloads>> {
+    const operation = this.pending.then(() =>
+      this.performTransition(event, payload),
+    );
+    this.pending = operation.catch(() => {});
+    return operation;
+  }
+
+  private async performTransition(
+    event:
+      | keyof Events
+      | InferEventsFromSubMachine<IStateMachine<any, any, any>>,
+    payload?: Payloads[keyof States],
+  ): Promise<IStateMachine<States, Events, Payloads>> {
     try {
       const stateConfig = this.config[this.currentState];
       const transitionConfig = stateConfig?.on && stateConfig?.on[event];
@@ -133,7 +147,7 @@ export class StateMachine<
         return this;
       }
 
-      if (transitionConfig.guard && !transitionConfig.guard(payload)) {
+      if (transitionConfig.guard && !(await transitionConfig.guard(payload))) {
         if (stateConfig.onError) {
           await stateConfig.onError(payload);
         }
@@ -141,33 +155,21 @@ export class StateMachine<
       }
 
       const prevState = this.currentState;
-      this.currentState = transitionConfig.target as keyof States;
-
       if (prevState && stateConfig.onExit) {
         await stateConfig.onExit(payload);
       }
 
-      if (stateConfig.onEntry) {
-        await stateConfig.onEntry(payload);
-      }
-
-      let transitionResponse: any;
       if (transitionConfig.action) {
-        transitionResponse = await transitionConfig.action(payload);
+        await transitionConfig.action(payload);
       }
+      this.currentState = transitionConfig.target as keyof States;
+      await this.config[this.currentState]?.onEntry?.(payload);
 
       this.notifyObservers(this.currentState, prevState, payload);
 
       // Handle sub-machine transitions
       if (stateConfig.subMachine) {
         await stateConfig.subMachine.transition(event, payload);
-      }
-
-      if (transitionConfig.action) {
-        return await this.transition(
-          transitionConfig.target,
-          transitionResponse,
-        );
       }
 
       return this;
@@ -181,8 +183,13 @@ export class StateMachine<
    * Registers an observer for state changes.
    * @param observer The observer function.
    */
-  public subscribe(observer: StateChangedObserver<States, Payloads>): void {
+  public subscribe(
+    observer: StateChangedObserver<States, Payloads>,
+  ): () => void {
     this.observers.push(observer);
+    return () => {
+      this.observers = this.observers.filter((entry) => entry !== observer);
+    };
   }
 
   /**
@@ -190,7 +197,7 @@ export class StateMachine<
    * @returns True if the current state is terminal, false otherwise.
    */
   public isInEndState(): boolean {
-    return this.config[this.currentState]?.on?.default?.target === undefined;
+    return Object.keys(this.config[this.currentState]?.on || {}).length === 0;
   }
 
   /**

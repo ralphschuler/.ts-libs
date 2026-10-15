@@ -6,4 +6,5 @@ export type DNSTypeMap = {
   NS: { data: string };
   SRV: { priority: number; weight: number; port: number; target: string };
   TXT: { data: string };
+  ANY: never;
 };

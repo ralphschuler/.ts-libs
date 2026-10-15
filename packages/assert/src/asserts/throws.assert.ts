@@ -11,8 +11,8 @@ export function throws(
 ): void {
   try {
     block();
-    assert(false, message);
   } catch {
-    assert(true);
+    return;
   }
+  assert(false, message);
 }

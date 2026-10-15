@@ -27,7 +27,7 @@ export interface IStateMachine<
    * Registers an observer for state changes.
    * @param observer The observer function.
    */
-  subscribe(observer: StateChangedObserver<States, Payloads>): void;
+  subscribe(observer: StateChangedObserver<States, Payloads>): () => void;
 
   /**
    * Checks if the current state is a terminal state.

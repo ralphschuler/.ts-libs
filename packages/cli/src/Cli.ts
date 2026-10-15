@@ -1,3 +1,1 @@
-export class Cli {
-  
-}
+export { Cli } from "./index.js";

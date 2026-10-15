@@ -1,133 +1,133 @@
 import OpenAI from "openai";
-import {
+import { MessageRole } from "./types/Message.js";
+import type {
   Message,
   MessageContent,
-  MessageRole,
   MessageSender,
 } from "./types/Message.js";
-import { AIFunction, AIFunctionCall } from "./types/AIFunction.js";
-
-/**
- * A class for calling AI functions and managing interactions.
- * @example
- * ```ts
- * import { AIFunctionCaller } from "@withorbit/ai-function-caller";
- * import { AIFunction } from "@withorbit/ai-function-caller";
- *
- * const functions: AIFunction<any>[] = [
- *  {
- *   name: "add",
- *   method: async (args: any) => {
- *   return args.a + args.b;
- *  }
- * ];
- *
- * const aiFunctionCaller = new AIFunctionCaller(functions);
- * const response = await aiFunctionCaller.query("What is 2 + 2?");
- * console.log(response); // 4
- * ```
- */
+import type { AIFunction, AIFunctionCall } from "./types/AIFunction.js";
+export interface AIFunctionCallerOptions {
+  client?: Pick<OpenAI, "chat">;
+  model?: string;
+  maxSteps?: number;
+}
 export class AIFunctionCaller {
-  public messages: Message[] = [];
-  public functions: AIFunction<any>[];
-  private openai: OpenAI;
-
-  /**
-   * Constructs an AIFunctionCaller instance.
-   * @param functions - Array of AI functions.
-   * @param initialMessages - Initial set of messages, defaults to an empty array.
-   */
-  constructor(functions: AIFunction<any>[], initialMessages: Message[] = []) {
-    this.functions = functions;
-    this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    this.messages = initialMessages;
+  public readonly messages: Message[];
+  public readonly functions: AIFunction<any>[];
+  private readonly client: Pick<OpenAI, "chat">;
+  private readonly history: OpenAI.Chat.Completions.ChatCompletionMessageParam[];
+  private readonly model: string;
+  private readonly maxSteps: number;
+  private busy = false;
+  constructor(
+    functions: AIFunction<any>[],
+    initialMessages: Message[] = [],
+    options: AIFunctionCallerOptions = {},
+  ) {
+    if (new Set(functions.map((fn) => fn.name)).size !== functions.length)
+      throw new Error("Duplicate function name");
+    this.functions = [...functions];
+    this.messages = initialMessages.map((message) => ({ ...message }));
+    this.history = this.messages.map((message) => ({
+      ...message,
+      content: message.content ?? "",
+    })) as OpenAI.Chat.Completions.ChatCompletionMessageParam[];
+    this.client =
+      options.client ?? new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    this.model = options.model ?? "gpt-4.1-mini";
+    this.maxSteps = options.maxSteps ?? 6;
+    if (
+      !Number.isInteger(this.maxSteps) ||
+      this.maxSteps < 1 ||
+      this.maxSteps > 100
+    )
+      throw new RangeError("maxSteps must be between 1 and 100");
   }
-
-  /**
-   * Logs a message to the message array.
-   * @param message - The message to log.
-   * @example
-   */
-  private logMessage(message: Message): void {
-    this.messages.push(message);
-  }
-
-  /**
-   * Executes the AI model and returns the response.
-   * @returns A Promise resolving to MessageContent or AIFunctionCall.
-   */
-  private async executeAIModel(): Promise<MessageContent | AIFunctionCall> {
-    const response: any = await this.openai.chat.completions.create({
-      model: "gpt-4-0613",
-      messages: this.messages,
-      functions: this.functions,
-      function_call: "auto",
-    });
-    return response.choices[0].message;
-  }
-
-  /**
-   * Processes an AI function call and returns the response.
-   * @param aiFunctionCall - The AI function call to process.
-   * @returns A Promise resolving to MessageContent or AIFunctionCall.
-   */
-  private async processAiFunctionCall(
-    aiFunctionCall: AIFunctionCall,
-  ): Promise<MessageContent | AIFunctionCall> {
-    const { name, arguments: args } = aiFunctionCall;
-    const { method } = this.functions.find(
-      (f) => f.name === name,
-    ) as AIFunction<any>;
-    const functionResponse = await method(args);
-    return this.processMessage(
-      "Function",
-      MessageRole.Function,
-      functionResponse,
-    );
-  }
-
-  /**
-   * Processes a message, logs it, and returns the AI model's response.
-   * @param sender - The sender of the message.
-   * @param role - The role of the message sender.
-   * @param content - The content of the message.
-   * @returns A Promise resolving to MessageContent or AIFunctionCall.
-   */
-  private async processMessage(
-    sender: MessageSender,
-    role: MessageRole,
-    content: MessageContent | AIFunctionCall,
-  ): Promise<MessageContent | AIFunctionCall> {
-    this.logMessage({ role, name: sender, content: String(content) });
-    const modelResponse = await this.executeAIModel();
-    this.logMessage({
-      role: MessageRole.Assistant,
-      name: "Assistant",
-      content: String(modelResponse),
-    });
-    return modelResponse;
-  }
-
-  /**
-   * Processes a user query and returns the response.
-   * @param userMessage - The user message to process.
-   * @returns A Promise resolving to the response.
-   * @example
-   * ```ts
-   * const response = await aiFunctionCaller.query("What is 2 + 2?");
-   * console.log(response); // 4
-   * ```
-   */
-  public async query(userMessage: string): Promise<any> {
-    return await this.processMessage("User", MessageRole.User, userMessage);
+  async query(userMessage: string, signal?: AbortSignal): Promise<string> {
+    if (this.busy) throw new Error("A query is already active");
+    if (this.history.length > 200)
+      throw new Error("Conversation limit reached");
+    this.busy = true;
+    const checkpoint = this.history.length;
+    this.history.push({ role: "user", content: userMessage });
+    try {
+      for (let step = 0; step < this.maxSteps; step++) {
+        signal?.throwIfAborted();
+        const response = await this.client.chat.completions.create(
+          {
+            model: this.model,
+            messages: this.history,
+            functions: this.functions.map(
+              ({ name, description, parameters }) => ({
+                name,
+                description,
+                parameters,
+              }),
+            ),
+            function_call: "auto",
+          },
+          { signal },
+        );
+        const message = response.choices[0]?.message;
+        if (!message) throw new Error("The model returned no completion");
+        this.history.push({
+          role: "assistant",
+          content: message.content,
+          function_call: message.function_call,
+        });
+        if (!message.function_call) {
+          const content = message.content ?? "";
+          this.messages.push(
+            { role: MessageRole.User, name: "User", content: userMessage },
+            { role: MessageRole.Assistant, name: "Assistant", content },
+          );
+          return content;
+        }
+        const call = message.function_call;
+        const fn = this.functions.find((entry) => entry.name === call.name);
+        if (!fn) throw new Error("Unknown function: " + call.name);
+        if (call.arguments.length > 1_000_000)
+          throw new Error("Function arguments exceed size limit");
+        const args: unknown = JSON.parse(call.arguments);
+        if (!args || typeof args !== "object" || Array.isArray(args))
+          throw new TypeError("Function arguments must be an object");
+        const values = args as Record<string, unknown>;
+        for (const key of fn.parameters.required)
+          if (!Object.hasOwn(values, key))
+            throw new TypeError("Missing argument: " + key);
+        for (const [key, value] of Object.entries(values)) {
+          const schema = fn.parameters.properties[key];
+          if (!schema) throw new TypeError("Unknown argument: " + key);
+          if (
+            schema.type === "integer"
+              ? !Number.isInteger(value)
+              : schema.type === "object"
+                ? !value || typeof value !== "object" || Array.isArray(value)
+                : typeof value !== schema.type
+          )
+            throw new TypeError("Invalid argument: " + key);
+        }
+        signal?.throwIfAborted();
+        const result = await fn.method(call.arguments);
+        const content = JSON.stringify(result) ?? "null";
+        if (content.length > 1_000_000)
+          throw new Error("Function result exceeds size limit");
+        this.history.push({ role: "function", name: fn.name, content });
+      }
+      throw new Error("Tool-call limit reached");
+    } catch (error) {
+      this.history.length = checkpoint;
+      throw error;
+    } finally {
+      this.busy = false;
+    }
   }
 }
-
-export {
+export { MessageRole };
+export type {
   AIFunction,
   AIFunctionCall,
   Message,
   MessageContent,
-  MessageRole,
   MessageSender,
 };

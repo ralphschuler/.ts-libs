@@ -4,7 +4,7 @@ import { ColorMap } from "./ColorMap.js";
 
 export class Color {
   public colorize(text: string, color: ColorName): string {
-    return `${ColorMap[color]}${text}${c.reset("")}`;
+    return `${ColorMap[color]}${text}${ColorMap.reset}`;
   }
 
   public toIColor(): IColor {

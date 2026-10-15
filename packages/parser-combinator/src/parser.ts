@@ -17,7 +17,11 @@ const createParserState = <D>(
     dataView = new DataView(target);
     inputType = InputTypes.ARRAY_BUFFER;
   } else if (isTypedArray(target)) {
-    dataView = new DataView(target.buffer);
+    dataView = new DataView(
+      target.buffer,
+      target.byteOffset,
+      target.byteLength,
+    );
     inputType = InputTypes.TYPED_ARRAY;
   } else if (target instanceof DataView) {
     dataView = target;

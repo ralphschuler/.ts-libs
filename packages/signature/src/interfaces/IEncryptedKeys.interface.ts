@@ -1,4 +1,9 @@
 export interface IEncryptedKeys {
-  privateKey: string;
+  privateKey: {
+    ciphertext: string;
+    iv: string;
+    salt: string;
+    tag: string;
+  };
   publicKey: string;
 }

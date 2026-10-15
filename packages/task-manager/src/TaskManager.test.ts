@@ -24,4 +24,36 @@ describe("TaskManager", async () => {
     assert.strictEqual(results[2], 30);
     assert.strictEqual(results[3], 40);
   });
+
+  it("runs a higher-priority queued task before lower-priority work", async () => {
+    const manager = new TaskManager(1);
+    const order: string[] = [];
+    const gate = new Promise<void>((resolve) => setTimeout(resolve, 10));
+    const first = manager.addTask(async () => {
+      await gate;
+      order.push("first");
+      return "first";
+    });
+    const low = manager.addTask(async () => {
+      order.push("low");
+      return "low";
+    }, 1);
+    const high = manager.addTask(async () => {
+      order.push("high");
+      return "high";
+    }, 10);
+
+    await Promise.all([first, low, high]);
+    assert.deepStrictEqual(order, ["first", "high", "low"]);
+    manager.destroy();
+  });
+
+  it("rejects queued work when destroyed", async () => {
+    const manager = new TaskManager(1);
+    const first = manager.addTask(async () => new Promise<void>(() => {}));
+    const queued = manager.addTask(async () => "never");
+    manager.destroy();
+    await assert.rejects(queued, /stopped/);
+    void first.catch(() => {});
+  });
 });

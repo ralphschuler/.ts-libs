@@ -1,74 +1,40 @@
 import { PseudoRandomNumberGenerator } from "../PseudoRandomNumberGenerator.js";
 import { Seed } from "../Seed.js";
-import { Buffer } from "node:buffer";
-
+/** Additive lagged Fibonacci sequence modulo 2^32, for simulation only. */
 export class LaggedFibonacci extends PseudoRandomNumberGenerator {
-  private size: number;
-  private j: number;
-  private k: number;
-  private s: Buffer[];
-  private index: number;
-
-  constructor(seed: Seed, size: number = 100, j: number = 24, k: number = 55) {
+  private readonly values: Uint32Array;
+  private index = 0;
+  constructor(
+    seed: Seed,
+    private readonly size = 100,
+    private readonly j = 24,
+    private readonly k = 55,
+  ) {
     super(seed);
-    this.size = size;
-    this.j = j;
-    this.k = k;
-    this.index = 0;
-    this.s = Array.from({ length: size }, (_, i) => {
-      const seedHex = this.seed.toString("hex");
-      const seedBigInt = seedHex ? BigInt(`0x${seedHex}`) : 0n;
-      return Buffer.from((seedBigInt + BigInt(i + 1)).toString(16), "hex");
-    });
-    this.initializeSeedArray();
+    if (
+      !Number.isInteger(size) ||
+      !Number.isInteger(j) ||
+      !Number.isInteger(k) ||
+      j < 1 ||
+      k < 1 ||
+      j >= size ||
+      k >= size
+    )
+      throw new RangeError(
+        "Lags must be positive integers smaller than the state size",
+      );
+    const generator = new PseudoRandomNumberGenerator(seed);
+    this.values = Uint32Array.from({ length: size }, () =>
+      Math.floor(generator.nextFloat() * 4294967296),
+    );
   }
-
-  private initializeSeedArray(): void {
-    try {
-      for (let i = 0; i < this.size; i++) {
-        this.s[i] = Buffer.from(
-          (this.nextFloat() * 0xffffffff).toString(16),
-          "hex",
-        );
-      }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw new Error(
-          `[LaggedFibonacci] Error initializing seed array: ${error.message}`,
-        );
-      } else {
-        throw error;
-      }
-    }
-  }
-
-  public nextFloat(): number {
-    try {
-      const m = 2n ** 32n;
-
-      const sjHex =
-        this.s[(this.index - this.j + this.size) % this.size].toString("hex");
-      const skHex =
-        this.s[(this.index - this.k + this.size) % this.size].toString("hex");
-
-      // Ensure the hexadecimal representation is not empty
-      const sj = sjHex ? BigInt(`0x${sjHex}`) : 0n;
-      const sk = skHex ? BigInt(`0x${skHex}`) : 0n;
-
-      const newSeedBigInt = (sj + sk) % m;
-
-      this.s[this.index] = Buffer.from(newSeedBigInt.toString(16), "hex");
-      this.index = (this.index + 1) % this.size;
-
-      return Number(newSeedBigInt) / Number(m);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw new Error(
-          `[LaggedFibonacci] Error generating random number: ${error.message}`,
-        );
-      } else {
-        throw error;
-      }
-    }
+  nextFloat(): number {
+    const value =
+      (this.values[(this.index - this.j + this.size) % this.size] +
+        this.values[(this.index - this.k + this.size) % this.size]) >>>
+      0;
+    this.values[this.index] = value;
+    this.index = (this.index + 1) % this.size;
+    return value / 4294967296;
   }
 }

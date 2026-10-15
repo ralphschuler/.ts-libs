@@ -1,7 +1,5 @@
 import { MongoClient, Collection } from "mongodb";
 import { AbstractPriorityQueue } from "./AbstractPriorityQueue.js";
-import { ComparatorFunction } from "./types/ComparatorFunction.js";
-import { Optional } from "./types/Optional.js";
 import { PriorityQueueOptions } from "./types/PriorityQueueOptions.js";
 
 export class MongoDBPriorityQueue<
@@ -13,15 +11,20 @@ export class MongoDBPriorityQueue<
 
   constructor(
     options: PriorityQueueOptions<T>,
-    dbName: string,
-    collectionName: string,
+    private readonly dbName: string,
+    private readonly collectionName: string,
+    collection?: Collection,
   ) {
     super(options);
-    this.initDB(dbName, collectionName);
+    this.collection = collection;
   }
 
-  protected async initDB(dbName: string, collectionName: string) {
-    this.client = new MongoClient("mongodb://localhost:27017");
+  public async initDB(
+    dbName = this.dbName,
+    collectionName = this.collectionName,
+    uri = "mongodb://localhost:27017",
+  ) {
+    this.client = new MongoClient(uri);
     await this.client.connect();
     const db = this.client.db(dbName);
     this.collection = db.collection(collectionName);
@@ -31,17 +34,13 @@ export class MongoDBPriorityQueue<
     if (!this.collection) {
       throw new Error("Database is not initialized.");
     }
-
-    if (!this.client) {
-      throw new Error("Database is not initialized.");
-    }
   }
 
   protected async getEntry(index: number): Promise<T | null> {
     this.isDBInitialized();
     const result = await this.collection!.findOne({ index });
     this._length = await this.collection!.countDocuments();
-    return result?.value || null;
+    return result?.value ?? null;
   }
 
   protected async setEntry(index: number, value: T | null): Promise<void> {
@@ -67,5 +66,12 @@ export class MongoDBPriorityQueue<
   public async clear(): Promise<void> {
     this.isDBInitialized();
     await this.collection!.deleteMany({});
+    this._length = 0;
+  }
+
+  public async destroy(): Promise<void> {
+    await this.client?.close();
+    this.client = undefined;
+    this.collection = undefined;
   }
 }

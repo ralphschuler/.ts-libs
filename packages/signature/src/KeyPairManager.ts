@@ -1,4 +1,4 @@
-import crypto from "node:crypto";
+import { generateKeyPairSync } from "node:crypto";
 import { IKeyPair, IEncryptedKeys } from "./interfaces/index.js";
 import { NoKeyPairGeneratedError, UnknownKeyIdError } from "./errors/index.js";
 import { KeyPairEncryption } from "./KeyPairEncryption.js";
@@ -40,20 +40,10 @@ export class KeyPairManager {
   }
 
   public async createNewKeyPair(keyId: string): Promise<void> {
-    const keyPair = await crypto.subtle.generateKey(
-      {
-        name: "RSA-PSS",
-        modulusLength: 4096,
-        publicExponent: new Uint8Array([1, 0, 1]),
-        hash: "SHA-256",
-      },
-      true,
-      ["sign", "verify"],
-    );
-
-    const publicKey = keyPair.publicKey;
-    const privateKey = keyPair.privateKey;
-
+    const { privateKey, publicKey } = generateKeyPairSync("rsa", {
+      modulusLength: 2048,
+      publicExponent: 0x10001,
+    });
     this.keyIdToKeyPairMap.set(keyId, { privateKey, publicKey });
   }
 

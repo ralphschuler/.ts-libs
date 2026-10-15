@@ -63,7 +63,7 @@ describe("StateMachine", async () => {
     const observer = (
       state: keyof ExampleStates,
       previousState: keyof ExampleStates,
-      payload: ExamplePayloads[keyof ExamplePayloads],
+      _payload?: ExamplePayloads[keyof ExamplePayloads],
     ) => {
       assert.notStrictEqual(state, previousState);
     };
@@ -259,7 +259,7 @@ describe("StateMachine", async () => {
     >("IDLE", errorStateConfig);
 
     await stateMachine.transition("START");
-    assert.strictEqual(stateMachine.getCurrentState(), "PROCESS");
+    assert.strictEqual(stateMachine.getCurrentState(), "IDLE");
 
     await stateMachine.transition("UNKOWN_EVENT");
     assert.notStrictEqual(stateMachine.getCurrentState(), "UNKOWN");

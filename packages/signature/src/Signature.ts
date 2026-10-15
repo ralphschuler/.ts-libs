@@ -4,24 +4,19 @@ import {
 } from "./interfaces/index.js";
 import { PayloadSigner } from "./PayloadSigner.js";
 import { KeyPairManager } from "./KeyPairManager.js";
+import { UnknownKeyIdError } from "./errors/index.js";
 
 export class Signature<T extends ISerializableSignaturePayload> {
   private keyPairManager: KeyPairManager;
 
   constructor() {
     this.keyPairManager = new KeyPairManager();
-    this.keyPairManager
-      .createNewKeyPair("key-1")
-      .then(() =>
-        this.keyPairManager
-          .createNewKeyPair("key-2")
-          .then(() => this.keyPairManager.createNewKeyPair("key-3")),
-      );
+    void this.keyPairManager.createNewKeyPair("key-1");
   }
 
   public async signData(
     payload: T,
-    hashAlgorithm: string = "RSA-PSS",
+    hashAlgorithm = "RSA-SHA256",
   ): Promise<ISignature<T>> {
     this.keyPairManager.validateKeyPairExistence();
     const keyId = this.keyPairManager.rotateToNextKeyId();
@@ -53,9 +48,13 @@ export class Signature<T extends ISerializableSignaturePayload> {
 
   public async verifySignature(signedPayload: ISignature<T>): Promise<boolean> {
     this.keyPairManager.validateKeyPairExistence();
-    const keyPair = this.keyPairManager.findKeyPairById(
-      signedPayload.header.keyId,
-    );
+    let keyPair;
+    try {
+      keyPair = this.keyPairManager.findKeyPairById(signedPayload.header.keyId);
+    } catch (error) {
+      if (error instanceof UnknownKeyIdError) return false;
+      throw error;
+    }
 
     if (!keyPair) return false;
 

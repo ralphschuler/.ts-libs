@@ -1,99 +1,74 @@
 import { IEncryptedKeys } from "./interfaces/index.js";
-import { Buffer } from "node:buffer";
-import crypto, { CryptoKey } from "node:crypto";
+import {
+  createCipheriv,
+  createDecipheriv,
+  randomBytes,
+  scryptSync,
+  createPrivateKey,
+  createPublicKey,
+  KeyObject,
+} from "node:crypto";
 
 export class KeyPairEncryption {
   static async encrypt(
-    privateKey: CryptoKey,
-    publicKey: CryptoKey,
+    privateKey: KeyObject,
+    publicKey: KeyObject,
     passphrase: string,
   ): Promise<IEncryptedKeys> {
-    const privateKeyData = await crypto.subtle.exportKey("pkcs8", privateKey);
-    const publicKeyData = await crypto.subtle.exportKey("spki", publicKey);
-
-    const passphraseBuffer = Buffer.from(passphrase, "utf-8");
-    const passphraseKey = await crypto.subtle.importKey(
-      "raw",
-      passphraseBuffer,
-      "PBKDF2",
-      false,
-      ["deriveKey"],
-    );
-
-    const iv = crypto.getRandomValues(new Uint8Array(16));
-    const derivedKey = await crypto.subtle.deriveKey(
-      { name: "PBKDF2", salt: iv, iterations: 10000, hash: "SHA-256" },
-      passphraseKey,
-      { name: "AES-CBC", length: 256 },
-      false,
-      ["encrypt"],
-    );
-
-    const encryptedPrivateKey = await crypto.subtle.encrypt(
-      { name: "AES-CBC", iv: iv },
-      derivedKey,
-      privateKeyData,
-    );
+    const salt = randomBytes(16);
+    const iv = randomBytes(12);
+    const key = scryptSync(passphrase, salt, 32);
+    const cipher = createCipheriv("aes-256-gcm", key, iv);
+    const encryptedPrivateKey = Buffer.concat([
+      cipher.update(privateKey.export({ type: "pkcs8", format: "der" })),
+      cipher.final(),
+    ]);
 
     return {
       privateKey: {
-        data: encryptedPrivateKey,
-        iv: iv,
+        ciphertext: encryptedPrivateKey.toString("base64"),
+        iv: iv.toString("base64"),
+        salt: salt.toString("base64"),
+        tag: cipher.getAuthTag().toString("base64"),
       },
-      publicKey: publicKeyData,
+      publicKey: publicKey
+        .export({ type: "spki", format: "der" })
+        .toString("base64"),
     };
   }
 
   static async decrypt(
     encryptedKeys: IEncryptedKeys,
     passphrase: string,
-  ): Promise<{ privateKey: CryptoKey; publicKey: CryptoKey }> {
+  ): Promise<{ privateKey: KeyObject; publicKey: KeyObject }> {
     const { privateKey, publicKey } = encryptedKeys;
 
-    const passphraseBuffer = Buffer.from(passphrase, "utf-8");
-    const passphraseKey = await crypto.subtle.importKey(
-      "raw",
-      passphraseBuffer,
-      "PBKDF2",
-      false,
-      ["deriveKey"],
+    const key = scryptSync(
+      passphrase,
+      Buffer.from(privateKey.salt, "base64"),
+      32,
     );
-
-    const derivedKey = await crypto.subtle.deriveKey(
-      {
-        name: "PBKDF2",
-        salt: privateKey.iv,
-        iterations: 10000,
-        hash: "SHA-256",
-      },
-      passphraseKey,
-      { name: "AES-CBC", length: 256 },
-      false,
-      ["decrypt"],
+    const decipher = createDecipheriv(
+      "aes-256-gcm",
+      key,
+      Buffer.from(privateKey.iv, "base64"),
     );
-
-    const decryptedPrivateKeyData = await crypto.subtle.decrypt(
-      { name: "AES-CBC", iv: privateKey.iv },
-      derivedKey,
-      privateKey.data,
-    );
-
-    const decryptedPrivateKey = await crypto.subtle.importKey(
-      "pkcs8",
-      decryptedPrivateKeyData,
-      { name: "RSA-PSS", hash: "SHA-256" }, // Changed to RSA-OAEP
-      false,
-      ["sign"],
-    );
-
-    const decryptedPublicKey = await crypto.subtle.importKey(
-      "spki",
-      publicKey,
-      { name: "RSA-PSS", hash: "SHA-256" }, // Changed to RSA-OAEP
-      false,
-      ["verify"],
-    );
-
-    return { privateKey: decryptedPrivateKey, publicKey: decryptedPublicKey };
+    decipher.setAuthTag(Buffer.from(privateKey.tag, "base64"));
+    const privateDer = Buffer.concat([
+      decipher.update(Buffer.from(privateKey.ciphertext, "base64")),
+      decipher.final(),
+    ]);
+    return {
+      privateKey: createPrivateKey({
+        key: privateDer,
+        format: "der",
+        type: "pkcs8",
+      }),
+      publicKey: createPublicKey({
+        key: Buffer.from(publicKey, "base64"),
+        format: "der",
+        type: "spki",
+      }),
+    };
   }
 }

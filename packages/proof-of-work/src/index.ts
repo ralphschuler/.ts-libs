@@ -1,29 +1,32 @@
-import { SHA256 } from "crypto-js";
+import { createHash } from "node:crypto";
+import { setImmediate } from "node:timers/promises";
 
-class ProofOfWork {
+/** A deliberately small proof-of-work primitive for demonstrations and tests. */
+export class ProofOfWork {
   private static hash(data: string, nonce: number): string {
-    return SHA256(data + nonce).toString();
+    return createHash("sha256")
+      .update(JSON.stringify([data, nonce]))
+      .digest("hex");
   }
 
   public static async mine(
     data: string,
     difficulty: number,
-    prefix: string = "0",
+    prefix = "0",
+    signal?: AbortSignal,
   ): Promise<[number, string]> {
-    if (difficulty < 0) {
-      throw new Error("Difficulty must be a non-negative number.");
-    }
-
-    let nonce = 0;
-    let hash: string;
+    this.validateDifficulty(difficulty, prefix);
     const target = prefix.repeat(difficulty);
-
-    do {
-      nonce++;
-      hash = this.hash(data, nonce);
-    } while (!hash.startsWith(target));
-
-    return [nonce, hash];
+    for (let nonce = 1; ; nonce += 1) {
+      if (signal?.aborted) {
+        const error = new Error("Proof-of-work mining was aborted");
+        error.name = "AbortError";
+        throw signal.reason ?? error;
+      }
+      const hash = this.hash(data, nonce);
+      if (hash.startsWith(target)) return [nonce, hash];
+      if (nonce % 1_000 === 0) await setImmediate();
+    }
   }
 
   public static validate(
@@ -31,31 +34,27 @@ class ProofOfWork {
     nonce: number,
     difficulty: number,
     hash: string,
-    prefix: string = "0",
+    prefix = "0",
   ): boolean {
-    if (difficulty < 0) {
-      throw new Error("Difficulty must be a non-negative number.");
-    }
+    this.validateDifficulty(difficulty, prefix);
+    return (
+      Number.isSafeInteger(nonce) &&
+      nonce >= 0 &&
+      this.hash(data, nonce) === hash &&
+      hash.startsWith(prefix.repeat(difficulty))
+    );
+  }
 
-    const validHash = this.hash(data, nonce);
-    return validHash === hash && hash.startsWith(prefix.repeat(difficulty));
+  private static validateDifficulty(difficulty: number, prefix: string): void {
+    if (
+      !Number.isInteger(difficulty) ||
+      difficulty < 0 ||
+      !/^[0-9a-f]+$/.test(prefix) ||
+      difficulty * prefix.length > 64
+    ) {
+      throw new RangeError(
+        "difficulty must be a non-negative integer and prefix must not be empty",
+      );
+    }
   }
 }
-
-// Example usage
-(async () => {
-  try {
-    const data = "Hello, Proof of Work!";
-    const difficulty = 4; // Number of leading zeroes required in the hash
-    const [nonce, hash] = await ProofOfWork.mine(data, difficulty);
-
-    console.log(`Nonce: ${nonce}`);
-    console.log(`Hash: ${hash}`);
-
-    // Validate the proof of work
-    const isValid = ProofOfWork.validate(data, nonce, difficulty, hash);
-    console.log(`Is valid: ${isValid}`);
-  } catch (error) {
-    console.error(error);
-  }
-})();

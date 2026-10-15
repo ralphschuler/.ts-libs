@@ -1,13 +1,12 @@
-import { describe, it } from 'node:test'
-import assert from 'node:assert/strict'
-import { SimpleObservable } from './SimpleObservable';
-import { map } from './operators/map';
-import { filter } from './operators/filter';
-import { done } from './operators/done';
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
+import { SimpleObservable } from "./SimpleObservable.js";
+import { map } from "./operators/map.js";
+import { filter } from "./operators/filter.js";
 
-describe('SimpleObservable', () => {
-  it('should handle error and propagate to subscribers', (done) => {
-    const errorMessage = 'Test error';
+describe("SimpleObservable", () => {
+  it("should handle error and propagate to subscribers", () => {
+    const errorMessage = "Test error";
     const observable = new SimpleObservable<number>((observer) => {
       observer.error(errorMessage);
       return { unsubscribe: () => {} };
@@ -15,18 +14,18 @@ describe('SimpleObservable', () => {
 
     observable.subscribe({
       next: () => {
-        done.fail('Next should not be called');
+        assert.fail("Next should not be called");
       },
       error: (error) => {
         assert.strictEqual(error, errorMessage);
       },
       complete: () => {
-        done.fail('Complete should not be called');
+        assert.fail("Complete should not be called");
       },
     });
   });
 
-  it('should handle operator transformations', (done) => {
+  it("should handle operator transformations", () => {
     const observable = new SimpleObservable<number>((observer) => {
       observer.next(1);
       observer.next(2);
@@ -37,13 +36,16 @@ describe('SimpleObservable', () => {
 
     const expectedValues = [6];
     observable
-      .pipe(map((val) => val * 2), filter((val) => val % 3 === 0))
+      .pipe(
+        map((val) => val * 2),
+        filter((val) => val % 3 === 0),
+      )
       .subscribe({
         next: (value) => {
           assert.strictEqual(value, expectedValues.shift());
         },
         error: (error) => {
-          done.fail('Error should not occur: ' + error);
+          assert.fail("Error should not occur: " + error);
         },
         complete: () => {
           assert.strictEqual(expectedValues.length, 0);
@@ -51,9 +53,9 @@ describe('SimpleObservable', () => {
       });
   });
 
-  it('should unsubscribe from operator chain', () => {
+  it("should unsubscribe from operator chain", () => {
     let unsubscribeCalled = false;
-    const subscription = new SimpleObservable<number>((observer) => {
+    const subscription = new SimpleObservable<number>((_observer) => {
       return { unsubscribe: () => (unsubscribeCalled = true) };
     })
       .pipe(map((val) => val))
@@ -63,7 +65,7 @@ describe('SimpleObservable', () => {
     assert.strictEqual(unsubscribeCalled, true);
   });
 
-  it('should handle combination of operators', (done) => {
+  it("should handle combination of operators", () => {
     const observable = new SimpleObservable<number>((observer) => {
       observer.next(1);
       observer.next(2);
@@ -77,14 +79,14 @@ describe('SimpleObservable', () => {
       .pipe(
         map((val) => val * 2),
         filter((val) => val % 3 === 0),
-        map((val) => val + 1)
+        map((val) => val + 1),
       )
       .subscribe({
         next: (value) => {
           assert.strictEqual(value, expectedValues.shift());
         },
         error: (error) => {
-          done.fail('Error should not occur: ' + error);
+          assert.fail("Error should not occur: " + error);
         },
         complete: () => {
           assert.strictEqual(expectedValues.length, 0);
@@ -92,7 +94,7 @@ describe('SimpleObservable', () => {
       });
   });
 
-  it('should handle complex operator chains', (done) => {
+  it("should handle complex operator chains", () => {
     const observable = new SimpleObservable<number>((observer) => {
       observer.next(1);
       observer.next(2);
@@ -107,14 +109,14 @@ describe('SimpleObservable', () => {
         map((val) => val * 2),
         filter((val) => val % 2 === 0),
         map((val) => val - 1),
-        filter((val) => val > 2)
+        filter((val) => val > 2),
       )
       .subscribe({
         next: (value) => {
           assert.strictEqual(value, expectedValues.shift());
         },
         error: (error) => {
-          done.fail('Error should not occur: ' + error);
+          assert.fail("Error should not occur: " + error);
         },
         complete: () => {
           assert.strictEqual(expectedValues.length, 0);
