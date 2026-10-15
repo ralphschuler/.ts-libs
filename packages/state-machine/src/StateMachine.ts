@@ -52,17 +52,7 @@ export class StateMachine<
     >,
   ) {
     this.currentState = initialState;
-    this.config =
-      config ||
-      ({} as Record<
-        keyof States,
-        IStateConfig<
-          States,
-          Events,
-          Payloads,
-          InferEventsFromSubMachine<IStateMachine<any, any, any>>
-        >
-      >);
+    this.config = Object.assign(Object.create(null), config);
   }
 
   /**
@@ -93,17 +83,28 @@ export class StateMachine<
     Payloads
   > {
     try {
-      Object.assign(this.config, {
-        [from]: Object.assign(this.config[from] || {}, {
-          on: Object.assign(this.config[from]?.on || {}, {
-            [event]: Object.assign(this.config[from]?.on?.[event] || {}, {
+      const state = this.config[from];
+      const existing =
+        state?.on && Object.hasOwn(state.on, event)
+          ? state.on[event]
+          : undefined;
+      Object.defineProperty(this.config, from, {
+        enumerable: true,
+        configurable: true,
+        writable: true,
+        value: {
+          ...state,
+          on: {
+            ...state?.on,
+            [event]: {
+              ...existing,
               target: to,
               action,
               guard,
               subMachine,
-            }),
-          }),
-        }),
+            },
+          },
+        },
       });
 
       return this;
@@ -138,7 +139,10 @@ export class StateMachine<
   ): Promise<IStateMachine<States, Events, Payloads>> {
     try {
       const stateConfig = this.config[this.currentState];
-      const transitionConfig = stateConfig?.on && stateConfig?.on[event];
+      const transitionConfig =
+        stateConfig?.on && Object.hasOwn(stateConfig.on, event)
+          ? stateConfig.on[event]
+          : undefined;
 
       if (!transitionConfig) {
         return this;

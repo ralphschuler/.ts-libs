@@ -33,7 +33,10 @@ it("preserves odd-length hex seeds and reproduces each deterministic strategy", 
     assert.ok(new Set(sequence).size > 1);
   }
   const secure = new Fortuna(new Seed(0));
-  assert.ok(secure.nextFloat() < 1);
+  for (let index = 0; index < 1000; index++) {
+    const value = secure.nextFloat();
+    assert.ok(Number.isFinite(value) && value >= 0 && value < 1);
+  }
   assert.throws(() => secure.addEvent(Buffer.from("event")), /unsupported/);
 });
 it("normalizes arbitrary selection weights and never selects zero-weight items", () => {

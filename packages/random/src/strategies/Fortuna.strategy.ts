@@ -15,6 +15,12 @@ export class Fortuna extends PseudoRandomNumberGenerator {
     );
   }
   nextFloat(): number {
-    return randomBytes(4).readUInt32LE() / 4294967296;
+    // A fixed exponent and 52 uniformly random mantissa bits represent [1, 2).
+    // Subtracting one gives an exact uniform grid in [0, 1), without modulo
+    // reduction, rounding, or an inclusive upper endpoint.
+    const bits = randomBytes(8);
+    bits[7] = 0x3f;
+    bits[6] = (bits[6] & 0x0f) | 0xf0;
+    return bits.readDoubleLE() - 1;
   }
 }
