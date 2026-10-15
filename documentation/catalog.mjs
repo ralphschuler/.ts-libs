@@ -499,8 +499,7 @@ const u32: Codec<number> = {
     maturity: "stub",
     featured: false,
     tags: ["argv", "commands", "middleware"],
-    summary:
-      "Verarbeitet validierte argv-Befehle mit abgewarteter Middleware.",
+    summary: "Verarbeitet validierte argv-Befehle mit abgewarteter Middleware.",
     problem:
       "Eine CLI braucht einen deterministischen Parser, typisierte Wertkonvertierung, verständliche Fehler, Help-Ausgabe und einen klaren Übergang zum Command-Handler.",
     mentalModel:

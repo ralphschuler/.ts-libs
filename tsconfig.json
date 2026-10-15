@@ -1,7 +1,9 @@
 {
   "extends": "./tsconfig.build.json",
   "compilerOptions": {
-    "baseUrl": "./"
+    "baseUrl": "./",
+    "lib": ["ESNext", "DOM"]
   },
-  "include": ["packages/**/*.ts", "@types/**/*.ts"]
+  "include": ["packages/**/*.ts"],
+  "exclude": ["node_modules", "packages/*/dist", "packages/*/docs", ".pages"]
 }

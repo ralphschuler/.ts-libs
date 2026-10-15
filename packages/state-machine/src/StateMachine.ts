@@ -19,8 +19,7 @@ export class StateMachine<
   States extends Record<keyof States, any>,
   Events extends Record<keyof Events, any>,
   Payloads extends Merge<[States, Events]>,
-> implements IStateMachine<States, Events, Payloads>
-{
+> implements IStateMachine<States, Events, Payloads> {
   private currentState: keyof States;
   private config: Record<
     keyof States,
@@ -122,8 +121,7 @@ export class StateMachine<
    */
   public async transition(
     event:
-      | keyof Events
-      | InferEventsFromSubMachine<IStateMachine<any, any, any>>,
+      keyof Events | InferEventsFromSubMachine<IStateMachine<any, any, any>>,
     payload?: Payloads[keyof States],
   ): Promise<IStateMachine<States, Events, Payloads>> {
     const operation = this.pending.then(() =>
@@ -135,8 +133,7 @@ export class StateMachine<
 
   private async performTransition(
     event:
-      | keyof Events
-      | InferEventsFromSubMachine<IStateMachine<any, any, any>>,
+      keyof Events | InferEventsFromSubMachine<IStateMachine<any, any, any>>,
     payload?: Payloads[keyof States],
   ): Promise<IStateMachine<States, Events, Payloads>> {
     try {

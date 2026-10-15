@@ -14,7 +14,7 @@ Every experiment stays visible. A concept explains an idea; a working experiment
 Use Node.js 24 and the pinned Yarn version from package.json. The repository includes its Yarn cache.
 
 ```sh
-npm install --global corepack@0.34.0
+npm install --global corepack@0.36.0
 corepack enable
 yarn install --immutable --immutable-cache
 yarn check
@@ -52,7 +52,12 @@ yarn test:imports
 yarn test:examples
 yarn docs:site
 yarn docs:check
+yarn security:check
 ```
+
+`yarn security:check` audits direct and transitive dependencies across every workspace against the public npm advisory database. CI runs this check as well.
+
+The optional API references can be generated in HTML and Markdown with `yarn docs:all`. They complement the bilingual handbook with documentation extracted from the actual public exports.
 
 To check the website in Chromium or Chrome:
 

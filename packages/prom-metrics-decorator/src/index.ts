@@ -8,7 +8,7 @@ import {
   HistogramConfiguration,
   SummaryConfiguration,
   Metric,
-} from "prom-client";
+} from "@prometheus-io/client";
 export enum TrackOption {
   Calls = "calls",
   Value = "value",

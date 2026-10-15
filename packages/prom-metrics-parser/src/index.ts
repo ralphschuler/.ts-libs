@@ -1,9 +1,5 @@
 export type MetricType =
-  | "counter"
-  | "gauge"
-  | "histogram"
-  | "summary"
-  | "untyped";
+  "counter" | "gauge" | "histogram" | "summary" | "untyped";
 export interface Sample {
   name: string;
   labels: Record<string, string>;

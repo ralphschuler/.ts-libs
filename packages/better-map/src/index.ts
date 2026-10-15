@@ -32,9 +32,9 @@ export class BetterMap<k, v> extends Map<k, v> {
   }
 
   /**
-   * Maps the map by a predicate.
-   * @param predicate - The predicate to map by.
-   * @returns A new map with the mapped values.
+   * Merges entries into this map, resolving duplicate keys.
+   * @param map - The entries to merge.
+   * @param resolve - Receives the key, current value, and incoming value.
    */
   merge(map: Map<k, v>, resolve: (k: k, a: v, b: v) => v = (k, a, b) => b) {
     const entries = Array.from(map.entries());

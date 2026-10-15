@@ -48,7 +48,7 @@ child.once("error", (error) => {
   process.exitCode = 1;
 });
 child.once("exit", (code, signal) => {
-  process.exitCode = signal ? 1 : code ?? 1;
+  process.exitCode = signal ? 1 : (code ?? 1);
 });
 for (const signal of ["SIGTERM", "SIGINT"])
   process.once(signal, () => child.kill(signal));

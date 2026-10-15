@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { it } from "node:test";
-import { register } from "prom-client";
+import { register } from "@prometheus-io/client";
 import { PromCounter, PromHistogram, PromGauge } from "./index.js";
 it("reuses counters and records async histogram observations", async () => {
   register.clear();

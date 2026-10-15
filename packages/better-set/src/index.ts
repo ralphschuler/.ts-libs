@@ -18,10 +18,8 @@ export class BetterSet<v> extends Set<v> {
   }
 
   /**
-   * Maps the set by a predicate.
-   * @param predicate - The predicate to map by.
-   * @returns A new set with the mapped values.
-   * @template v2 The type of the mapped values.
+   * Adds all values from another set to this set.
+   * @param set - The values to add.
    */
   merge(set: Set<v>) {
     const entries = Array.from(set.entries());
@@ -31,10 +29,9 @@ export class BetterSet<v> extends Set<v> {
   }
 
   /**
-   * Maps the set by a predicate.
-   * @param predicate - The predicate to map by.
-   * @returns A new set with the mapped values.
-   * @template v2 The type of the mapped values.
+   * Finds values in the argument that are absent from this set.
+   * @param set - The set to subtract this set from.
+   * @returns A new set containing argument-only values.
    */
   except(set: Set<v>) {
     const newSet = new Set<v>();
@@ -46,10 +43,9 @@ export class BetterSet<v> extends Set<v> {
   }
 
   /**
-   * Maps the set by a predicate.
-   * @param predicate - The predicate to map by.
-   * @returns A new set with the mapped values.
-   * @template v2 The type of the mapped values.
+   * Finds values shared by both sets.
+   * @param set - The set to intersect with this set.
+   * @returns A new set containing the shared values.
    */
   both(set: Set<v>) {
     const newSet = new Set<v>();

@@ -8,6 +8,8 @@ Run `yarn check`: lint → package builds → strict source/test/example typeche
 
 Run `yarn docs:browser` for real Chromium desktop/mobile checks of both languages. Screenshots are written under .artifacts/browser/.
 
+Run `yarn security:check` for the npm advisory audit of every workspace and its transitive dependencies. The updated lockfile passes without advisory exclusions. CI also builds the optional extracted HTML and Markdown API references with `yarn docs:all`.
+
 The CI gate fails for missing source exports, missing tests/examples, placeholder test scripts, import-time output/listening sockets/timers, broken examples, missing language pages, bad metadata, or broken local links.
 
 ## Per-package contracts

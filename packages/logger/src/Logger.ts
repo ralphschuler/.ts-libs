@@ -278,7 +278,7 @@ export class Logger {
 
   /**
    * Adds a breadcrumb to the logger's history.
-   * @param crum - The breadcrumb to be added.
+   * @param crumb - The breadcrumb to be added.
    */
   addBreadcrumb(crumb: string): void {
     this.breadcrumbs.push(crumb);

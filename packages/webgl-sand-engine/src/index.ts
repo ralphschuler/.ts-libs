@@ -113,8 +113,10 @@ interface IStateStorage<
 }
 
 // Specific State Storage Implementation for Simulation
-export interface ISimulationStateStorage
-  extends IStateStorage<IGrid, IStorageBackend<IGrid>> {}
+export interface ISimulationStateStorage extends IStateStorage<
+  IGrid,
+  IStorageBackend<IGrid>
+> {}
 
 // Neighbor Provider Interface
 interface INeighborProvider<ItemType> {
@@ -122,9 +124,9 @@ interface INeighborProvider<ItemType> {
 }
 
 // Generic Wrapper Class for Neighbor Provider
-export class NeighborProvider<ItemType extends { position: Vector2D }>
-  implements INeighborProvider<ItemType>
-{
+export class NeighborProvider<
+  ItemType extends { position: Vector2D },
+> implements INeighborProvider<ItemType> {
   private items: Array<ItemType>;
 
   constructor(items: Array<ItemType>) {

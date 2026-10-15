@@ -22,15 +22,19 @@ jobs:
         with:
           node-version: 24
       - name: Install pinned package-manager launcher
-        run: npm install --global corepack@0.34.0
+        run: npm install --global corepack@0.36.0
       - run: corepack enable
       - run: yarn install --immutable --immutable-cache
+      - name: Audit all workspace and transitive dependencies
+        run: yarn security:check
       - name: Lint, build, real tests, package imports, examples, and documentation
         run: yarn check
       - name: Check both languages in desktop and mobile browsers
         run: yarn docs:browser
         env:
           CHROME_PATH: google-chrome
+      - name: Build optional HTML and Markdown API references
+        run: yarn docs:all
       - name: Save browser review screenshots
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
