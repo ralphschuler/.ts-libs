@@ -2941,10 +2941,10 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["ejs", [\
-      ["npm:3.1.9", {\
-        "packageLocation": "./.yarn/cache/ejs-npm-3.1.9-e201b2088c-71f56d3754.zip/node_modules/ejs/",\
+      ["npm:3.1.10", {\
+        "packageLocation": "./.yarn/cache/ejs-npm-3.1.10-4e8cf4bdc1-a9cb7d7cd1.zip/node_modules/ejs/",\
         "packageDependencies": [\
-          ["ejs", "npm:3.1.9"],\
+          ["ejs", "npm:3.1.10"],\
           ["jake", "npm:10.8.7"]\
         ],\
         "linkType": "HARD"\
@@ -5210,7 +5210,7 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "./.yarn/cache/pkg-to-readme-npm-2.0.0-641076b2d4-db1dacc4c1.zip/node_modules/pkg-to-readme/",\
         "packageDependencies": [\
           ["pkg-to-readme", "npm:2.0.0"],\
-          ["ejs", "npm:3.1.9"],\
+          ["ejs", "npm:3.1.10"],\
           ["meow", "npm:12.1.1"],\
           ["read-pkg-up", "npm:10.1.0"]\
         ],\
