@@ -969,10 +969,10 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["@mongodb-js/saslprep", [\
-      ["npm:1.6.1", {\
-        "packageLocation": "./.yarn/cache/@mongodb-js-saslprep-npm-1.6.1-a152d06b70-d337b3dd60.zip/node_modules/@mongodb-js/saslprep/",\
+      ["npm:1.6.0", {\
+        "packageLocation": "./.yarn/cache/@mongodb-js-saslprep-npm-1.6.0-13d710cee9-071957d2a0.zip/node_modules/@mongodb-js/saslprep/",\
         "packageDependencies": [\
-          ["@mongodb-js/saslprep", "npm:1.6.1"],\
+          ["@mongodb-js/saslprep", "npm:1.6.0"],\
           ["sparse-bitfield", "npm:3.0.3"]\
         ],\
         "linkType": "HARD"\
@@ -1331,7 +1331,7 @@ const RAW_RUNTIME_STATE =
           ["eslint", "virtual:a03704a81a5912593467f3de880f2dfaa9b02e5f59aa3f76bd53205b8969ffe9691d04f5fa0dd8e0b25ed2d3bf09ab51a08abfd3d757d658885d98ad5e280f7f#npm:10.12.0"],\
           ["eslint-config-prettier", "virtual:a03704a81a5912593467f3de880f2dfaa9b02e5f59aa3f76bd53205b8969ffe9691d04f5fa0dd8e0b25ed2d3bf09ab51a08abfd3d757d658885d98ad5e280f7f#npm:10.1.8"],\
           ["eslint-plugin-prettier", "virtual:a03704a81a5912593467f3de880f2dfaa9b02e5f59aa3f76bd53205b8969ffe9691d04f5fa0dd8e0b25ed2d3bf09ab51a08abfd3d757d658885d98ad5e280f7f#npm:5.5.7"],\
-          ["mongodb", "virtual:c2117933491d04a20e2421414f0131a62261a4014f77588d614791f86943fba098da57c292e4cb599c33f34a525be19a5752a8c31463865f2d9959ce79ef19f9#npm:6.21.0"],\
+          ["mongodb", "virtual:c2117933491d04a20e2421414f0131a62261a4014f77588d614791f86943fba098da57c292e4cb599c33f34a525be19a5752a8c31463865f2d9959ce79ef19f9#npm:7.7.0"],\
           ["prettier", "npm:3.9.10"],\
           ["rimraf", "npm:6.1.3"],\
           ["typescript", "patch:typescript@npm%3A5.9.3#optional!builtin<compat/typescript>::version=5.9.3&hash=5786d5"]\
@@ -1972,11 +1972,11 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["@types/whatwg-url", [\
-      ["npm:11.0.4", {\
-        "packageLocation": "./.yarn/cache/@types-whatwg-url-npm-11.0.4-107eef93d8-5acd60dbd4.zip/node_modules/@types/whatwg-url/",\
+      ["npm:13.0.0", {\
+        "packageLocation": "./.yarn/cache/@types-whatwg-url-npm-13.0.0-608dd9833f-82018c7dc0.zip/node_modules/@types/whatwg-url/",\
         "packageDependencies": [\
           ["@types/webidl-conversions", "npm:7.0.3"],\
-          ["@types/whatwg-url", "npm:11.0.4"]\
+          ["@types/whatwg-url", "npm:13.0.0"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -2357,10 +2357,10 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["bson", [\
-      ["npm:6.10.4", {\
-        "packageLocation": "./.yarn/cache/bson-npm-6.10.4-954d1ea0b0-8a79a45221.zip/node_modules/bson/",\
+      ["npm:7.3.3", {\
+        "packageLocation": "./.yarn/cache/bson-npm-7.3.3-b0a3a3eaa8-27f9071457.zip/node_modules/bson/",\
         "packageDependencies": [\
-          ["bson", "npm:6.10.4"]\
+          ["bson", "npm:7.3.3"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -3430,18 +3430,18 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["mongodb", [\
-      ["npm:6.21.0", {\
-        "packageLocation": "./.yarn/cache/mongodb-npm-6.21.0-b6ecc01656-28d2cab1c5.zip/node_modules/mongodb/",\
+      ["npm:7.7.0", {\
+        "packageLocation": "./.yarn/cache/mongodb-npm-7.7.0-92c345b664-3c46927a22.zip/node_modules/mongodb/",\
         "packageDependencies": [\
-          ["mongodb", "npm:6.21.0"]\
+          ["mongodb", "npm:7.7.0"]\
         ],\
         "linkType": "SOFT"\
       }],\
-      ["virtual:c2117933491d04a20e2421414f0131a62261a4014f77588d614791f86943fba098da57c292e4cb599c33f34a525be19a5752a8c31463865f2d9959ce79ef19f9#npm:6.21.0", {\
-        "packageLocation": "./.yarn/__virtual__/mongodb-virtual-aeaad83fca/0/cache/mongodb-npm-6.21.0-b6ecc01656-28d2cab1c5.zip/node_modules/mongodb/",\
+      ["virtual:c2117933491d04a20e2421414f0131a62261a4014f77588d614791f86943fba098da57c292e4cb599c33f34a525be19a5752a8c31463865f2d9959ce79ef19f9#npm:7.7.0", {\
+        "packageLocation": "./.yarn/__virtual__/mongodb-virtual-651ef4be0f/0/cache/mongodb-npm-7.7.0-92c345b664-3c46927a22.zip/node_modules/mongodb/",\
         "packageDependencies": [\
           ["@aws-sdk/credential-providers", null],\
-          ["@mongodb-js/saslprep", "npm:1.6.1"],\
+          ["@mongodb-js/saslprep", "npm:1.6.0"],\
           ["@mongodb-js/zstd", null],\
           ["@types/aws-sdk__credential-providers", null],\
           ["@types/gcp-metadata", null],\
@@ -3450,12 +3450,12 @@ const RAW_RUNTIME_STATE =
           ["@types/mongodb-js__zstd", null],\
           ["@types/snappy", null],\
           ["@types/socks", null],\
-          ["bson", "npm:6.10.4"],\
+          ["bson", "npm:7.3.3"],\
           ["gcp-metadata", null],\
           ["kerberos", null],\
-          ["mongodb", "virtual:c2117933491d04a20e2421414f0131a62261a4014f77588d614791f86943fba098da57c292e4cb599c33f34a525be19a5752a8c31463865f2d9959ce79ef19f9#npm:6.21.0"],\
+          ["mongodb", "virtual:c2117933491d04a20e2421414f0131a62261a4014f77588d614791f86943fba098da57c292e4cb599c33f34a525be19a5752a8c31463865f2d9959ce79ef19f9#npm:7.7.0"],\
           ["mongodb-client-encryption", null],\
-          ["mongodb-connection-string-url", "npm:3.0.2"],\
+          ["mongodb-connection-string-url", "npm:7.0.2"],\
           ["snappy", null],\
           ["socks", null]\
         ],\
@@ -3479,11 +3479,11 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["mongodb-connection-string-url", [\
-      ["npm:3.0.2", {\
-        "packageLocation": "./.yarn/cache/mongodb-connection-string-url-npm-3.0.2-030549db4b-99ac939a67.zip/node_modules/mongodb-connection-string-url/",\
+      ["npm:7.0.2", {\
+        "packageLocation": "./.yarn/cache/mongodb-connection-string-url-npm-7.0.2-86d12b9ddc-19d01e7aa1.zip/node_modules/mongodb-connection-string-url/",\
         "packageDependencies": [\
-          ["@types/whatwg-url", "npm:11.0.4"],\
-          ["mongodb-connection-string-url", "npm:3.0.2"],\
+          ["@types/whatwg-url", "npm:13.0.0"],\
+          ["mongodb-connection-string-url", "npm:7.0.2"],\
           ["whatwg-url", "npm:14.2.0"]\
         ],\
         "linkType": "HARD"\
