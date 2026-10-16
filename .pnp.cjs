@@ -1022,7 +1022,7 @@ const RAW_RUNTIME_STATE =
           ["prettier", "npm:3.9.10"],\
           ["rimraf", "npm:6.1.3"],\
           ["typescript", "patch:typescript@npm%3A5.9.3#optional!builtin<compat/typescript>::version=5.9.3&hash=5786d5"],\
-          ["web-streams-polyfill", "npm:3.3.3"]\
+          ["web-streams-polyfill", "npm:4.3.0"]\
         ],\
         "linkType": "SOFT"\
       }]\
@@ -4180,10 +4180,10 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["web-streams-polyfill", [\
-      ["npm:3.3.3", {\
-        "packageLocation": "./.yarn/cache/web-streams-polyfill-npm-3.3.3-f24b9f8c34-8e7e13501b.zip/node_modules/web-streams-polyfill/",\
+      ["npm:4.3.0", {\
+        "packageLocation": "./.yarn/cache/web-streams-polyfill-npm-4.3.0-af45e185f2-70d1ac70d6.zip/node_modules/web-streams-polyfill/",\
         "packageDependencies": [\
-          ["web-streams-polyfill", "npm:3.3.3"]\
+          ["web-streams-polyfill", "npm:4.3.0"]\
         ],\
         "linkType": "HARD"\
       }]\

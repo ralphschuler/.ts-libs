@@ -21,7 +21,7 @@
     "prettier": "^3.0.3",
     "rimraf": "^6.1.3",
     "typescript": "^5.2.2",
-    "web-streams-polyfill": "^3.2.1"
+    "web-streams-polyfill": "^4.3.0"
   },
   "exports": {
     ".": {
