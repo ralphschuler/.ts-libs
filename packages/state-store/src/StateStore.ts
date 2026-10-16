@@ -20,7 +20,9 @@ export class StateStore<StateType extends StateProperties> {
    * @param state The initial state of the store.
    */
   constructor(state: StateType) {
-    this.state = state;
+    for (const key of Object.keys(state))
+      if (key in this) throw new Error("Reserved store property: " + key);
+    this.state = structuredClone(state);
     return this.createProxy();
   }
 
@@ -30,24 +32,49 @@ export class StateStore<StateType extends StateProperties> {
    */
   private createProxy(): StateStore<StateType> {
     return new Proxy(this, {
-      get: (target, property: string | symbol) =>
-        target.state[property as keyof StateType],
-      set: (target, property: string | symbol, value: unknown): boolean => {
-        if (typeof value === "function") {
-          target.listeners[property as keyof StateType] =
-            target.listeners[property as keyof StateType] || [];
-          target.listeners[property as keyof StateType]!.push(
-            value as Listener<StateType[keyof StateType]>,
-          );
-        } else {
-          target.updateState(
-            property as keyof StateType,
-            value as StateType[keyof StateType],
-          );
+      get: (target, property: string | symbol) => {
+        if (property in target) {
+          const value = Reflect.get(target, property);
+          return typeof value === "function" ? value.bind(target) : undefined;
         }
+        return structuredClone(target.state[property as keyof StateType]);
+      },
+      set: (target, property: string | symbol, value: unknown): boolean => {
+        if (property in target)
+          throw new Error("Reserved store property: " + String(property));
+        target.updateState(
+          property as keyof StateType,
+          value as StateType[keyof StateType],
+        );
         return true;
       },
     });
+  }
+
+  public snapshot(): StateType {
+    return structuredClone(this.state);
+  }
+
+  public set<PropertyKey extends keyof StateType>(
+    property: PropertyKey,
+    value: StateType[PropertyKey],
+  ): void {
+    if (property in this)
+      throw new Error("Reserved store property: " + String(property));
+    this.updateState(property, structuredClone(value));
+  }
+
+  public subscribe<PropertyKey extends keyof StateType>(
+    property: PropertyKey,
+    listener: Listener<StateType[PropertyKey]>,
+  ): () => void {
+    const listeners = (this.listeners[property] ||= []);
+    listeners.push(listener);
+    return () => {
+      this.listeners[property] = this.listeners[property]?.filter(
+        (entry) => entry !== listener,
+      );
+    };
   }
 
   /**
@@ -126,6 +153,8 @@ export class StateStore<StateType extends StateProperties> {
     property: PropertyKey,
     value: StateType[PropertyKey],
   ): void {
-    this.listeners[property]?.forEach((listener) => listener(value));
+    [...(this.listeners[property] || [])].forEach((listener) =>
+      listener(structuredClone(value)),
+    );
   }
 }

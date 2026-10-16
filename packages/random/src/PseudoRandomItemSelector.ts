@@ -31,7 +31,18 @@ export class PseudoRandomItemSelector<T extends ItemSymbol> {
     rngOrSeed?: ClassOrInstance<PseudoRandomNumberGenerator> | Seed,
     seed?: Seed,
   ) {
-    this.items = items;
+    if (
+      !items.length ||
+      items.some(
+        (item) =>
+          !Number.isFinite(item.weightPercentage) || item.weightPercentage < 0,
+      ) ||
+      items.every((item) => item.weightPercentage === 0)
+    )
+      throw new RangeError(
+        "Weights must be non-negative with a positive total",
+      );
+    this.items = items.map((item) => ({ ...item }));
 
     if (rngOrSeed instanceof PseudoRandomNumberGenerator) {
       this.rng = rngOrSeed;
@@ -43,7 +54,7 @@ export class PseudoRandomItemSelector<T extends ItemSymbol> {
     } else if (rngOrSeed) {
       this.rng = new PseudoRandomNumberGenerator(rngOrSeed);
     } else {
-      throw new Error("No RNG or seed provided");
+      this.rng = new PseudoRandomNumberGenerator(new Seed(0));
     }
 
     // Normalize the weights if total weight exceeds 100%
@@ -76,10 +87,12 @@ export class PseudoRandomItemSelector<T extends ItemSymbol> {
       weightPercentage: item.weightPercentage * normalizationFactor,
     }));
 
-    let random = this.rng.nextFloat() * 100; // As the normalized weights sum up to 100
+    let random =
+      this.rng.nextFloat() *
+      normalizedItems.reduce((sum, item) => sum + item.weightPercentage, 0);
     for (let i = 0; i < normalizedItems.length; i++) {
       random -= normalizedItems[i].weightPercentage;
-      if (random <= 0) {
+      if (random < 0) {
         return normalizedItems[i].value;
       }
     }

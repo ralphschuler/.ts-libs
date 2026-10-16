@@ -15,7 +15,7 @@ export class Logger {
   public static getInstance(
     outputFormat: string = "{timestamp} - {level} - {message}",
     level?: LogLevel,
-    stdout = process.stdout,
+    stdout: NodeJS.WriteStream = process.stdout,
   ): Logger {
     if (!Logger.instance) {
       Logger.instance = new Logger(outputFormat, level, stdout);
@@ -29,20 +29,24 @@ export class Logger {
    * @param outputFormat - The format for log messages.
    * @param level Optional - The log level to show
    */
-  private constructor(
+  public constructor(
     outputFormat: string = "{timestamp} - {level} - {message}",
     level?: LogLevel,
-    stdout = process.stdout,
+    stdout: NodeJS.WriteStream = process.stdout,
   ) {
     this.outputFormat = outputFormat;
     this.breadcrumbs = [];
     this.buffer = [];
     this.stdout = stdout;
+    const configured =
+      process.env.LOG_LEVEL === undefined
+        ? LogLevel.INFO
+        : Number(process.env.LOG_LEVEL);
     this.level =
-      level ||
-      (process.env.LOG_LEVEL !== undefined && parseInt(process.env.LOG_LEVEL))
-        ? (parseInt(process.env.LOG_LEVEL!) as LogLevel)
-        : LogLevel.DEBUG;
+      level ??
+      (Number.isInteger(configured) && configured >= -1 && configured <= 4
+        ? configured
+        : LogLevel.INFO);
   }
 
   /**
@@ -62,7 +66,6 @@ export class Logger {
    */
   private formatMessage(level: LogLevel, message: string, meta: any): string {
     let formattedMessage = this.outputFormat
-      .toLocaleLowerCase()
       .replace("{timestamp}", this.getCurrentTimestamp())
       .replace(
         "{level}",
@@ -113,8 +116,9 @@ export class Logger {
   private log(level: LogLevel, message: string, ...meta: any): IMessage | void {
     const formattedMessage = this.formatMessage(level, message, meta);
     this.breadcrumbs.push(formattedMessage);
+    if (this.breadcrumbs.length > 1000) this.breadcrumbs.shift();
 
-    if (level > this.level) {
+    if (level < this.level) {
       return;
     }
 
@@ -122,11 +126,16 @@ export class Logger {
   }
 
   public write(message: string): IMessage {
+    if (this.buffer.length >= 1000) this.buffer.shift();
     const maxRows = this.stdout.rows || 25;
     const messageObject: IMessage = {
       value: message,
       index: this.buffer.length,
       update: (newMessage: string): void => {
+        if (!this.stdout.isTTY) {
+          messageObject.value = newMessage;
+          return;
+        }
         if (messageObject.value === newMessage) {
           return;
         }
@@ -137,6 +146,7 @@ export class Logger {
         this.stdout.write(`${newMessage}`);
       },
       clear: (): void => {
+        if (!this.stdout.isTTY) return;
         const invertedIndex = this.buffer.length - messageObject.index;
         readline.cursorTo(this.stdout, 0, maxRows - invertedIndex);
         readline.clearLine(this.stdout, 1);
@@ -149,8 +159,10 @@ export class Logger {
     }));
     this.buffer.push(messageObject);
 
-    readline.cursorTo(this.stdout, 0, maxRows);
-    readline.clearLine(this.stdout, 1);
+    if (this.stdout.isTTY) {
+      readline.cursorTo(this.stdout, 0, maxRows);
+      readline.clearLine(this.stdout, 1);
+    }
     this.stdout.write(`\n${messageObject.value}`);
 
     return messageObject;
@@ -162,7 +174,7 @@ export class Logger {
    * @param method - The method to be profiled.
    * @returns A wrapped version of the method that profiles its execution time.
    */
-  async profile<Response extends any = void>(
+  async profile<Response = void>(
     method: Promise<Response>,
     name?: string,
   ): Promise<Response> {
@@ -180,21 +192,22 @@ export class Logger {
     });
   }
 
-  profileSync<Response extends any = void>(
+  profileSync<Response = void>(
     method: () => Response,
     name?: string,
   ): Response {
     const animation = new ProgressAnimation();
     animation.start(`Profiling sync method '${name || method.name}'`);
     const start = process.hrtime();
-    const result = method();
-    const elapsed = process.hrtime(start);
-    const elapsedMs = elapsed[0] * 1000 + elapsed[1] / 1e6;
-    const profileMessage = `Method '${
-      name || method.name
-    }' took ${elapsedMs.toFixed(4)}ms.`;
-    animation.stop(profileMessage);
-    return result;
+    try {
+      return method();
+    } finally {
+      const elapsed = process.hrtime(start);
+      const elapsedMs = elapsed[0] * 1000 + elapsed[1] / 1e6;
+      animation.stop(
+        `Method '${name || method.name}' took ${elapsedMs.toFixed(4)}ms.`,
+      );
+    }
   }
 
   /**
@@ -251,7 +264,6 @@ export class Logger {
   fatal(message: string, ...meta: any): void {
     this.showBreadcrumbs();
     this.log(LogLevel.FATAL, c.red(message), ...meta);
-    process.exit(1);
   }
 
   /**
@@ -266,18 +278,19 @@ export class Logger {
 
   /**
    * Adds a breadcrumb to the logger's history.
-   * @param crum - The breadcrumb to be added.
+   * @param crumb - The breadcrumb to be added.
    */
   addBreadcrumb(crumb: string): void {
     this.breadcrumbs.push(crumb);
+    if (this.breadcrumbs.length > 1000) this.breadcrumbs.shift();
   }
 
   /**
    * Displays the breadcrumbs stored in the logger's history.
    */
   showBreadcrumbs(): void {
-    this.breadcrumbs.forEach((breadcrumb, index) => {
-      this.trace(`${index + 1}. ${breadcrumb}`);
+    [...this.breadcrumbs].forEach((breadcrumb, index) => {
+      this.write(`${index + 1}. ${breadcrumb}`);
     });
   }
 }

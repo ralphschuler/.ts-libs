@@ -50,8 +50,11 @@ export abstract class AbstractPriorityQueue<T> {
   public async heapSort(): Promise<Array<T | null>> {
     try {
       const sorted: Array<T | null> = [];
+      for (let index = Math.floor(this.length / 2) - 1; index >= 0; index--) {
+        await this.bubbleDown(index);
+      }
 
-      for (let i = 0; i < this.length; i++) {
+      while (this.length > 0) {
         sorted.push(await this.dequeue());
       }
 

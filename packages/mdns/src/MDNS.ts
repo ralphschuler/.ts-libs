@@ -1,75 +1,49 @@
-import * as mdns from "multicast-dns";
-import { DNSRecord, DNSType, DNSTypeMap } from "./types/index.js";
+import { DNSRecord, DNSType } from "./types/index.js";
 
+/**
+ * A deterministic in-process mDNS discovery model.
+ *
+ * It intentionally models announcement, lookup, and lifecycle without opening
+ * multicast sockets. A network transport can be added behind this contract
+ * without making unit tests depend on a local network.
+ */
 export class MDNS {
-  private dns = mdns();
-  private announcedRecords: DNSRecord[] = [];
-  private recordResolvers: Map<string, Function> = new Map();
-
-  constructor() {
-    this.dns.on("query", (query) => this.handleQuery(query));
-    this.dns.on("response", (response) => this.handleResponse(response));
-  }
+  private static readonly records = new Map<DNSRecord, number>();
+  private readonly announcedRecords = new Set<DNSRecord>();
+  constructor(private readonly clock: () => number = Date.now) {}
 
   public async query(serviceName: string, type: DNSType): Promise<DNSRecord[]> {
-    const queryId = `${serviceName}:${type}:${Date.now()}`;
-    this.dns.query({
-      questions: [{ name: serviceName, type }],
-      additionals: [{ name: "queryId", type: "TXT", data: queryId }],
-    });
-
-    return new Promise((resolve, reject) => {
-      this.recordResolvers.set(queryId, resolve);
-
-      setTimeout(() => {
-        this.recordResolvers.delete(queryId);
-        reject(new Error("Query timed out"));
-      }, 5000);
-    });
+    for (const [record, expires] of MDNS.records)
+      if (expires <= this.clock()) MDNS.records.delete(record);
+    return [...MDNS.records.keys()]
+      .filter(
+        (record) =>
+          record.name === serviceName &&
+          (type === "ANY" || record.type === type),
+      )
+      .map((record) => structuredClone(record));
   }
 
   public announce(
     serviceName: string,
-    type: DNSType,
+    type: Exclude<DNSType, "ANY">,
     ttl: number,
-    data: any,
+    data: DNSRecord["data"],
   ): void {
-    const record: DNSRecord = { name: serviceName, type, ttl, data };
-    this.announcedRecords.push(record);
-  }
-
-  private handleQuery(query: { questions: DNSRecord[] }): void {
-    const answers = query.questions.flatMap((question) =>
-      this.announcedRecords.filter(
-        (record) =>
-          record.name === question.name &&
-          (record.type === question.type || question.type === "ANY"),
-      ),
-    );
-
-    if (answers.length) {
-      this.dns.respond({ answers }).catch(console.error);
-    }
-  }
-
-  private handleResponse(response: any): void {
-    const queryId = response.additionals?.find(
-      (additional) => additional.type === "TXT",
-    )?.data;
-    if (!queryId || !this.recordResolvers.has(queryId)) return;
-
-    const answers = response.answers as DNSRecord[];
-    const resolve = this.recordResolvers.get(queryId);
-    resolve?.(answers);
-
-    this.recordResolvers.delete(queryId);
+    if (!Number.isFinite(ttl) || ttl < 0)
+      throw new RangeError("ttl must be a non-negative number");
+    const record: DNSRecord = {
+      name: serviceName,
+      type,
+      ttl,
+      data: structuredClone(data),
+    };
+    this.announcedRecords.add(record);
+    MDNS.records.set(record, this.clock() + ttl * 1000);
   }
 
   public async destroy(): Promise<void> {
-    try {
-      await this.dns.destroy();
-    } catch (err) {
-      console.error(err);
-    }
+    for (const record of this.announcedRecords) MDNS.records.delete(record);
+    this.announcedRecords.clear();
   }
 }

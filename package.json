@@ -1,34 +1,35 @@
 {
   "name": "@ralphschuler/ts-libs",
-  "description": "A collection of useful TypeScript libraries",
+  "description": "A learning laboratory for TypeScript systems: 35 tested experiments and a bilingual concept handbook",
   "version": "0.0.0",
   "author": {
     "name": "Ralph Schuler",
     "email": "ralph.schuler@nyphon.de"
   },
   "bugs": {
-    "url": "https://github.com/ralphschuler/ts-libs/issues"
+    "url": "https://github.com/ralphschuler/.ts-libs/issues"
   },
   "devDependencies": {
-    "@commitlint/cli": "^18.4.3",
-    "@commitlint/config-conventional": "^18.4.3",
-    "@mxssfd/typedoc-theme": "^1.1.3",
+    "@commitlint/cli": "^21.2.3",
+    "@commitlint/config-conventional": "^21.2.3",
     "@types/is-ci": "^3",
-    "@types/license-checker": "^25",
-    "fixpack": "^4.0.0",
+    "@types/node": "^24.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.71.2",
+    "@typescript-eslint/parser": "^8.71.2",
+    "eslint": "^10.12.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.0.0",
     "husky": "^8.0.0",
     "is-ci": "^3.0.1",
-    "pkg-to-readme": "^2.0.0",
+    "prettier": "^3.0.3",
     "tsx": "^4.1.4",
-    "typedoc": "^0.25.3",
-    "typedoc-github-wiki-theme": "^1.1.0",
-    "typedoc-plugin-markdown": "^3.17.1",
-    "typedoc-plugin-mdn-links": "^3.1.5",
-    "typedoc-plugin-missing-exports": "^2.1.0",
-    "typedoc-plugin-rename-defaults": "^0.7.0",
+    "typedoc": "^0.28.20",
+    "typedoc-plugin-markdown": "^4.14.0",
+    "typedoc-plugin-mdn-links": "^5.1.1",
+    "typedoc-plugin-missing-exports": "^4.1.4",
     "typescript": "^5.3.3"
   },
-  "homepage": "https://ralphschuler.github.io/ts-libs/",
+  "homepage": "https://nyphon.de/.ts-libs/",
   "keywords": [
     "helpers",
     "library",
@@ -37,32 +38,41 @@
     "utils"
   ],
   "license": "MIT",
-  "main": "",
-  "packageManager": "yarn@4.1.1",
+  "packageManager": "yarn@4.18.1",
   "private": true,
   "scripts": {
-    "build": "yarn workspaces foreach -Apt run build",
-    "clean": "yarn workspaces foreach -Apt run clean",
-    "docs:all": "yarn docs:build; yarn docs:bundle:markdown && yarn docs:bundle:html",
-    "docs:build": "yarn workspaces foreach -Apt run docs",
-    "docs:bundle:html": "typedoc --out docs/html --plugin @mxssfd/typedoc-theme --theme my-theme --plugin typedoc-plugin-markdown --readme ./README.md --entryPointStrategy merge \"./**/docs/*.json\"",
-    "docs:bundle:markdown": "typedoc --plugin typedoc-plugin-markdown --plugin typedoc-github-wiki-theme --out docs/markdown --readme ./README.md --entryPointStrategy merge \"./**/docs/*.json\"",
-    "fixpack": "fixpack && yarn workspaces foreach -Apt run fixpack",
-    "format": "yarn workspaces foreach -Apt run format",
-    "format:fix": "yarn workspaces foreach -Apt run format:fix",
+    "build": "yarn workspaces foreach --all --exclude @ralphschuler/ts-libs --parallel --topological --jobs 2 run build",
+    "clean": "yarn workspaces foreach --all --exclude @ralphschuler/ts-libs --parallel --topological --jobs 2 run clean",
+    "docs:all": "yarn docs:build && node .github/scripts/prepare-api-documentation.mjs && yarn docs:bundle:markdown && yarn docs:bundle:html",
+    "docs:build": "yarn workspaces foreach --all --exclude @ralphschuler/ts-libs --parallel --topological --jobs 2 run docs",
+    "docs:bundle:html": "typedoc --out docs/html --readme ./README.md --entryPointStrategy merge \"./docs/projects/*.json\"",
+    "docs:bundle:markdown": "typedoc --plugin typedoc-plugin-markdown --out docs/markdown --readme ./README.md --entryPointStrategy merge \"./docs/projects/*.json\"",
+    "format": "prettier --check packages documentation .github/scripts",
+    "format:fix": "prettier --write packages documentation .github/scripts",
     "husky:install": "is-ci || husky install",
-    "license:report": "yarn workspaces foreach -Apt run license:report",
-    "lint": "yarn workspaces foreach -Apt run lint",
-    "lint:fix": "yarn workspaces foreach -Apt run lint:fix",
-    "lint:report": "yarn workspaces foreach -Apt run lint:report",
-    "prepare": "yarn husky:install && yarn workspaces foreach -Apt run prepare",
-    "prepublish": "yarn build",
-    "publish": "yarn workspaces foreach -Apt run publish",
-    "readme": "yarn readme:build && yarn workspaces foreach -Apt run readme:build",
-    "readme:build": "pkg-to-readme -f -t ./_readme.md",
-    "test": "yarn workspaces foreach -Apt run test"
+    "lint": "eslint packages --ext .ts",
+    "lint:fix": "yarn workspaces foreach --all --exclude @ralphschuler/ts-libs --parallel --topological --jobs 2 run lint:fix",
+    "lint:report": "yarn workspaces foreach --all --exclude @ralphschuler/ts-libs --parallel --topological --jobs 2 run lint:report",
+    "test": "node .github/scripts/run-tests.mjs",
+    "docs:site": "node .github/scripts/build-documentation.mjs",
+    "docs:check": "node .github/scripts/validate-documentation.mjs",
+    "test:imports": "node .github/scripts/verify-packages.mjs imports",
+    "test:examples": "node .github/scripts/verify-packages.mjs examples",
+    "typecheck": "tsc --noEmit",
+    "docs:browser": "node .github/scripts/test-documentation-browser.mjs",
+    "check": "yarn lint && yarn build && yarn typecheck && yarn test && yarn test:imports && yarn test:examples && yarn docs:site && yarn docs:check",
+    "license:report": "node .github/scripts/report-workspace-licenses.mjs",
+    "security:check": "yarn npm audit --all --recursive --severity low --no-deprecations"
   },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "dependenciesMeta": {
+    "esbuild": {
+      "built": true
+    }
+  }
 }

@@ -1,0 +1,30 @@
+name: Bug report
+description: Report incorrect behavior in an experiment or the documentation.
+labels: ["bug"]
+body:
+  - type: input
+    id: module
+    attributes:
+      label: Module or documentation URL
+      placeholder: "@ralphschuler/priority-queue or https://nyphon.de/.ts-libs/en/..."
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction
+      description: Include a minimal example, command, input, and actual result.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: "Node.js version, Yarn version, OS, browser if relevant"

@@ -1,55 +1,43 @@
-import crypto, { CryptoKey } from "node:crypto";
-import { Buffer } from "node:buffer";
+import { createSign, createVerify, KeyObject } from "node:crypto";
 import {
   ISerializableSignaturePayload,
   ISignature,
   ISignatureHeader,
 } from "./interfaces/index.js";
 
-export class PayloadSigner<T extends ISerializableSignaturePayload> {
+export class PayloadSigner {
   static async sign(
     serializedPayload: string,
-    privateKey: CryptoKey,
-    hashAlgorithm: string,
+    privateKey: KeyObject,
+    hashAlgorithm = "RSA-SHA256",
   ): Promise<string> {
-    const textBuffer = Buffer.from(serializedPayload);
-    const signature = await crypto.subtle.sign(
-      {
-        name: hashAlgorithm,
-        saltLength: 32,
-      },
-      privateKey,
-      textBuffer,
-    );
-    return Buffer.from(signature).toString("hex");
+    const signer = createSign(hashAlgorithm);
+    signer.update(serializedPayload);
+    signer.end();
+    return signer.sign(privateKey).toString("base64");
   }
 
   static async verify<T extends ISerializableSignaturePayload>(
     signedPayload: ISignature<T>,
-    publicKey: CryptoKey,
+    publicKey: KeyObject,
   ): Promise<boolean> {
     const payloadWithHeader = {
       header: signedPayload.header,
       payload: signedPayload.payload,
     };
     const serializedPayload = JSON.stringify(payloadWithHeader);
-    const textBuffer = Buffer.from(serializedPayload);
-    const signatureBuffer = Buffer.from(signedPayload.signature, "hex");
-
-    return await crypto.subtle.verify(
-      {
-        name: signedPayload.header.algorithm,
-        saltLength: 32,
-      },
+    const verifier = createVerify(signedPayload.header.algorithm);
+    verifier.update(serializedPayload);
+    verifier.end();
+    return verifier.verify(
       publicKey,
-      signatureBuffer,
-      textBuffer,
+      Buffer.from(signedPayload.signature, "base64"),
     );
   }
 
   static createSignatureHeader(
     keyId: string,
-    hashAlgorithm: string = "RSA-OAEP",
+    hashAlgorithm = "RSA-SHA256",
   ): ISignatureHeader {
     return {
       keyId,

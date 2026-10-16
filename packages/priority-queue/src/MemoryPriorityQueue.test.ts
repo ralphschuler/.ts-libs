@@ -48,9 +48,11 @@ describe("MemoryPriorityQueue", () => {
     assert.strictEqual(memoryPriorityQueue.length, 0);
   });
 
-  it("should dynamically adjust internal array length", async () => {
-    await memoryPriorityQueue.enqueue(1);
-    await memoryPriorityQueue.setEntry(16, 10);
-    assert.strictEqual(memoryPriorityQueue.length, 33); // It should update to 2 * 16 + 1 = 33
+  it("counts elements rather than allocated capacity and drains completely", async () => {
+    for (const value of [5, 1, 3, 1, 0])
+      await memoryPriorityQueue.enqueue(value);
+    assert.strictEqual(memoryPriorityQueue.length, 5);
+    assert.deepEqual(await memoryPriorityQueue.heapSort(), [0, 1, 1, 3, 5]);
+    assert.strictEqual(memoryPriorityQueue.length, 0);
   });
 });

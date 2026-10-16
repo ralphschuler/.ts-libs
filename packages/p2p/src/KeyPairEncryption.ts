@@ -1,6 +1,14 @@
+import {
+  createSign,
+  createVerify,
+  generateKeyPairSync,
+  privateDecrypt,
+  publicEncrypt,
+} from "node:crypto";
+
 export class KeyPairEncryption {
-  private privateKey: string;
-  private publicKey: string;
+  private privateKey!: string;
+  private publicKey!: string;
 
   constructor(publicKey?: string, privateKey?: string) {
     if (!publicKey || !privateKey) {

@@ -1,5 +1,4 @@
 import { PseudoRandomNumberGenerator } from "../PseudoRandomNumberGenerator.js";
-import { Buffer } from "node:buffer";
 import { Seed } from "../Seed.js";
 
 export class LinearCongruential extends PseudoRandomNumberGenerator {
@@ -19,7 +18,7 @@ export class LinearCongruential extends PseudoRandomNumberGenerator {
       const newSeedBigInt = (a * seedBigInt + c) % m;
       const newSeedHex = newSeedBigInt.toString(16);
 
-      this.seed = new Seed(Buffer.from(newSeedHex, "hex"));
+      this.seed = new Seed(newSeedHex);
 
       return Number(newSeedBigInt) / Number(m);
     } catch (error: unknown) {

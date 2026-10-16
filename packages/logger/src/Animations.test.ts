@@ -30,7 +30,7 @@ const animations = [
 describe("Animations", async () => {
   let progressStep = 0;
   let progressIntervalId: NodeJS.Timeout;
-  let instances = [];
+  let instances: BaseAnimation[] = [];
 
   it("should initialize all animations", () => {
     instances = animations.map((Animation) => new Animation());
@@ -41,10 +41,13 @@ describe("Animations", async () => {
     });
   });
 
-  it("should start all animations and leave them running for 30 seconds", () => {
+  it("starts every animation briefly", async () => {
     progressIntervalId = setInterval(() => {
       instances
-        .find((instance) => instance instanceof ProgressBarAnimation)
+        .find(
+          (instance): instance is ProgressBarAnimation =>
+            instance instanceof ProgressBarAnimation,
+        )!
         .setProgress(progressStep++);
     }, 5 / 100);
 
@@ -52,7 +55,7 @@ describe("Animations", async () => {
       instance.start(`${instance.constructor.name}...`),
     );
 
-    return new Promise((resolve) => setTimeout(resolve, 30000));
+    await new Promise((resolve) => setTimeout(resolve, 20));
   });
 
   it("should stop all animations", () => {

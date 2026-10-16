@@ -1,7 +1,7 @@
 /**
  * Represents the absence of a value.
  */
-interface None {
+export interface None {
   readonly _tag: "None";
 }
 
@@ -9,7 +9,7 @@ interface None {
  * Wraps a value to indicate its presence.
  * @template T The type of the wrapped value.
  */
-interface Some<T> {
+export interface Some<T> {
   readonly _tag: "Some";
   readonly value: T;
 }
@@ -18,7 +18,7 @@ interface Some<T> {
  * Represents an optional value: a value that might be present (`Some`) or absent (`None`).
  * @template T The type of the value that might be present.
  */
-type Option<T> = None | Some<T>;
+export type Option<T> = None | Some<T>;
 
 /**
  * Represents a successful operation.
@@ -43,7 +43,7 @@ interface Err<E> {
  * @template T The type of the result value in case of success.
  * @template E The type of the error in case of failure.
  */
-type Result<T, E> = Ok<T> | Err<E>;
+export type Result<T, E> = Ok<T> | Err<E>;
 
 /**
  * Represents a Promise that resolves to a Result, encapsulating asynchronous operations that can fail.
@@ -74,7 +74,7 @@ type AsyncFunc<T, R, E> = (arg: T) => AsyncResult<R, E>;
  * @template R The result type on success.
  * @template E The error type on failure.
  */
-type Func<T, R, E> = SyncFunc<T, R, E> | AsyncFunc<T, R, E>;
+export type Func<T, R, E> = SyncFunc<T, R, E> | AsyncFunc<T, R, E>;
 
 /**
  * Utility function to create a `None` value.
@@ -82,7 +82,7 @@ type Func<T, R, E> = SyncFunc<T, R, E> | AsyncFunc<T, R, E>;
  * @example
  * const option = None();
  */
-const None: () => None = () => Object.freeze({ _tag: "None" });
+export const None: () => None = () => Object.freeze({ _tag: "None" });
 
 /**
  * Utility function to create a `Some` value.
@@ -92,7 +92,7 @@ const None: () => None = () => Object.freeze({ _tag: "None" });
  * @example
  * const option = Some(5);
  */
-const Some: <T>(value: T) => Some<T> = (value) =>
+export const Some: <T>(value: T) => Some<T> = (value) =>
   Object.freeze({ _tag: "Some", value });
 
 /**
@@ -103,7 +103,7 @@ const Some: <T>(value: T) => Some<T> = (value) =>
  * @example
  * const result = Ok("success");
  */
-const Ok: <T>(value: T) => Ok<T> = (value) =>
+export const Ok: <T>(value: T) => Ok<T> = (value) =>
   Object.freeze({ _tag: "Ok", value });
 
 /**
@@ -114,7 +114,7 @@ const Ok: <T>(value: T) => Ok<T> = (value) =>
  * @example
  * const result = Err(new Error("failure"));
  */
-const Err: <E>(error: E) => Err<E> = (error) =>
+export const Err: <E>(error: E) => Err<E> = (error) =>
   Object.freeze({ _tag: "Err", error });
 
 /**
@@ -127,7 +127,7 @@ const Err: <E>(error: E) => Err<E> = (error) =>
  *   console.log("No value");
  * }
  */
-function isNone<T>(option: Option<T>): option is None {
+export function isNone<T>(option: Option<T>): option is None {
   return option._tag === "None";
 }
 
@@ -141,7 +141,7 @@ function isNone<T>(option: Option<T>): option is None {
  *   console.log("Has value", option.value);
  * }
  */
-function isSome<T>(option: Option<T>): option is Some<T> {
+export function isSome<T>(option: Option<T>): option is Some<T> {
   return option._tag === "Some";
 }
 
@@ -156,7 +156,7 @@ function isSome<T>(option: Option<T>): option is Some<T> {
  *   console.log("Success", result.value);
  * }
  */
-function isOk<T, E>(result: Result<T, E>): result is Ok<T> {
+export function isOk<T, E>(result: Result<T, E>): result is Ok<T> {
   return result._tag === "Ok";
 }
 
@@ -171,7 +171,7 @@ function isOk<T, E>(result: Result<T, E>): result is Ok<T> {
  *   console.log("Failure", result.error);
  * }
  */
-function isErr<T, E>(result: Result<T, E>): result is Err<E> {
+export function isErr<T, E>(result: Result<T, E>): result is Err<E> {
   return result._tag === "Err";
 }
 
@@ -190,7 +190,7 @@ function isErr<T, E>(result: Result<T, E>): result is Err<E> {
  *   Some: (value) => `Value is ${value}`,
  * });
  */
-function match<T, R, E>(
+export function match<T, R, E>(
   optionOrResult: Option<T> | Result<T, E>,
   matchers: {
     None?: () => R;

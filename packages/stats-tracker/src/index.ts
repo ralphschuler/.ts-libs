@@ -1,60 +1,30 @@
-// Event Type and Payload Mapping
-interface EventPayloadMap {
-  enqueue: { data: string }; // Example payload for enqueue event
-  dequeue: { itemId: number }; // Example payload for dequeue event
+export interface EventPayloadMap {
+  enqueue: { data: string };
+  dequeue: { itemId: number };
 }
-
-// Generic Event Type
-type Event<T extends keyof EventPayloadMap> = {
-  timestamp: Date;
-  type: T;
-  payload: EventPayloadMap[T];
-};
-
-// Event Logger Interface
-interface IEventLogger<T extends keyof EventPayloadMap> {
-  logEvent(type: T, payload: EventPayloadMap[T]): void;
-}
-
-// Event Statistics Interface
-interface IEventStatistics<T extends keyof EventPayloadMap> {
-  getCount(type: T): number;
-  getRatePerMinute(type: T): number;
-}
-
-// StatsTracker Class Implementing Both Interfaces
-class StatsTracker<T extends keyof EventPayloadMap>
-  implements IEventLogger<T>, IEventStatistics<T>
-{
-  private events: Event<T>[] = [];
-
-  logEvent(type: T, payload: EventPayloadMap[T]): void {
-    this.events.push({ timestamp: new Date(), type, payload });
-    this.cleanup();
+/** getCount is a sliding-window count, never a lifetime total. */
+export class StatsTracker<T extends string = keyof EventPayloadMap> {
+  private events: { time: number; type: T; payload: unknown }[] = [];
+  constructor(
+    private readonly clock: () => number = () => performance.now(),
+    private readonly windowMs = 60_000,
+  ) {
+    if (!Number.isFinite(windowMs) || windowMs <= 0)
+      throw new RangeError("windowMs must be positive");
   }
-
+  private cleanup(): void {
+    const cutoff = this.clock() - this.windowMs;
+    this.events = this.events.filter((event) => event.time > cutoff);
+  }
+  logEvent(type: T, payload: unknown): void {
+    this.cleanup();
+    this.events.push({ time: this.clock(), type, payload });
+  }
   getCount(type: T): number {
+    this.cleanup();
     return this.events.filter((event) => event.type === type).length;
   }
-
   getRatePerMinute(type: T): number {
-    const oneMinuteAgo = new Date(Date.now() - 60000);
-    return this.events.filter(
-      (event) => event.type === type && event.timestamp > oneMinuteAgo,
-    ).length;
-  }
-
-  private cleanup(): void {
-    const oneMinuteAgo = new Date(Date.now() - 60000);
-    this.events = this.events.filter((event) => event.timestamp > oneMinuteAgo);
+    return (this.getCount(type) * 60_000) / this.windowMs;
   }
 }
-
-// Usage example
-const tracker = new StatsTracker<"enqueue" | "dequeue">();
-tracker.logEvent("enqueue", { data: "Item1" });
-tracker.logEvent("dequeue", { itemId: 123 });
-
-console.log("Enqueue count:", tracker.getCount("enqueue")); // Outputs: 1
-console.log("Dequeue count:", tracker.getCount("dequeue")); // Outputs: 0
-console.log("Enqueue rate:", tracker.getRatePerMinute("enqueue")); // Outputs rate per minute

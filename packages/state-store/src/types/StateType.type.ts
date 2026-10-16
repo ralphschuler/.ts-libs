@@ -1,7 +1,4 @@
-import { StateStore } from "../StateStore.js";
-import { StateProperties } from "./StateProperties.type.js";
-
 /**
- * General type for a state store.
+ * Runtime structured-clone validation defines which state values can be stored.
  */
-export type StateType = StateStore<StateProperties>["state"];
+export type StateType = unknown;

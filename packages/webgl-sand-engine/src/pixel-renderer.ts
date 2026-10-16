@@ -28,7 +28,7 @@ interface IShaderProgram {
 }
 
 // Shader Implementation
-class ShaderProgram implements IShaderProgram {
+export class ShaderProgram implements IShaderProgram {
   vertexShader: string;
   fragmentShader: string;
   private gl: WebGLRenderingContext;
@@ -86,11 +86,23 @@ class ShaderProgram implements IShaderProgram {
   }
 
   setUniform(name: string, value: any): void {
-    // Implement uniform setting logic
+    if (!this.program)
+      throw new Error("Link the shader before setting uniforms");
+    const location = this.gl.getUniformLocation(this.program, name);
+    if (location === null) throw new Error("Unknown uniform: " + name);
+    if (typeof value === "number") this.gl.uniform1f(location, value);
+    else
+      throw new TypeError("This renderer supports scalar float uniforms only");
   }
 
   setAttribute(name: string, value: any): void {
-    // Implement attribute setting logic
+    if (!this.program)
+      throw new Error("Link the shader before setting attributes");
+    const location = this.gl.getAttribLocation(this.program, name);
+    if (location < 0) throw new Error("Unknown attribute: " + name);
+    if (!(value instanceof Float32Array))
+      throw new TypeError("Expected Float32Array attribute values");
+    this.gl.vertexAttrib1fv(location, value);
   }
 
   private compileShader(type: number, source: string): WebGLShader | null {
@@ -116,14 +128,14 @@ class ShaderProgram implements IShaderProgram {
 }
 
 // Interface for Renderer
-interface IPixelMatrixRenderer {
+export interface IPixelMatrixRenderer {
   init(pixelMatrix: IPixelMatrix, shaderProgram: IShaderProgram): boolean;
   render(): void;
   updatePixelMatrix(pixelMatrix: IPixelMatrix): void;
 }
 
 // Extended WebGLContext Interface
-interface IWebGLContext {
+export interface IWebGLContext {
   getContext(): WebGLRenderingContext | null;
   resize(width: number, height: number): void;
   enableFeature(feature: string): void;

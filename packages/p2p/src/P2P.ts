@@ -1,106 +1,107 @@
 import { MDNS } from "@ralphschuler/mdns";
-import { EventEmitter } from "events";
-import * as net from 'net'
-import { PeerInfo } from "./types/index.js"
-import { Peer } from "./Peer.js"
-import { KeyPairEncryption } from "./KeyPairEncryption.js"
+import type { DNSRecord, DNSType } from "@ralphschuler/mdns";
+import type { DNSTypeMap } from "@ralphschuler/mdns";
+import { EventEmitter } from "node:events";
+import { createServer, Server, Socket } from "node:net";
+import { Peer } from "./Peer.js";
+import { PeerInfo } from "./types/index.js";
+import { FrameDecoder } from "./framing.js";
 
-export class P2P extends EventEmitter {
-  private mdns: MDNS;
-  private server: net.Server | null = null;
-  private peers: Map<string, Peer> = new Map();
-  private annotations: { [key: string]: string };
-  private keyPairEncryption: KeyPairEncryption;
-  private port: number;
-
-  constructor(port: number, annotations?: { [key: string]: string }) {
-    super();
-    this.port = port;
-    this.annotations = annotations || {};
-    this.keyPairEncryption = new KeyPairEncryption();
-    this.mdns = new MDNS();
-    this.initializeServer();
-    this.announceService();
-    this.discoverPeers();
-  }
-
-  private initializeServer(): void {
-    this.server = net.createServer((socket) => {
-      const peerId = `${socket.remoteAddress}:${socket.remotePort}`
-      const peer = this.peers.get(peerId);
-
-      if (!peer) {
-        console.error(`Peer ${peerId} not found`);
-        return;
-      }
-
-      socket.on('data', (data) => {
-        const decryptedData = this.keyPairEncryption.decrypt(data);
-        const verifiedData = this.keyPairEncryption.verify(data, peer.info.publicKey)
-        
-        this.emit('data', verifiedData, peer);
-      });
-
-      socket.on('close', () => {
-        this.peers.delete(peerId)
-        this.emit('disconnected', peerId);
-      });
-      
-      this.emit('connected', peer)
-    });
-
-    this.server.on('error', (err) => {
-      this.emit('error', err);
-    });
-
-    this.server.listen(this.port, () => {
-      this.emit('listening', this.port)
-    });
-  }
-
-  private announceService(): void {
-    this.mdns.announce('_p2plib._tcp.local', 'SRV', 120, { priority: 0, weight: 0, port: this.port, target: 'localhost' });
-    Object.entries(this.annotations).forEach(([key, value]) => {
-      this.mdns.announce('_p2plib._tcp.local', 'TXT', 120, `${key}=${value}`);
-    });
-    this.mdns.announce('_p2plib._tcp.local', 'TXT', 120, `publicKey:${this.keyPairEncryption.getPublicKey()}`);
-  }
-
-  private async discoverPeers(): Promise<void> {
-    setInterval(async () => {
-      try {
-        const srvRecords = await this.mdns.query('_p2plib._tcp.local', 'SRV');
-        srvRecords.forEach(async (srvRecord) => {
-          const txtRecords = await this.mdns.query(srvRecord.name, 'TXT');
-          const annotations = txtRecords.reduce((acc, txtRecord) => {
-            const [key, value] = txtRecord.data.split('=');
-            acc[key] = value;
-            return acc;
-          }, { [key: string]: string});
-
-          const publicKey = annotations['publicKey']
-          delete annotations['publicKey']
-          const peerInfo: PeerInfo = {
-            id: `${srvRecord.data.target}:${srvRecord.data.port}`
-            hostname: srvRecord.data.target,
-            port: srvRecord.data.port,
-            publicKey,
-            annotations
-          };
-
-          const peer: Peer = new Peer(peerInfo, this.keyPairEncryption);
-          this.peers.set(peerInfo.id, peer)
-        });
-      } catch (error) {
-        console.error('Error discovering peers:', error);
-      }
-    }, 10000);
-  }
-
-  public destroy(): void {
-    this.server?.close();
-    this.peers.forEach((peer) => peer.disconnect());
-    this.mdns.destroy
-  }
+/** A small TCP peer discovery experiment with an explicit start/stop lifecycle. */
+export interface PeerDiscovery {
+  start?(): void;
+  query(name: string, type: DNSType): Promise<DNSRecord[]>;
+  announce(
+    name: string,
+    type: Exclude<DNSType, "ANY">,
+    ttl: number,
+    data: DNSRecord["data"],
+  ): void;
+  destroy(): Promise<void>;
 }
 
+export class P2P extends EventEmitter {
+  private readonly peers = new Map<string, Peer>();
+  private server: Server | undefined;
+  private readonly sockets = new Set<Socket>();
+
+  public constructor(
+    private port: number,
+    private readonly annotations: Record<string, string> = {},
+    private readonly mdns: PeerDiscovery = new MDNS(),
+    private readonly advertisedHost = "localhost",
+  ) {
+    super();
+  }
+
+  public async start(): Promise<void> {
+    if (this.server) return;
+    this.mdns.start?.();
+    this.server = createServer((socket) => this.handleSocket(socket));
+    await new Promise<void>((resolve, reject) => {
+      this.server?.once("error", reject);
+      this.server?.listen(this.port, () => {
+        this.server?.off("error", reject);
+        resolve();
+      });
+    });
+    const address = this.server.address();
+    if (address && typeof address !== "string") this.port = address.port;
+    this.mdns.announce("_p2plib._tcp.local", "SRV", 120, {
+      priority: 0,
+      weight: 0,
+      port: this.port,
+      target: this.advertisedHost,
+    });
+    this.emit("listening", this.port);
+  }
+
+  public async discoverPeers(): Promise<PeerInfo[]> {
+    const records = await this.mdns.query("_p2plib._tcp.local", "SRV");
+    return records.flatMap((record) => {
+      if (record.type !== "SRV") return [];
+      const data = record.data as DNSTypeMap["SRV"];
+      const info: PeerInfo = {
+        id: `${data.target}:${data.port}`,
+        hostname: data.target,
+        port: data.port,
+        publicKey: "",
+        annotations: { ...this.annotations },
+      };
+      if (!this.peers.has(info.id)) this.peers.set(info.id, new Peer(info));
+      return [info];
+    });
+  }
+
+  public async destroy(): Promise<void> {
+    for (const socket of this.sockets) socket.destroy();
+    this.sockets.clear();
+    for (const peer of this.peers.values()) peer.disconnect();
+    this.peers.clear();
+    await this.mdns.destroy();
+    if (this.server)
+      await new Promise<void>((resolve) => this.server?.close(() => resolve()));
+    this.server = undefined;
+  }
+
+  private handleSocket(socket: Socket): void {
+    this.sockets.add(socket);
+    const decoder = new FrameDecoder();
+    const peerId = `${socket.remoteAddress}:${socket.remotePort}`;
+    socket.on("data", (data) => {
+      try {
+        for (const frame of decoder.read(data))
+          this.emit("data", frame, peerId);
+      } catch (error) {
+        this.emit("peerError", error, peerId);
+        socket.destroy();
+      }
+    });
+    socket.on("close", () => {
+      this.sockets.delete(socket);
+      this.emit("disconnected", peerId);
+    });
+    socket.on("error", (error) => this.emit("peerError", error, peerId));
+    this.emit("connected", peerId);
+  }
+}

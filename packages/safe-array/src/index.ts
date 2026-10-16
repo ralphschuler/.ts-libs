@@ -4,17 +4,19 @@ export class SafeArray<T> {
   private removeQueue: Array<T>;
 
   public constructor(items?: Array<T>) {
-    this.array = items || [];
+    this.array = [...(items || [])];
     this.addQueue = [];
     this.removeQueue = [];
   }
 
   public get isEmpty(): boolean {
-    return this.array.length + this.addQueue.length === 0;
+    return this.length === 0;
   }
 
   public get length(): number {
-    return this.array.length + this.addQueue.length - this.removeQueue.length;
+    return [...this.array, ...this.addQueue].filter(
+      (item) => !this.removeQueue.includes(item),
+    ).length;
   }
 
   public add(item: T): void {
@@ -48,6 +50,7 @@ export class SafeArray<T> {
 
   private addQueued(): void {
     this.array = this.array.concat(this.addQueue);
+    this.addQueue = [];
   }
 
   private removeQueued(): void {

@@ -777,6 +777,8 @@ export const many = function many<T>(parser: Parser<T>): Parser<T[]> {
       if (out.isError) {
         break;
       } else {
+        if (out.index <= nextState.index)
+          return updateError(nextState, "Repetition parser must consume input");
         nextState = out;
         results.push(nextState.result);
 
@@ -1358,6 +1360,12 @@ export function sepBy<S, T, E, D>(
       while (true) {
         const valState = valueParser.p(nextState);
         const sepState = sepParser.p(valState);
+        if (
+          !valState.isError &&
+          !sepState.isError &&
+          sepState.index <= nextState.index
+        )
+          throw new Error("Separated repetition must consume input");
 
         if (valState.isError) {
           error = valState;
@@ -1708,10 +1716,8 @@ export function everythingUntil(parser: Parser<any>): Parser<number[]> {
         }
 
         const val = dataView.getUint8(index);
-        if (val) {
-          results.push(val);
-          nextState = updateParserState(nextState, val, index + 1);
-        }
+        results.push(val);
+        nextState = updateParserState(nextState, val, index + 1);
       } else {
         break;
       }

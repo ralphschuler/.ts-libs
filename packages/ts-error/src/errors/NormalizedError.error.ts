@@ -9,6 +9,9 @@ export class NormalizedError extends Error {
     this.stack = error.stack;
     this.originalValue = originalValue;
     this.timestamp = new Date().toISOString();
-    this.environment = process.env.NODE_ENV || "development";
+    this.environment =
+      typeof process === "undefined"
+        ? "browser"
+        : process.env.NODE_ENV || "development";
   }
 }

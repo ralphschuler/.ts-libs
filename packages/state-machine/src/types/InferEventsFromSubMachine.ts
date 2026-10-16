@@ -6,6 +6,7 @@ import { IStateMachine } from "../interfaces/IStateMachine.js";
  */
 export type InferEventsFromSubMachine<
   SubMachineConfig extends IStateMachine<any, any, any>,
-> = SubMachineConfig extends IStateMachine<any, infer Events, any>
-  ? Events
-  : never;
+> =
+  SubMachineConfig extends IStateMachine<any, infer Events, any>
+    ? Events
+    : never;

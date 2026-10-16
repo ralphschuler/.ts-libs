@@ -1,243 +1,166 @@
-import { Worker } from "worker_threads";
-import { Task } from "./types/Task.js";
-import { Logger } from "@ralphschuler/logger";
-import { noThrow, isError } from "@ralphschuler/ts-error";
+import { Worker } from "node:worker_threads";
 
-const logger = Logger.getInstance();
+type PendingTask = {
+  id: number;
+  method: string;
+  args: unknown[];
+  resolve: (value: any) => void;
+  reject: (error: unknown) => void;
+};
+type Slot = {
+  worker: Worker;
+  task?: PendingTask;
+  timer?: ReturnType<typeof setTimeout>;
+};
+export interface WorkerPoolOptions {
+  maxQueueSize?: number;
+  taskTimeoutMs?: number;
+}
 
 /**
- * A pool of workers that can execute tasks in parallel.
+ * Executes trusted, self-contained functions in worker threads.
+ * Function source cannot capture closures and must never come from untrusted input.
  */
 export class WorkerPool {
-  private poolSize: number;
-  private idleWorkers: Worker[] = [];
-  private idleTasks: Task<any, any>[] = [];
-  private activeTasks: Task<any, any>[] = [];
-  private taskCounter: number = 0;
+  private readonly workers = new Set<Slot>();
+  private readonly waiting: PendingTask[] = [];
+  private counter = 0;
+  private stopped = false;
+  private readonly maxQueueSize: number;
+  private readonly taskTimeoutMs: number;
 
-  public get size(): number {
-    return this.poolSize;
+  constructor(
+    private readonly poolSize: number,
+    options: WorkerPoolOptions = {},
+  ) {
+    if (!Number.isInteger(poolSize) || poolSize < 1)
+      throw new RangeError("poolSize must be positive");
+    this.maxQueueSize = options.maxQueueSize ?? 1000;
+    this.taskTimeoutMs = options.taskTimeoutMs ?? 30_000;
+    if (
+      !Number.isInteger(this.maxQueueSize) ||
+      this.maxQueueSize < 0 ||
+      !Number.isFinite(this.taskTimeoutMs) ||
+      this.taskTimeoutMs <= 0
+    )
+      throw new RangeError("Invalid queue capacity or task timeout");
+    for (let i = 0; i < poolSize; i++) this.createWorker();
+  }
+  get size(): number {
+    return this.workers.size;
+  }
+  get taskIndex(): number {
+    return this.counter++;
   }
 
-  public get taskIndex(): number {
-    return this.taskCounter++;
-  }
-
-  /**
-   * Creates a new WorkerPool instance.
-   * @param {number} poolSize - The number of workers in the pool.
-   * @throws {Error} If instantiated in the main thread.
-   */
-  constructor(poolSize: number) {
-    this.poolSize = poolSize;
-    const result = noThrow(() => this.initializeWorkers());
-    this.initializeWorkers();
-  }
-
-  /**
-   * Generates the script that the worker thread will run.
-   * @returns {string} The worker script as a string.
-   * @private
-   */
-  private static workerScript(): string {
-    return `const { parentPort } = require("worker_threads");
-
-    parentPort.on("message", async function ({ id, method, args }) {
-      let timeoutId = setTimeout(() => parentPort.postMessage({ id, error: new Error("Worker Timeout") }), 1000 * 60 * 5)
-      try {
-        const fn = new Function(\`return \${method}\`)();
-        const result = args ? await fn(...args) : await fn();
-        parentPort.postMessage({ id, result });
-        clearTimeout(timeoutId)
-      } catch (error) {
-        parentPort.postMessage({ id, error });
-        clearTimeout(timeoutId)
-      }
-    });`;
-  }
-
-  /**
-   * Initializes worker threads and adds them to the idle workers list.
-   * Workers listen for messages and errors.
-   * @private
-   */
-  private initializeWorkers() {
-    for (let i = 0; i < this.poolSize; i++) {
-      const result = noThrow(() => this.createWorker(i));
-      if (isError(result)) {
-        logger.error("Error initializing workers: " + result);
-      }
-    }
-  }
-
-  /**
-   * Creates a new worker thread and adds it to the idle workers list.
-   * @private
-   */
-  private createWorker(i: number): void {
-    const script = noThrow(() => WorkerPool.workerScript());
-    if (isError(script)) {
-      logger.error("Error creating worker: " + script);
-      return;
-    }
-    const worker = noThrow(() => new Worker(script, { eval: true }));
-    if (isError(worker)) {
-      logger.error("Error creating worker: " + worker);
-      return;
-    }
-
-    worker.on("message", (message: any) => {
-      const result = noThrow(() => this.handleWorkerResponse(message, worker));
-      if (isError(result)) {
-        logger.error("Error handling worker response: " + result);
-      }
-    });
-    worker.on("error", (error: Error) => {
-      const result = noThrow(() => this.handleWorkerError(error, worker));
-      if (isError(result)) {
-        logger.error("Error handling worker error: " + result);
-      }
-    });
-
-    this.idleWorkers.push(worker);
-  }
-
-  /**
-   * Handles a task message received from a worker.
-   * @param {object} message - The message received from the worker.
-   * @param {Worker} worker - The worker processing the task.
-   * @private
-   */
-  private async handleWorkerResponse(
-    { id, result, error }: any,
-    worker: Worker,
-  ): Promise<void> {
-    try {
-      const task = this.activeTasks.find((t) => t.id === id);
-      if (!task) {
-        logger.error(
-          "Task with id " +
-            id +
-            " does not exist active tasks " +
-            this.activeTasks.length,
-        );
-        return;
-      }
-
-      if (result) {
-        task.resolve(result);
-      } else if (error) {
-        task.reject(error);
-      }
-
-      this.activeTasks = this.activeTasks.filter((t) => t.id !== id);
-    } catch (error) {
-      logger.error("Error handling message: " + error);
-    } finally {
-      logger.profileSync(() => this.releaseWorker(worker), "releaseWorker");
-    }
-  }
-
-  /**
-   * Handles errors that occur in worker threads.
-   * @param {Error} error - The error that occurred.
-   * @param {Worker} worker - The worker where the error occurred.
-   * @private
-   */
-  private handleWorkerError(error: Error, worker: Worker): void {
-    logger.error(`Error in worker ${worker.threadId}: ${error}`);
-  }
-
-  /**
-   * Gets an idle worker from the pool.
-   * @returns {Worker | undefined} An idle worker, if available.
-   * @private
-   */
-  private getWorker(): Worker | undefined {
-    return this.idleWorkers.pop();
-  }
-
-  /**
-   * Releases a worker back to the pool or assigns it a new task.
-   * @param {Worker} worker - The worker to release.
-   * @private
-   */
-  private releaseWorker(worker: Worker): void {
-    try {
-      const task = this.idleTasks.shift();
-      if (task) {
-        logger.info(
-          `Assigning task with id ${task.id} to worker ${worker.threadId}...`,
-        );
-        this.activeTasks.push(task);
-        worker.postMessage({
-          id: task.id,
-          method: task.method,
-          args: task.args,
-        });
-      } else {
-        logger.info(`Worker ${worker.threadId} is idle.`);
-      }
-    } catch (error) {
-      logger.error("Error releasing worker: " + error);
-    } finally {
-      this.idleWorkers.push(worker);
-    }
-  }
-
-  /**
-   * Executes a method using an available worker or queues it for later.
-   * @param {() => Promise<Output>} method - The method to execute.
-   * @returns {Promise<Output>} A promise that resolves with the method's output.
-   */
-  public async executeMethod<Payload extends [], Response extends any = void>(
-    method: (...args: Payload) => Promise<Response>,
-    args: Payload,
-  ): Promise<Response> {
-    try {
-      let resolveFn: (value: Response) => void;
-      let rejectFn: (error: Error) => void;
-      const worker = this.getWorker();
-      const promise: Promise<Response> = new Promise((resolve, reject) => {
-        resolveFn = resolve;
-        rejectFn = reject;
+  private createWorker(): void {
+    const worker = new Worker(
+      `
+      const {parentPort} = require("node:worker_threads");
+      parentPort.on("message", async ({id, method, args}) => {
+        try {
+          const fn = (0,eval)("(" + method + ")");
+          const result = await fn(...args);
+          parentPort.postMessage({id,ok:true,result});
+        } catch(error) {
+          parentPort.postMessage({id,ok:false,error:{name:error?.name || "Error",message:error?.message || String(error)}});
+        }
       });
-      const task: Task<Payload, Response> = {
-        id: this.taskIndex,
-        resolve: resolveFn!,
-        reject: rejectFn!,
-        method: method,
-        args: args,
-      };
+    `,
+      { eval: true, execArgv: [] },
+    );
+    const slot: Slot = { worker };
+    this.workers.add(slot);
+    worker.on("message", (message) => {
+      if (!slot.task || message.id !== slot.task.id) return;
+      const task = slot.task;
+      clearTimeout(slot.timer);
+      slot.task = undefined;
+      if (message.ok) task.resolve(message.result);
+      else
+        task.reject(
+          Object.assign(new Error(message.error.message), {
+            name: message.error.name,
+          }),
+        );
+      this.pump();
+    });
+    worker.on("error", (error) => this.retire(slot, error));
+    worker.on("exit", (code) => {
+      if (this.workers.has(slot))
+        this.retire(slot, new Error("Worker exited with code " + code));
+    });
+  }
 
-      if (worker) {
-        logger.info(`Assigning task to worker ${worker.threadId}...`);
-        this.activeTasks.push(task);
-        worker.postMessage({
+  private retire(slot: Slot, error: Error): void {
+    if (!this.workers.delete(slot)) return;
+    clearTimeout(slot.timer);
+    slot.task?.reject(error);
+    void slot.worker.terminate();
+    if (!this.stopped) {
+      this.createWorker();
+      this.pump();
+    }
+  }
+
+  private pump(): void {
+    if (this.stopped) return;
+    for (const slot of this.workers) {
+      if (slot.task || !this.waiting.length) continue;
+      const task = this.waiting.shift()!;
+      slot.task = task;
+      slot.timer = setTimeout(
+        () => this.retire(slot, new Error("Worker task timed out")),
+        this.taskTimeoutMs,
+      );
+      try {
+        slot.worker.postMessage({
           id: task.id,
           method: task.method,
           args: task.args,
         });
-      } else {
-        logger.info("No idle workers available. Queuing task...");
-        this.idleTasks.push(task);
+      } catch (error) {
+        clearTimeout(slot.timer);
+        slot.task = undefined;
+        task.reject(error);
+        // Continue assigning pending work to this now idle worker.
+        this.pump();
       }
-
-      return logger.profile(promise, "executeMethod");
-    } catch (error) {
-      logger.error("Error executing method: " + error);
-      throw error;
     }
   }
 
-  /**
-   * Terminates all workers in the pool.
-   */
-  public destroy(): void {
-    try {
-      this.idleWorkers.forEach((worker) => worker.terminate());
-    } catch (error) {
-      logger.error("Error destroying worker pool: " + error);
+  executeMethod<Payload extends unknown[] = [], Response = unknown>(
+    method: (...args: Payload) => Response | Promise<Response>,
+    args: Payload = [] as unknown as Payload,
+  ): Promise<Response> {
+    if (this.stopped)
+      return Promise.reject(new Error("Worker pool is stopped"));
+    const available = [...this.workers].some((slot) => !slot.task);
+    if (!available && this.waiting.length >= this.maxQueueSize)
+      return Promise.reject(new Error("Worker queue is full"));
+    return new Promise((resolve, reject) => {
+      this.waiting.push({
+        id: this.taskIndex,
+        method: method.toString(),
+        args,
+        resolve,
+        reject,
+      });
+      this.pump();
+    });
+  }
+
+  async destroy(): Promise<void> {
+    if (this.stopped) return;
+    this.stopped = true;
+    const error = new Error("Worker pool is stopped");
+    for (const task of this.waiting.splice(0)) task.reject(error);
+    const slots = [...this.workers];
+    this.workers.clear();
+    for (const slot of slots) {
+      clearTimeout(slot.timer);
+      slot.task?.reject(error);
     }
+    await Promise.all(slots.map((slot) => slot.worker.terminate()));
   }
 }

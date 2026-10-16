@@ -1,133 +1,44 @@
-name: Pull Request
-
-on: pull_request
-
+name: Validate repository
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
 permissions:
-  contents: write
-  pull-requests: write
-  checks: write
-
+  contents: read
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
-  review:
-    if: ${{ github.event.action != 'closed' }}
-    name: Chat GPT Code Peer Review
+  validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v3
-      - uses: edelauna/gpt-review@v1
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
-          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
-          ignore_files: package-lock.json
-
-  lint:
-    if: ${{ github.event.action != 'closed' }}
-    name: Lint
-    runs-on: ubuntu-latest
-    env:
-      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        name: Setup Node
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24
+      - name: Install pinned package-manager launcher
+        run: npm install --global corepack@0.36.0
       - run: corepack enable
-      - run: yarn install
-      - run: yarn lint:report
-        continue-on-error: true
-      - run: mkdir -p eslint_reports
-      - name: Collect Reports
-        uses: ralphschuler/collect-files-action@v1.0.1
-        with:
-          pattern: "**/eslint_report.json"
-          output_directory: "eslint_reports/"
-      - uses: ralphschuler/merge-eslint-reports-action@v1.0.1
-        with:
-          input_directory: "eslint_reports/"
-          output_file: "eslint_report.json"
-      - uses: ataylorme/eslint-annotate-action@2.2.0
-        with:
-          report-json: "eslint_report.json"
-      - name: Upload ESLint report
-        uses: actions/upload-artifact@v3
-        with:
-          name: eslint_report.json
-          path: eslint_report.json
-          retention-days: 5
-
-  test:
-    name: Test
-    if: ${{ github.event.action != 'closed' }}
-    runs-on: ubuntu-latest
-    env:
-      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-      - run: corepack enable
-      - run: yarn
-      - run: yarn test
-      # - run: mkdir -p test_reports
-      # - name: Collect Reports
-      #   uses: ./.github/actions/collect-files
-      #   with:
-      #     pattern: "**/test_report.json"
-      #     target_directory: "test_reports/"
-      # - uses: ./.github/actions/merge-test-reports
-      #   with:
-      #     input_directory: "test_reports/"
-      #     output_file: "test_report.json"
-      # - uses: ataylorme/test-annotate-action@v2
-      #   with:
-      #     report-json: "test_report.json"
-
-  # format:
-  #   if: ${{ github.event.pull_request.merged == true }}
-  #   name: Format
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: actions/setup-node@v4.0.0
-  #       with:
-  #         node-version: 20
-  #     - run: corepack enable
-  #     - run: yarn
-  #     - run: yarn format:fix
-  #     - run: |
-  #         git config --global user.name '${{ github.pull_request.user.login }}'
-  #         git config --global user.email '${{ github.pull_request.user.email }}'
-  #         git add .
-  #         git commit -m "chore: format code"
-  #         git push
-
-  opencommit:
-    if: ${{ github.event.pull_request.merged == true }}
-    timeout-minutes: 10
-    name: OpenCommit
-    runs-on: ubuntu-latest
-    permissions: write-all
-    steps:
-      - name: Setup Node.js Environment
-        uses: actions/setup-node@v4
-      - run: corepack enable
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - uses: di-sukharev/opencommit@github-action-v1.0.4
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+      - run: yarn install --immutable --immutable-cache
+      - name: Audit all workspace and transitive dependencies
+        run: yarn security:check
+      - name: Lint, build, real tests, package imports, examples, and documentation
+        run: yarn check
+      - name: Check both languages in desktop and mobile browsers
+        run: yarn docs:browser
         env:
-          # set openAI api key in repo actions secrets,
-          # for openAI keys go to: https://platform.openai.com/account/api-keys
-          # for repo secret go to: <your_repo_url>/settings/secrets/actions
-          OCO_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-
-          # customization
-          OCO_OPENAI_MAX_TOKENS: 500
-          OCO_OPENAI_BASE_PATH: ''
-          OCO_DESCRIPTION: false
-          OCO_EMOJI: false
-          OCO_MODEL: gpt-3.5-turbo-16k
-          OCO_LANGUAGE: en
-          OCO_PROMPT_MODULE: conventional-commit
+          CHROME_PATH: google-chrome
+      - name: Build optional HTML and Markdown API references
+        run: yarn docs:all
+      - name: Save browser review screenshots
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: documentation-browser
+          path: .artifacts/browser/
+          if-no-files-found: ignore

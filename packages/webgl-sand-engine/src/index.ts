@@ -1,6 +1,6 @@
 // Basic Types
 type Vector2D = [number, number];
-type PixelColor = [number, number, number, number];
+export type PixelColor = [number, number, number, number];
 
 // Event Interface
 interface IEvent<T> {
@@ -27,7 +27,7 @@ type EntityConfigMap = {
 };
 
 // Rule Interface with Generics
-interface IRule<ItemType, GridType> {
+export interface IRule<ItemType, GridType> {
   apply(item: ItemType, grid: GridType): boolean;
 }
 
@@ -79,7 +79,7 @@ interface IManipulator<ItemType> {
 }
 
 // Simulation Interface with Generics and Events
-interface ISimulation {
+export interface ISimulation {
   grid: IGrid;
   manipulator: IManipulator<IPixel | IEntity<string, EntityType>>;
   step(): void;
@@ -89,7 +89,7 @@ interface ISimulation {
 }
 
 // Renderer Interface
-interface IRenderer {
+export interface IRenderer {
   initWebGL(canvas: HTMLCanvasElement): void;
   draw(grid: IGrid): void;
 }
@@ -113,8 +113,10 @@ interface IStateStorage<
 }
 
 // Specific State Storage Implementation for Simulation
-interface ISimulationStateStorage
-  extends IStateStorage<IGrid, IStorageBackend<IGrid>> {}
+export interface ISimulationStateStorage extends IStateStorage<
+  IGrid,
+  IStorageBackend<IGrid>
+> {}
 
 // Neighbor Provider Interface
 interface INeighborProvider<ItemType> {
@@ -122,7 +124,9 @@ interface INeighborProvider<ItemType> {
 }
 
 // Generic Wrapper Class for Neighbor Provider
-class NeighborProvider<ItemType> implements INeighborProvider<ItemType> {
+export class NeighborProvider<
+  ItemType extends { position: Vector2D },
+> implements INeighborProvider<ItemType> {
   private items: Array<ItemType>;
 
   constructor(items: Array<ItemType>) {
@@ -130,8 +134,65 @@ class NeighborProvider<ItemType> implements INeighborProvider<ItemType> {
   }
 
   getNeighbors(position: Vector2D, range: number): Array<ItemType> {
-    // Implement your logic to find neighbors within the given range
-    // For now, returning an empty array
-    return [];
+    if (!Number.isFinite(range) || range < 0)
+      throw new RangeError("range must be non-negative");
+    return this.items.filter(
+      (item) =>
+        Math.hypot(
+          item.position[0] - position[0],
+          item.position[1] - position[1],
+        ) <= range,
+    );
+  }
+}
+
+/** Deterministic CPU reference: 0 is empty, 1 is sand. GPU rendering is separate. */
+export class SandSimulation {
+  private cells: Uint8Array;
+  constructor(
+    public readonly width: number,
+    public readonly height: number,
+    initial?: Uint8Array,
+  ) {
+    if (
+      !Number.isInteger(width) ||
+      !Number.isInteger(height) ||
+      width < 1 ||
+      height < 1 ||
+      width * height > 1_000_000
+    )
+      throw new RangeError("Invalid grid dimensions");
+    if (
+      initial &&
+      (initial.length !== width * height ||
+        initial.some((cell) => cell !== 0 && cell !== 1))
+    )
+      throw new RangeError("Invalid grid cells");
+    this.cells = initial ? initial.slice() : new Uint8Array(width * height);
+  }
+  snapshot(): Uint8Array {
+    return this.cells.slice();
+  }
+  step(): Uint8Array {
+    const previous = this.cells;
+    const next = previous.slice();
+    for (let y = this.height - 2; y >= 0; y--) {
+      for (let x = 0; x < this.width; x++) {
+        const index = y * this.width + x;
+        if (previous[index] !== 1) continue;
+        for (const dx of [0, -1, 1]) {
+          const destinationX = x + dx;
+          if (destinationX < 0 || destinationX >= this.width) continue;
+          const destination = (y + 1) * this.width + destinationX;
+          if (previous[destination] === 0 && next[destination] === 0) {
+            next[index] = 0;
+            next[destination] = 1;
+            break;
+          }
+        }
+      }
+    }
+    this.cells = next;
+    return this.snapshot();
   }
 }

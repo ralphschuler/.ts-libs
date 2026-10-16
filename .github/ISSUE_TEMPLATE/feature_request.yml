@@ -1,0 +1,23 @@
+name: Learning or experiment improvement
+description: Suggest a concrete learning goal, experiment feature, or documentation improvement.
+labels: ["enhancement"]
+body:
+  - type: input
+    id: module
+    attributes:
+      label: Module or learning path
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or learning goal
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Proposed outcome and verification
+      description: Describe observable behavior or a test that would demonstrate success.
+    validations:
+      required: true

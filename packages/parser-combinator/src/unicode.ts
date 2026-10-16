@@ -1,20 +1,5 @@
-let text: { Encoder: typeof TextEncoder; Decoder: typeof TextDecoder };
-
-if (typeof TextEncoder !== "undefined") {
-  text = { Encoder: TextEncoder, Decoder: TextDecoder };
-} else {
-  try {
-    const util = require("util");
-    text = { Encoder: util.TextEncoder, Decoder: util.TextDecoder };
-  } catch (ex) {
-    throw new Error(
-      "Arcsecond requires TextEncoder and TextDecoder to be polyfilled.",
-    );
-  }
-}
-
-export const encoder = new text.Encoder();
-export const decoder = new text.Decoder();
+export const encoder = new TextEncoder();
+export const decoder = new TextDecoder();
 
 export const getString = (
   index: number,
@@ -49,16 +34,5 @@ export const getUtf8Char = (
 };
 
 export const getCharacterLength = (str: string) => {
-  let cp;
-  let total = 0;
-  let i = 0;
-  while (i < str.length) {
-    cp = str.codePointAt(i);
-    while (cp) {
-      cp = cp >> 8;
-      i++;
-    }
-    total++;
-  }
-  return total;
+  return [...str].length;
 };
