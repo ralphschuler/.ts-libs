@@ -1093,7 +1093,7 @@ const RAW_RUNTIME_STATE =
           ["eslint-config-prettier", "virtual:a03704a81a5912593467f3de880f2dfaa9b02e5f59aa3f76bd53205b8969ffe9691d04f5fa0dd8e0b25ed2d3bf09ab51a08abfd3d757d658885d98ad5e280f7f#npm:10.1.8"],\
           ["eslint-plugin-prettier", "virtual:a03704a81a5912593467f3de880f2dfaa9b02e5f59aa3f76bd53205b8969ffe9691d04f5fa0dd8e0b25ed2d3bf09ab51a08abfd3d757d658885d98ad5e280f7f#npm:5.5.7"],\
           ["prettier", "npm:3.9.10"],\
-          ["reflect-metadata", "npm:0.1.14"],\
+          ["reflect-metadata", "npm:0.2.2"],\
           ["rimraf", "npm:6.1.3"],\
           ["typescript", "patch:typescript@npm%3A5.9.3#optional!builtin<compat/typescript>::version=5.9.3&hash=5786d5"]\
         ],\
@@ -1258,7 +1258,7 @@ const RAW_RUNTIME_STATE =
           ["eslint-config-prettier", "virtual:a03704a81a5912593467f3de880f2dfaa9b02e5f59aa3f76bd53205b8969ffe9691d04f5fa0dd8e0b25ed2d3bf09ab51a08abfd3d757d658885d98ad5e280f7f#npm:10.1.8"],\
           ["eslint-plugin-prettier", "virtual:a03704a81a5912593467f3de880f2dfaa9b02e5f59aa3f76bd53205b8969ffe9691d04f5fa0dd8e0b25ed2d3bf09ab51a08abfd3d757d658885d98ad5e280f7f#npm:5.5.7"],\
           ["prettier", "npm:3.9.10"],\
-          ["reflect-metadata", "npm:0.1.14"],\
+          ["reflect-metadata", "npm:0.2.2"],\
           ["rimraf", "npm:6.1.3"],\
           ["typescript", "patch:typescript@npm%3A5.9.3#optional!builtin<compat/typescript>::version=5.9.3&hash=5786d5"]\
         ],\
@@ -3784,10 +3784,10 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["reflect-metadata", [\
-      ["npm:0.1.14", {\
-        "packageLocation": "./.yarn/cache/reflect-metadata-npm-0.1.14-b105eed5b2-fcab9c17ec.zip/node_modules/reflect-metadata/",\
+      ["npm:0.2.2", {\
+        "packageLocation": "./.yarn/cache/reflect-metadata-npm-0.2.2-5e0bfac201-1c93f9ac79.zip/node_modules/reflect-metadata/",\
         "packageDependencies": [\
-          ["reflect-metadata", "npm:0.1.14"]\
+          ["reflect-metadata", "npm:0.2.2"]\
         ],\
         "linkType": "HARD"\
       }]\
