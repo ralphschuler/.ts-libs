@@ -17,7 +17,7 @@
   "homepage": "https://nyphon.de/.ts-libs/en/modules/priority-queue/",
   "version": "1.0.0",
   "dependencies": {
-    "mongodb": "^6.1.0"
+    "mongodb": "^7.7.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
