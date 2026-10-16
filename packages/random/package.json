@@ -9,7 +9,7 @@
     "url": "https://github.com/ralphschuler/.ts-libs/issues"
   },
   "dependencies": {
-    "redis": "^4.6.11"
+    "redis": "^6.3.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
