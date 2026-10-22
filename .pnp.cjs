@@ -3368,13 +3368,13 @@ const RAW_RUNTIME_STATE =
       }]\
     ]],\
     ["markdown-it", [\
-      ["npm:14.3.2", {\
-        "packageLocation": "./.yarn/cache/markdown-it-npm-14.3.2-0a830546cb-192fc9332a.zip/node_modules/markdown-it/",\
+      ["npm:14.3.3", {\
+        "packageLocation": "./.yarn/cache/markdown-it-npm-14.3.3-f981b29711-ab96ec3976.zip/node_modules/markdown-it/",\
         "packageDependencies": [\
           ["argparse", "npm:2.0.1"],\
           ["entities", "npm:4.5.0"],\
           ["linkify-it", "npm:5.0.2"],\
-          ["markdown-it", "npm:14.3.2"],\
+          ["markdown-it", "npm:14.3.3"],\
           ["mdurl", "npm:2.1.0"],\
           ["punycode.js", "npm:2.3.1"],\
           ["uc.micro", "npm:2.1.0"]\
@@ -4038,7 +4038,7 @@ const RAW_RUNTIME_STATE =
           ["@gerrit0/mini-shiki", "npm:3.23.0"],\
           ["@types/typescript", null],\
           ["lunr", "npm:2.3.9"],\
-          ["markdown-it", "npm:14.3.2"],\
+          ["markdown-it", "npm:14.3.3"],\
           ["minimatch", "npm:10.2.6"],\
           ["typedoc", "virtual:a03704a81a5912593467f3de880f2dfaa9b02e5f59aa3f76bd53205b8969ffe9691d04f5fa0dd8e0b25ed2d3bf09ab51a08abfd3d757d658885d98ad5e280f7f#npm:0.28.20"],\
           ["typescript", "patch:typescript@npm%3A5.9.3#optional!builtin<compat/typescript>::version=5.9.3&hash=5786d5"],\
